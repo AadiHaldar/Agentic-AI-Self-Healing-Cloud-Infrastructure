@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI Self-Healing Infrastructure Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0c10;
+            --card-bg: rgba(22, 27, 34, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary-accent: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.3);
+            --success-glow: rgba(16, 185, 129, 0.3);
+            --danger-glow: rgba(244, 63, 94, 0.3);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #f43f5e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--primary-glow);
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Stat Cards */
+        .col-4 { grid-column: span 4; }
+        .col-6 { grid-column: span 6; }
+        .col-8 { grid-column: span 8; }
+        .col-12 { grid-column: span 12; }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        /* Agent Comparison Table */
+        .agent-card {
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-accent);
+        }
+
+        .agent-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-accent);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .code-block {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0d1117;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #7ee787;
+            margin-top: 8px;
+            overflow-x: auto;
+        }
+
+        /* Interactive Controls */
+        .btn {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px var(--primary-glow);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            box-shadow: 0 0 15px var(--danger-glow);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        input, select {
+            background: #0d1117;
+            border: 1px solid var(--card-border);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* Nodes Container */
+        .topology-nodes {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .node-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            padding: 10px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .node-pill.critical {
+            border-color: var(--danger);
+            background: rgba(244, 63, 94, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <div class="brand-logo">⚡</div>
+            <div>
+                <h1>Agentic AI Self-Healing Infrastructure</h1>
+                <p style="font-size: 12px; color: var(--text-muted);">Real-Time Digital Twin & Parallel Agent Orchestrator</p>
+            </div>
+        </div>
+        <div class="status-badge" id="system-status-badge">
+            <div class="status-dot"></div>
+            <span id="status-text">SYSTEM HEALTHY</span>
+        </div>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- Stat Cards -->
+        <div class="card col-4">
+            <div class="card-title">Total Active Pods</div>
+            <div class="stat-value" id="stat-total-pods">4</div>
+        </div>
+        <div class="card col-4">
+            <div class="card-title">Active Anomalies</div>
+            <div class="stat-value" style="color: var(--warning);" id="stat-anomalies">1</div>
+        </div>
+        <div class="card col-4">
+            <div class="card-title">Orchestrator Mode</div>
+            <div class="stat-value" style="color: var(--primary-accent);" id="stat-mode">PARALLEL</div>
+        </div>
+
+        <!-- Digital Twin Topology Viewer -->
+        <div class="card col-12">
+            <div class="card-header">
+                <div class="card-title">Digital Twin Topology Map</div>
+                <button class="btn" onclick="fetchTopology()">Refresh Topology</button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted);">Live in-memory dependency graph maintained by NetworkX and Prometheus StateSynchronizer.</p>
+            <div class="topology-nodes" id="topology-container">
+                <!-- Nodes populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Parallel Agent Evaluation Engine -->
+        <div class="card col-8">
+            <div class="card-header">
+                <div class="card-title">Parallel Agent Decision Comparison</div>
+                <span style="font-size: 12px; color: var(--text-muted);" id="agreement-status">Evaluating...</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="agent-card">
+                    <div class="agent-name">
+                        <span>SimiFed RL Baseline</span>
+                        <span id="rl-latency" style="font-size: 11px; color: var(--text-muted);">-- ms</span>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted);">SF-DTM Q-Table & Cosine Similarity Policy</p>
+                    <div class="code-block" id="rl-decision">Action: SCALE_UP<br>Confidence: 0.95</div>
+                </div>
+
+                <div class="agent-card">
+                    <div class="agent-name">
+                        <span>LLM ReAct Agent</span>
+                        <span id="llm-latency" style="font-size: 11px; color: var(--text-muted);">-- ms</span>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted);">Reason -> SimPy Dry-Run -> Act Framework</p>
+                    <div class="code-block" id="llm-decision">Action: SCALE_UP<br>SimPy Safety: PASSED</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SHAP Explanation Panel -->
+        <div class="card col-4">
+            <div class="card-header">
+                <div class="card-title">SHAP XAI Explanation</div>
+            </div>
+            <div class="code-block" id="shap-text" style="color: #79c0ff; height: 140px;">
+                SHAP Analysis:<br>
+                - CPU usage spiked by 88% on checkoutservice.<br>
+                - High request queue depth driving anomaly alert.
+            </div>
+        </div>
+
+        <!-- Interactive Fault Injection & Manual Override -->
+        <div class="card col-12">
+            <div class="card-header">
+                <div class="card-title">Interactive Operator Control & Fault Injection</div>
+            </div>
+            <div class="form-group">
+                <select id="target-service-select">
+                    <option value="checkoutservice">checkoutservice</option>
+                    <option value="frontend">frontend</option>
+                    <option value="cartservice">cartservice</option>
+                    <option value="redis-cart">redis-cart</option>
+                </select>
+                <input type="number" id="cpu-input" placeholder="CPU Usage (0.0 - 1.0)" value="0.92" step="0.05" style="width: 200px;">
+                <button class="btn btn-danger" onclick="triggerAlert()">Inject CPU Spike Alert</button>
+                <button class="btn" onclick="executeOverride()" style="margin-left: auto;">Manual Operator Override</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:8000/api";
+
+        async function fetchStatus() {
+            try {
+                const res = await fetch(`${API_BASE}/status`);
+                const data = await res.json();
+                document.getElementById('stat-total-pods').innerText = data.total_pods;
+                document.getElementById('stat-anomalies').innerText = data.active_anomalies;
+                document.getElementById('stat-mode').innerText = data.active_mode.toUpperCase();
+                
+                const badge = document.getElementById('system-status-badge');
+                const text = document.getElementById('status-text');
+                if(data.status === "DEGRADED") {
+                    badge.style.background = "rgba(244, 63, 94, 0.15)";
+                    badge.style.borderColor = "rgba(244, 63, 94, 0.3)";
+                    badge.style.color = "var(--danger)";
+                    text.innerText = "SYSTEM DEGRADED";
+                } else {
+                    badge.style.background = "rgba(16, 185, 129, 0.15)";
+                    badge.style.borderColor = "rgba(16, 185, 129, 0.3)";
+                    badge.style.color = "var(--success)";
+                    text.innerText = "SYSTEM HEALTHY";
+                }
+            } catch(e) {
+                console.error("API error", e);
+            }
+        }
+
+        async function fetchTopology() {
+            try {
+                const res = await fetch(`${API_BASE}/topology`);
+                const data = await res.json();
+                const container = document.getElementById('topology-container');
+                container.innerHTML = "";
+                data.nodes.forEach(node => {
+                    const cpu = (node.cpu_usage ? (node.cpu_usage * 100).toFixed(0) : 0);
+                    const isCritical = cpu > 80;
+                    const div = document.createElement('div');
+                    div.className = `node-pill ${isCritical ? 'critical' : ''}`;
+                    div.innerHTML = `<span>📦 <b>${node.id}</b></span> <span style="color: var(--text-muted);">CPU: ${cpu}%</span>`;
+                    container.appendChild(div);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function triggerAlert() {
+            const target = document.getElementById('target-service-select').value;
+            const cpu = parseFloat(document.getElementById('cpu-input').value);
+            
+            const payload = {
+                target_service: target,
+                cpu_usage: cpu,
+                mem_usage: 0.75,
+                is_anomaly: true,
+                shap_explanation: `SHAP Alert: CPU spiked to ${(cpu*100).toFixed(0)}% on ${target}`
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/evaluate`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                
+                // Update UI
+                const rl = data.agents.rl_simifed;
+                const llm = data.agents.llm_react;
+                
+                document.getElementById('rl-latency').innerText = `${rl.latency_seconds * 1000} ms`;
+                document.getElementById('rl-decision').innerText = `Action: ${rl.action}\nRationale: ${rl.rationale}`;
+                
+                document.getElementById('llm-latency').innerText = `${llm.latency_seconds * 1000} ms`;
+                document.getElementById('llm-decision').innerText = `Action: ${llm.action_taken}\nSimulation: ${llm.simulation.recommendation}`;
+                
+                document.getElementById('shap-text').innerText = `SHAP Explanation:\n- ${payload.shap_explanation}\n- Feature CPU_USAGE contributed +0.82 to risk score.`;
+                document.getElementById('agreement-status').innerText = data.comparison.recommendation;
+                
+                fetchStatus();
+                fetchTopology();
+            } catch(e) { console.error(e); }
+        }
+
+        async function executeOverride() {
+            const target = document.getElementById('target-service-select').value;
+            const res = await fetch(`${API_BASE}/override`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    target_service: target,
+                    override_action: "SCALE_UP",
+                    reason: "Operator manual scaling bypass"
+                })
+            });
+            const data = await res.json();
+            alert(data.message);
+        }
+
+        // Initial Load
+        fetchStatus();
+        fetchTopology();
+        triggerAlert();
+    </script>
+</body>
+</html>
