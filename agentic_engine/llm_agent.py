@@ -3,7 +3,6 @@ import json
 import logging
 from typing import Dict, Any
 from dotenv import load_dotenv
-import google.generativeai as genai
 
 load_dotenv()
 
@@ -28,37 +27,45 @@ Respond STRICTLY in valid JSON format with no additional markdown wrapping or te
 class LLMReActAgent:
     """
     LLM-powered ReAct Agent for self-healing infrastructure.
-    Uses Google Gemini API (`GEMINI_API_KEY`) for real-time autonomous reasoning.
+    Uses new `google.genai` SDK (`GEMINI_API_KEY`) for real-time autonomous reasoning.
     """
     def __init__(self, k8s_tools, sim_tools, provider: str = "gemini"):
         self.k8s_tools = k8s_tools
         self.sim_tools = sim_tools
         self.provider = provider
-        
         self.api_key = os.getenv("GEMINI_API_KEY")
-        self.model = None
-        
+        self.client = None
+        self.legacy_genai = None
+
         if self.api_key:
+            # 1. Try modern google.genai SDK
             try:
-                genai.configure(api_key=self.api_key)
-                # Try candidate Gemini model names
-                for m_name in ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-pro', 'models/gemini-pro']:
-                    try:
-                        self.model = genai.GenerativeModel(m_name)
-                        logger.info(f"[LLM Agent] Successfully initialized Gemini client with model '{m_name}'.")
-                        break
-                    except Exception:
-                        continue
+                from google import genai
+                self.client = genai.Client(api_key=self.api_key)
+                logger.info("[LLM Agent] Successfully initialized modern google.genai Client.")
             except Exception as e:
-                logger.warning(f"[LLM Agent] Could not configure Gemini API: {e}")
+                logger.debug(f"[LLM Agent] google.genai client initialization fallback: {e}")
+                # 2. Fallback to google.generativeai if modern package is unavailable
+                try:
+                    import google.generativeai as legacy_genai
+                    legacy_genai.configure(api_key=self.api_key)
+                    self.legacy_genai = legacy_genai
+                    logger.info("[LLM Agent] Fallback to google.generativeai SDK.")
+                except Exception as ex:
+                    logger.warning(f"[LLM Agent] Could not configure Gemini API: {ex}")
 
     def _call_llm(self, prompt: str) -> Dict[str, Any]:
-        """Invoke Gemini API to generate structured ReAct reasoning."""
-        if self.model and self.api_key:
-            for model_name in ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-pro']:
+        """Invoke Gemini API using google.genai SDK to generate structured ReAct reasoning."""
+        full_prompt = f"{REACT_SYSTEM_PROMPT}\n\nUSER ALERT:\n{prompt}"
+        
+        # Method 1: Modern google.genai SDK
+        if self.client:
+            for model_id in ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash']:
                 try:
-                    m = genai.GenerativeModel(model_name)
-                    response = m.generate_content(f"{REACT_SYSTEM_PROMPT}\n\nUSER ALERT:\n{prompt}")
+                    response = self.client.models.generate_content(
+                        model=model_id,
+                        contents=full_prompt
+                    )
                     text = response.text.strip()
                     if text.startswith("```json"):
                         text = text.split("```json")[1].split("```")[0].strip()
@@ -66,13 +73,29 @@ class LLMReActAgent:
                         text = text.split("```")[1].split("```")[0].strip()
                     return json.loads(text)
                 except Exception as e:
-                    logger.debug(f"[LLM Agent] Model {model_name} attempt: {e}")
+                    logger.debug(f"[LLM Agent google.genai] Model {model_id} error: {e}")
                     continue
 
-        # Structured ReAct fallback agent if cloud API is unreachable
+        # Method 2: Legacy google.generativeai fallback
+        if self.legacy_genai:
+            for model_id in ['gemini-1.5-flash', 'gemini-pro']:
+                try:
+                    m = self.legacy_genai.GenerativeModel(model_id)
+                    response = m.generate_content(full_prompt)
+                    text = response.text.strip()
+                    if text.startswith("```json"):
+                        text = text.split("```json")[1].split("```")[0].strip()
+                    elif text.startswith("```"):
+                        text = text.split("```")[1].split("```")[0].strip()
+                    return json.loads(text)
+                except Exception as e:
+                    logger.debug(f"[LLM Agent legacy] Model {model_id} error: {e}")
+                    continue
+
+        # Method 3: Structured ReAct fallback agent if API calls fail
         return {
             "thought": "SHAP telemetry indicates high CPU congestion. SimPy Digital Twin simulation passed safety verification.",
-            "root_cause": "Resource exhaustion on target service detected via telemetry analysis.",
+            "root_cause": "Resource congestion on target service detected via telemetry analysis.",
             "simulation_result": "safe",
             "action_type": "SCALE_UP" if "scale" in prompt.lower() else "RESTART_POD",
             "target_service": prompt.split()[0] if prompt else "checkoutservice",
