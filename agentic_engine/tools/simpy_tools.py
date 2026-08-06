@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 class SimPySimulationTools:
     """
     Exposes dry-run capabilities to the AI agent via the SimPy Digital Twin.
-    Allows testing actions (scaling, restarting) in simulation before applying to K8s.
+    Runs genuine action-dependent dry-run simulations before applying to K8s.
     """
     def __init__(self, topology: TopologyGraph):
         self.topology = topology
@@ -16,24 +16,32 @@ class SimPySimulationTools:
     def simulate_remediation(self, action_type: str, target: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Simulate an action against the in-memory Digital Twin.
-        `action_type`: 'scale', 'restart', 'patch'
+        `action_type`: 'SCALE', 'RESTART', 'PATCH'
         """
-        logger.info(f"Simulating action '{action_type}' on '{target}' with params {params}...")
+        logger.info(f"[SimPyTools] Simulating action '{action_type}' on target '{target}'...")
         twin = SimPyDigitalTwin(self.topology)
+        
+        # Apply target action to simulation model
+        twin.apply_remediation_action(target, action_type)
         twin.initialize_simulation()
         
-        # Run simulation for 10 time steps
-        results = twin.run_simulation(until=10)
+        # Run simulation for 10 steps
+        history = twin.run_simulation(until=10)
         
-        # Evaluate simulated stability
-        predicted_max_cpu = max([v.get("cpu", 0.0) for v in results.values()]) if results else 0.0
-        is_safe = predicted_max_cpu < 0.95
+        # Evaluate simulated post-action stability
+        final_cpus = []
+        for pod_history in history.values():
+            if pod_history:
+                final_cpus.append(pod_history[-1]["cpu"])
+                
+        max_final_cpu = max(final_cpus) if final_cpus else 0.0
+        is_safe = max_final_cpu < 0.90
         
         return {
             "action_type": action_type,
             "target": target,
             "simulation_steps": 10,
             "is_safe": is_safe,
-            "predicted_max_cpu": round(predicted_max_cpu, 4),
+            "predicted_max_cpu": round(max_final_cpu, 4),
             "recommendation": "SAFE_TO_EXECUTE" if is_safe else "RISK_OF_OVERLOAD"
         }

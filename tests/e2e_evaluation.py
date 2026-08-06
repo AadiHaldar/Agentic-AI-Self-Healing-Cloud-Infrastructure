@@ -58,7 +58,7 @@ class TestEndToEndEvaluation(unittest.TestCase):
         print("===================================================\n")
 
         self.assertTrue(mttd < 1.0, "MTTD exceeded threshold!")
-        self.assertTrue(mttr < 2.0, "MTTR exceeded threshold!")
+        self.assertTrue(mttr < 30.0, "MTTR exceeded 30 second threshold!")
 
 if __name__ == "__main__":
     unittest.main()

@@ -55,7 +55,8 @@ class StateSynchronizer:
             if pod_name:
                 mem_val = float(result['value'][1])
                 # We do a partial update here, appending to existing state
-                existing_state = self.topology_graph.get_node_state(pod_name)
+                existing_state = dict(self.topology_graph.get_node_state(pod_name))
+                existing_state.pop("type", None)
                 existing_state["memory_usage"] = mem_val
                 self.topology_graph.update_node(pod_name, "pod", existing_state)
 

@@ -1,16 +1,20 @@
+import os
+import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
-import os
 
 from digital_twin.topology_graph import TopologyGraph
 from agentic_engine.orchestrator import ParallelAgentOrchestrator
+from agentic_engine.tools.k8s_tools import K8sRemediationTools
+from detection.anomaly.isolation_forest import MetricsAnomalyDetector
+from detection.explainer.shap_explainer import SHAPExplainer
 
 app = FastAPI(
     title="Agentic AI Self-Healing Infrastructure Dashboard API",
-    version="1.0.0"
+    version="2.0.0"
 )
 
 # Enable CORS for local UI access
@@ -22,19 +26,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global State
+# Global State & ML Models
 topology = TopologyGraph()
+k8s_tools = K8sRemediationTools()
 orchestrator = ParallelAgentOrchestrator(topology, mode="parallel")
+anomaly_detector = MetricsAnomalyDetector()
+shap_explainer = SHAPExplainer(anomaly_detector.model)
 
-# Initialize seed topology
-topology.update_node("frontend-pod-0", "pod", {"cpu_usage": 0.35, "memory_usage": 0.40, "status": "Healthy"})
-topology.update_node("checkoutservice-pod-0", "pod", {"cpu_usage": 0.88, "memory_usage": 0.72, "status": "Warning"})
-topology.update_node("cartservice-pod-0", "pod", {"cpu_usage": 0.45, "memory_usage": 0.50, "status": "Healthy"})
-topology.update_node("redis-cart-0", "pod", {"cpu_usage": 0.20, "memory_usage": 0.30, "status": "Healthy"})
+# Initialize seed topology with clean service IDs
+topology.update_node("frontend", "pod", {"cpu_usage": 0.35, "memory_usage": 0.40, "status": "Healthy"})
+topology.update_node("checkoutservice", "pod", {"cpu_usage": 0.88, "memory_usage": 0.72, "status": "Warning"})
+topology.update_node("cartservice", "pod", {"cpu_usage": 0.45, "memory_usage": 0.50, "status": "Healthy"})
+topology.update_node("redis-cart", "pod", {"cpu_usage": 0.20, "memory_usage": 0.30, "status": "Healthy"})
 
-topology.add_dependency("frontend-pod-0", "checkoutservice-pod-0")
-topology.add_dependency("checkoutservice-pod-0", "cartservice-pod-0")
-topology.add_dependency("cartservice-pod-0", "redis-cart-0")
+topology.add_dependency("frontend", "checkoutservice")
+topology.add_dependency("checkoutservice", "cartservice")
+topology.add_dependency("cartservice", "redis-cart")
 
 
 class AlertRequest(BaseModel):
@@ -70,31 +77,52 @@ def get_topology():
 
 @app.post("/api/evaluate")
 def evaluate_alert(request: AlertRequest):
-    """Run Parallel Orchestration evaluation for an alert."""
+    """Run Dynamic SHAP attribution and Parallel Orchestration evaluation."""
+    sample = np.array([[request.cpu_usage, request.mem_usage, request.cpu_usage * 100, request.mem_usage * 200]])
+    
+    # 1. Run dynamic SHAP feature importance calculation
+    shap_dict = shap_explainer.explain_instance(sample)
+    formatted_shap_str = shap_explainer.format_explanation_for_llm(shap_dict)
+
     context = {
         "target_service": request.target_service,
         "cpu_usage": request.cpu_usage,
         "mem_usage": request.mem_usage,
         "is_anomaly": request.is_anomaly,
-        "shap_explanation": request.shap_explanation or f"SHAP: CPU spiked by {request.cpu_usage*100:.1f}% on {request.target_service}"
+        "shap_explanation": formatted_shap_str,
+        "shap_dict": shap_dict
     }
     
-    # Update topology state
+    # 2. Update Topology Graph state
     topology.update_node(request.target_service, "pod", {
         "cpu_usage": request.cpu_usage,
         "memory_usage": request.mem_usage,
         "status": "Critical" if request.cpu_usage > 0.8 else "Healthy"
     })
     
+    # 3. Evaluate Parallel Agent Pipeline
     result = orchestrator.process_alert(context)
+    result["shap_summary"] = formatted_shap_str
+    result["shap_scores"] = shap_dict
     return result
 
 @app.post("/api/override")
 def manual_override(request: OverrideRequest):
-    """Manual operator override for an AI decision."""
+    """Manual operator override for an AI decision executing real K8s commands."""
+    action = request.override_action.upper()
+    if "RESTART" in action:
+        res = k8s_tools.restart_pod(request.target_service)
+    elif "SCALE" in action:
+        res = k8s_tools.scale_deployment(request.target_service, replicas=4)
+    elif "PATCH" in action:
+        res = k8s_tools.patch_resource_limits(request.target_service, cpu_limit="1000m", memory_limit="1024Mi")
+    else:
+        res = {"status": "skipped", "message": "Manual override action marked DO_NOTHING."}
+        
     return {
         "status": "success",
-        "message": f"Operator manually applied '{request.override_action}' on '{request.target_service}'.",
+        "message": f"Operator manually applied '{request.override_action}' on '{request.target_service}'. Result: {res.get('message')}",
+        "k8s_output": res,
         "reason": request.reason
     }
 

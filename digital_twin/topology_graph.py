@@ -15,7 +15,7 @@ class TopologyGraph:
 
     def add_dependency(self, source_id: str, target_id: str, relation_type: str = "calls"):
         """Add a dependency edge between two nodes."""
-        self.graph.add_edge(source_id, target_target_id=target_id, relation=relation_type)
+        self.graph.add_edge(source_id, target_id, relation=relation_type)
 
     def remove_node(self, node_id: str):
         """Remove a node if it no longer exists in the cluster."""

@@ -347,7 +347,7 @@
     </div>
 
     <script>
-        const API_BASE = "http://localhost:8000/api";
+        const API_BASE = "/api";
 
         async function fetchStatus() {
             try {
@@ -416,13 +416,13 @@
                 const rl = data.agents.rl_simifed;
                 const llm = data.agents.llm_react;
                 
-                document.getElementById('rl-latency').innerText = `${rl.latency_seconds * 1000} ms`;
+                document.getElementById('rl-latency').innerText = `${(rl.latency_seconds * 1000).toFixed(2)} ms`;
                 document.getElementById('rl-decision').innerText = `Action: ${rl.action}\nRationale: ${rl.rationale}`;
                 
-                document.getElementById('llm-latency').innerText = `${llm.latency_seconds * 1000} ms`;
+                document.getElementById('llm-latency').innerText = `${(llm.latency_seconds * 1000).toFixed(2)} ms`;
                 document.getElementById('llm-decision').innerText = `Action: ${llm.action_taken}\nSimulation: ${llm.simulation.recommendation}`;
                 
-                document.getElementById('shap-text').innerText = `SHAP Explanation:\n- ${payload.shap_explanation}\n- Feature CPU_USAGE contributed +0.82 to risk score.`;
+                document.getElementById('shap-text').innerText = data.shap_summary || payload.shap_explanation;
                 document.getElementById('agreement-status').innerText = data.comparison.recommendation;
                 
                 fetchStatus();
