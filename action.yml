@@ -1,0 +1,42 @@
+name: 'Agentic AI Self-Healing CI/CD Integrator'
+description: 'Pre-deployment Digital Twin simulation gate & Agentic AI deployment verifier for Kubernetes workloads.'
+author: 'AadiHaldar'
+
+inputs:
+  gemini_api_key:
+    description: 'Google Gemini API key for LLM ReAct verification'
+    required: true
+  target_service:
+    description: 'Name of the microservice to verify'
+    required: false
+    default: 'all'
+  manifest_path:
+    description: 'Path to Kubernetes manifests or docker-compose file'
+    required: false
+    default: './infrastructure/manifests'
+
+outputs:
+  simulation_status:
+    description: 'SAFE or UNSAFE'
+  recommendation:
+    description: 'Agentic AI deployment recommendation'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run Digital Twin Simulation Gate & Gemini Verification
+      shell: bash
+      env:
+        GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
+      run: |
+        python scripts/ci_runner.py --service "${{ inputs.target_service }}" --manifests "${{ inputs.manifest_path }}"
