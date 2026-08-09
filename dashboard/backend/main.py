@@ -140,6 +140,32 @@ def create_github_pr(request: GitOpsPRRequest):
         )
     return res
 
+@app.post("/api/github/webhook")
+async def github_webhook(request: Dict[str, Any]):
+    """
+    GitHub App Webhook Endpoint.
+    Receives pull_request/push/issues HTTP POST events from GitHub and triggers Agentic AI verification.
+    """
+    event_type = "pull_request"
+    res = github_manager.handle_webhook_event(request, event_type=event_type)
+    return res
+
+@app.get("/api/github/app-config")
+def get_github_app_config():
+    """Return instructions and webhook URL for 1-click GitHub App / Webhook integration."""
+    return {
+        "webhook_url": "http://localhost:8085/api/github/webhook",
+        "events_supported": ["pull_request", "push", "issues"],
+        "setup_steps": [
+            "1. Open your target GitHub Repository (e.g. HRA_Final)",
+            "2. Go to Settings -> Webhooks -> Add Webhook",
+            "3. Paste Payload URL: http://<your-host>:8085/api/github/webhook",
+            "4. Select Content Type: application/json",
+            "5. Select Events: 'Pull requests' and 'Pushes'",
+            "6. Click 'Add Webhook'. Done! Zero YAML files or code changes needed."
+        ]
+    }
+
 @app.post("/api/override")
 def manual_override(request: OverrideRequest):
     """Manual operator override for an AI decision executing real K8s commands."""
