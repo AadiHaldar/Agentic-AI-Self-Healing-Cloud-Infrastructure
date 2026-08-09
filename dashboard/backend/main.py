@@ -106,6 +106,40 @@ def evaluate_alert(request: AlertRequest):
     result["shap_scores"] = shap_dict
     return result
 
+from agentic_engine.tools.github_tools import github_manager
+
+@app.get("/api/github/prs")
+def get_github_prs():
+    """Return history of generated GitOps and Code Patch Pull Requests."""
+    return {
+        "prs": github_manager.get_pr_history(),
+        "is_live_mode": github_manager.is_live,
+        "repo": github_manager.repo
+    }
+
+class GitOpsPRRequest(BaseModel):
+    service: str
+    replicas: int = 3
+    cpu_limit: str = "1000m"
+    pr_type: str = "GITOPS"  # "GITOPS" or "CODE_PATCH"
+
+@app.post("/api/github/create-pr")
+def create_github_pr(request: GitOpsPRRequest):
+    """Manually trigger GitOps Scaling PR or Code Patch PR."""
+    if request.pr_type == "CODE_PATCH":
+        res = github_manager.create_code_patch_pr(
+            service=request.service,
+            file_path=f"src/{request.service}/handler.py",
+            issue_summary="Operator-triggered Code Patch PR for unhandled exception"
+        )
+    else:
+        res = github_manager.create_gitops_pr(
+            service=request.service,
+            replicas=request.replicas,
+            cpu_limit=request.cpu_limit
+        )
+    return res
+
 @app.post("/api/override")
 def manual_override(request: OverrideRequest):
     """Manual operator override for an AI decision executing real K8s commands."""

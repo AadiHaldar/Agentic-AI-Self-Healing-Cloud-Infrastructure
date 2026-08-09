@@ -6,10 +6,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from .tools.github_tools import github_manager
+
 logger = logging.getLogger(__name__)
 
 REACT_SYSTEM_PROMPT = """You are an Autonomous Self-Healing Cloud Operations Agent.
-You monitor Kubernetes microservices, analyze metrics, read SHAP explainability summaries, run SimPy simulations, and execute safe remediation steps.
+You monitor Kubernetes microservices, analyze metrics, read SHAP explainability summaries, run SimPy simulations, and execute safe remediation steps or open GitHub GitOps Pull Requests.
 
 Your goal is to resolve infrastructure anomalies (CPU spikes, memory leaks, crashed pods, DDoS attacks) with minimal downtime.
 
@@ -18,7 +20,7 @@ Respond STRICTLY in valid JSON format with no additional markdown wrapping or te
   "thought": "<your step-by-step reasoning>",
   "root_cause": "<identified root cause>",
   "simulation_result": "<safe | unsafe>",
-  "action_type": "<SCALE_UP | RESTART_POD | PATCH_LIMITS | DO_NOTHING>",
+  "action_type": "<SCALE_UP | RESTART_POD | PATCH_LIMITS | CREATE_GITOPS_PR | SUBMIT_CODE_PATCH_PR | DO_NOTHING>",
   "target_service": "<target service name>",
   "explanation": "<human readable explanation for the operator>"
 }
@@ -144,6 +146,15 @@ Predictive Forecaster Trend: High exhaustion risk within 10 minutes.
             exec_res = self.k8s_tools.scale_deployment(service, replicas=3)
         elif action_type == "PATCH_LIMITS":
             exec_res = self.k8s_tools.patch_resource_limits(service, cpu_limit="1000m", memory_limit="1024Mi")
+        elif action_type == "CREATE_GITOPS_PR":
+            exec_res = github_manager.create_gitops_pr(service, replicas=3, cpu_limit="1000m")
+        elif action_type == "SUBMIT_CODE_PATCH_PR":
+            exec_res = github_manager.create_code_patch_pr(
+                service=service,
+                file_path=f"src/{service}/handler.py",
+                issue_summary="Resource leak / timeout unhandled exception",
+                patch_code="with timeout_protection(): process()"
+            )
         else:
             action_type = "DO_NOTHING"
             exec_res = {"status": "no_action_needed"}
