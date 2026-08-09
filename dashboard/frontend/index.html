@@ -147,7 +147,7 @@
         .col-8 { grid-column: span 8; }
         .col-12 { grid-column: span 12; }
 
-        /* Premium Card Design with Left Gradient Bar */
+        /* Premium Card Design */
         .card {
             background: var(--card-bg);
             backdrop-filter: blur(16px);
@@ -206,6 +206,37 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* Loading Spinner */
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(6, 7, 10, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(168, 85, 247, 0.2);
+            border-top-color: var(--accent-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
         /* Agent Comparison Panel */
         .agent-grid {
             display: grid;
@@ -219,11 +250,6 @@
             padding: 18px;
             background: rgba(255, 255, 255, 0.015);
             transition: all 0.25s ease;
-        }
-
-        .agent-card:hover {
-            border-color: rgba(168, 85, 247, 0.4);
-            transform: translateY(-2px);
         }
 
         .agent-name {
@@ -321,41 +347,43 @@
             border-color: var(--accent-purple);
         }
 
-        /* Topology Nodes Grid */
-        .topology-nodes {
+        /* Event Timeline */
+        .event-log-container {
             display: flex;
-            gap: 18px;
-            flex-wrap: wrap;
-            margin-top: 16px;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
         }
 
-        .node-pill {
+        .event-log-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .event-log-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+
+        .event-row {
+            display: grid;
+            grid-template-columns: 100px 150px 1fr 150px;
+            gap: 16px;
+            padding: 10px 16px;
             background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--card-border);
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 13.5px;
-            display: flex;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
             align-items: center;
-            gap: 12px;
-            transition: all 0.25s ease;
+            animation: fadeIn 0.3s ease;
         }
 
-        .node-pill svg {
-            width: 18px;
-            height: 18px;
-            stroke: var(--accent-cyan);
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .node-pill.critical {
-            border-color: var(--danger);
-            background: rgba(244, 63, 94, 0.08);
-            box-shadow: 0 0 20px rgba(244, 63, 94, 0.2);
-        }
-
-        .node-pill.critical svg {
-            stroke: var(--danger);
-        }
+        .event-time { color: var(--text-muted); }
+        .event-target { color: var(--accent-blue); font-weight: 600; }
+        .event-action { color: var(--accent-purple); }
+        .event-agent { color: var(--success); text-align: right; }
     </style>
 </head>
 <body>
@@ -411,21 +439,23 @@
             <div class="card-header">
                 <div class="card-title">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                    Digital Twin Topology Map
+                    Digital Twin Topology Graph
                 </div>
                 <button class="btn" onclick="fetchTopology()">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                     Refresh Topology
                 </button>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted);">Live in-memory dependency graph maintained by NetworkX and Prometheus StateSynchronizer.</p>
-            <div class="topology-nodes" id="topology-container">
-                <!-- Nodes populated dynamically -->
+            <div id="topology-container" style="width: 100%; height: 200px; margin-top: 10px;">
+                <!-- SVG nodes populated dynamically -->
             </div>
         </div>
 
         <!-- Parallel Agent Evaluation Engine -->
         <div class="card col-8">
+            <div class="card-spinner loading-overlay hidden">
+                <div class="spinner"></div>
+            </div>
             <div class="card-header">
                 <div class="card-title">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -440,7 +470,7 @@
                         <span id="rl-latency" style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono';">-- ms</span>
                     </div>
                     <p style="font-size: 12px; color: var(--text-muted);">SF-DTM Q-Table & Cosine Similarity Policy</p>
-                    <div class="code-block" id="rl-decision">Action: SCALE_UP&#10;Rationale: Baseline policy initialization</div>
+                    <div class="code-block" id="rl-decision">Action: ...<br>Rationale: ...</div>
                 </div>
 
                 <div class="agent-card">
@@ -449,23 +479,55 @@
                         <span id="llm-latency" style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono';">-- ms</span>
                     </div>
                     <p style="font-size: 12px; color: var(--text-muted);">Reason -> SimPy Dry-Run -> Act Framework</p>
-                    <div class="code-block" id="llm-decision">Action: SCALE_UP&#10;Simulation: SAFE_TO_EXECUTE</div>
+                    <div class="code-block" id="llm-decision">Action: ...<br>Simulation: ...</div>
                 </div>
             </div>
         </div>
 
         <!-- SHAP Explanation Panel -->
         <div class="card col-4">
+            <div class="card-spinner loading-overlay hidden">
+                <div class="spinner"></div>
+            </div>
             <div class="card-header">
                 <div class="card-title">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                    SHAP XAI Explanation
+                    SHAP Feature Attribution
                 </div>
             </div>
-            <div class="code-block" id="shap-text" style="color: #38bdf8; height: 160px;">
-                SHAP Feature Attribution Analysis:
-                - CPU_USAGE increased risk score by 0.8204
-                - MEMORY_USAGE increased risk score by 0.0512
+            <div id="shap-chart-container" style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                <!-- Dynamic horizontal bars -->
+            </div>
+        </div>
+
+        <!-- LLM Chain-of-Thought Reasoning Panel -->
+        <div class="card col-12">
+            <div class="card-spinner loading-overlay hidden">
+                <div class="spinner"></div>
+            </div>
+            <div class="card-header">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
+                    LLM Chain-of-Thought Reasoning
+                </div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-muted);">
+                <p><strong style="color: var(--accent-cyan);">Root Cause:</strong> <span id="llm-root-cause">Awaiting evaluation...</span></p>
+                <p style="margin-top: 12px;"><strong style="color: var(--accent-purple);">Thought Process:</strong></p>
+                <div class="code-block" id="llm-thought">Awaiting evaluation...</div>
+            </div>
+        </div>
+
+        <!-- Event Timeline / Log Panel -->
+        <div class="card col-12">
+            <div class="card-header">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Healing Action Timeline
+                </div>
+            </div>
+            <div class="event-log-container" id="event-log-container">
+                <!-- Log entries dynamically populated -->
             </div>
         </div>
 
@@ -500,6 +562,14 @@
     <!-- Application Script -->
     <script>
         const API_BASE = "/api";
+        let eventLog = [];
+
+        function setSpinners(active) {
+            document.querySelectorAll('.card-spinner').forEach(el => {
+                if (active) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+        }
 
         async function fetchStatus() {
             try {
@@ -531,23 +601,186 @@
             try {
                 const res = await fetch(`${API_BASE}/topology`);
                 const data = await res.json();
-                const container = document.getElementById('topology-container');
-                container.innerHTML = "";
-                data.nodes.forEach(node => {
-                    const cpu = (node.cpu_usage ? (node.cpu_usage * 100).toFixed(0) : 0);
-                    const isCritical = cpu > 80;
-                    const div = document.createElement('div');
-                    div.className = `node-pill ${isCritical ? 'critical' : ''}`;
-                    div.innerHTML = `
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/>
-                        </svg>
-                        <span><b>${node.id}</b></span> 
-                        <span style="color: var(--text-muted);">CPU: ${cpu}%</span>
-                    `;
-                    container.appendChild(div);
-                });
+                renderTopology(data);
             } catch(e) { console.error(e); }
+        }
+
+        function renderTopology(data) {
+            const container = document.getElementById('topology-container');
+            const svgWidth = container.clientWidth || 800;
+            const svgHeight = 200;
+            
+            // Simple depth calculation for column layout
+            let depth = {};
+            let roots = data.nodes.filter(n => !data.links.some(l => l.target === n.id));
+            if (roots.length === 0 && data.nodes.length > 0) roots = [data.nodes[0]];
+            
+            let queue = roots.map(r => ({id: r.id, d: 0}));
+            while(queue.length) {
+                let curr = queue.shift();
+                if (depth[curr.id] !== undefined) continue;
+                depth[curr.id] = curr.d;
+                data.links.filter(l => l.source === curr.id).forEach(l => {
+                    if (depth[l.target] === undefined) queue.push({id: l.target, d: curr.d + 1});
+                });
+            }
+            
+            data.nodes.forEach(n => { if(depth[n.id] === undefined) depth[n.id] = 0; });
+            
+            let maxDepth = Math.max(0, ...Object.values(depth));
+            let xStep = svgWidth / (maxDepth + 2);
+            let depthCounts = {};
+            data.nodes.forEach(n => { depthCounts[depth[n.id]] = (depthCounts[depth[n.id]] || 0) + 1; });
+            
+            let nodePositions = {};
+            let currentY = {};
+            data.nodes.forEach(n => {
+                let d = depth[n.id];
+                let totalInDepth = depthCounts[d];
+                let yStep = svgHeight / (totalInDepth + 1);
+                currentY[d] = (currentY[d] || 0) + 1;
+                nodePositions[n.id] = {
+                    x: (d + 1) * xStep,
+                    y: currentY[d] * yStep,
+                    ...n
+                };
+            });
+
+            let svgHtml = `<svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}">
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="60" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent-cyan)" />
+                    </marker>
+                </defs>`;
+                
+            data.links.forEach(l => {
+                let src = nodePositions[l.source];
+                let tgt = nodePositions[l.target];
+                if (src && tgt) {
+                    svgHtml += `<line x1="${src.x}" y1="${src.y}" x2="${tgt.x}" y2="${tgt.y}" stroke="var(--accent-cyan)" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="4,4" opacity="0.6" />`;
+                }
+            });
+            
+            data.nodes.forEach(n => {
+                let pos = nodePositions[n.id];
+                let isCritical = n.cpu_usage && n.cpu_usage > 0.8;
+                let strokeColor = isCritical ? 'var(--danger)' : 'var(--accent-purple)';
+                let fillColor = isCritical ? 'rgba(244, 63, 94, 0.1)' : 'rgba(168, 85, 247, 0.08)';
+                svgHtml += `
+                    <rect x="${pos.x - 55}" y="${pos.y - 18}" width="110" height="36" rx="6" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
+                    <text x="${pos.x}" y="${pos.y + 4}" fill="var(--text-main)" font-size="12" font-family="'JetBrains Mono', monospace" text-anchor="middle">${n.id}</text>
+                `;
+            });
+            
+            svgHtml += `</svg>`;
+            container.innerHTML = svgHtml;
+        }
+
+        function renderShapBars(scores) {
+            const container = document.getElementById('shap-chart-container');
+            container.innerHTML = '';
+            
+            let maxVal = Math.max(...Object.values(scores).map(Math.abs));
+            if (maxVal === 0) maxVal = 1;
+            
+            for (const [feature, value] of Object.entries(scores)) {
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.alignItems = 'center';
+                row.style.fontFamily = "'JetBrains Mono', monospace";
+                row.style.fontSize = '12px';
+                
+                const label = document.createElement('div');
+                label.innerText = feature;
+                label.style.width = '120px';
+                label.style.color = 'var(--text-muted)';
+                label.style.textAlign = 'right';
+                label.style.paddingRight = '12px';
+                
+                const barWrapper = document.createElement('div');
+                barWrapper.style.flex = '1';
+                barWrapper.style.display = 'flex';
+                barWrapper.style.position = 'relative';
+                barWrapper.style.alignItems = 'center';
+                
+                const zeroLine = document.createElement('div');
+                zeroLine.style.position = 'absolute';
+                zeroLine.style.left = '50%';
+                zeroLine.style.top = '-4px';
+                zeroLine.style.bottom = '-4px';
+                zeroLine.style.width = '1px';
+                zeroLine.style.backgroundColor = 'rgba(255,255,255,0.1)';
+                
+                const bar = document.createElement('div');
+                bar.style.height = '14px';
+                bar.style.borderRadius = '2px';
+                
+                const percent = (Math.abs(value) / maxVal) * 50;
+                bar.style.width = `${percent}%`;
+                
+                if (value >= 0) {
+                    bar.style.backgroundColor = 'var(--accent-purple)';
+                    bar.style.marginLeft = '50%';
+                } else {
+                    bar.style.backgroundColor = 'var(--accent-pink)';
+                    bar.style.marginLeft = `${50 - percent}%`;
+                }
+                
+                barWrapper.appendChild(zeroLine);
+                barWrapper.appendChild(bar);
+                
+                const valLabel = document.createElement('div');
+                valLabel.innerText = value.toFixed(3);
+                valLabel.style.width = '50px';
+                valLabel.style.textAlign = value >= 0 ? 'left' : 'right';
+                valLabel.style.paddingLeft = value >= 0 ? '8px' : '0';
+                valLabel.style.paddingRight = value < 0 ? '8px' : '0';
+                valLabel.style.color = 'var(--text-main)';
+                
+                row.appendChild(label);
+                
+                if (value < 0) {
+                    row.appendChild(valLabel);
+                    row.appendChild(barWrapper);
+                } else {
+                    row.appendChild(barWrapper);
+                    row.appendChild(valLabel);
+                }
+                
+                container.appendChild(row);
+            }
+        }
+
+        function renderEventLog() {
+            const container = document.getElementById('event-log-container');
+            container.innerHTML = '';
+            eventLog.forEach(evt => {
+                const row = document.createElement('div');
+                row.className = 'event-row';
+                row.innerHTML = `
+                    <div class="event-time">${evt.timestamp}</div>
+                    <div class="event-target">${evt.target}</div>
+                    <div class="event-action">${evt.action}</div>
+                    <div class="event-agent">${evt.agent}</div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addEvent(target, action, agent) {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                            now.getMinutes().toString().padStart(2, '0') + ':' + 
+                            now.getSeconds().toString().padStart(2, '0');
+                            
+            eventLog.unshift({
+                timestamp: timeStr,
+                target: target,
+                action: action,
+                agent: agent
+            });
+            if (eventLog.length > 10) eventLog.pop();
+            renderEventLog();
         }
 
         async function triggerAlert() {
@@ -558,9 +791,10 @@
                 target_service: target,
                 cpu_usage: cpu,
                 mem_usage: 0.75,
-                is_anomaly: true,
-                shap_explanation: `SHAP Alert: CPU spiked to ${(cpu*100).toFixed(0)}% on ${target}`
+                is_anomaly: true
             };
+
+            setSpinners(true);
 
             try {
                 const res = await fetch(`${API_BASE}/evaluate`, {
@@ -576,36 +810,56 @@
                 document.getElementById('rl-latency').innerText = `${(rl.latency_seconds * 1000).toFixed(2)} ms`;
                 document.getElementById('rl-decision').innerText = `Action: ${rl.action}\nRationale: ${rl.rationale}`;
                 
-                document.getElementById('llm-latency').innerText = `${(llm.latency_seconds * 1000).toFixed(2)} ms`;
+                document.getElementById('llm-latency').innerText = `${llm.latency_seconds.toFixed(2)} s`;
                 document.getElementById('llm-decision').innerText = `Action: ${llm.action_taken}\nSimulation: ${llm.simulation.recommendation}`;
                 
-                document.getElementById('shap-text').innerText = data.shap_summary || payload.shap_explanation;
                 document.getElementById('agreement-status').innerText = data.comparison.recommendation;
+                
+                // Populate LLM Reasoning
+                document.getElementById('llm-root-cause').innerText = llm.root_cause;
+                document.getElementById('llm-thought').innerText = llm.thought;
+                
+                // Render SHAP Bars
+                if (data.shap_scores) {
+                    renderShapBars(data.shap_scores);
+                }
+
+                // Add to Event Timeline
+                addEvent(target, llm.action_taken, "LLM ReAct Consensus");
                 
                 fetchStatus();
                 fetchTopology();
-            } catch(e) { console.error(e); }
+            } catch(e) { 
+                console.error(e); 
+            } finally {
+                setSpinners(false);
+            }
         }
 
         async function executeOverride() {
             const target = document.getElementById('target-service-select').value;
-            const res = await fetch(`${API_BASE}/override`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    target_service: target,
-                    override_action: "SCALE_UP",
-                    reason: "Operator manual scaling bypass"
-                })
-            });
-            const data = await res.json();
-            alert(data.message);
+            try {
+                const res = await fetch(`${API_BASE}/override`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        target_service: target,
+                        override_action: "SCALE_UP",
+                        reason: "Operator manual scaling bypass"
+                    })
+                });
+                const data = await res.json();
+                addEvent(target, "SCALE_UP (MANUAL)", "Human Operator");
+                alert(data.message || "Manual override successful");
+            } catch(e) {
+                console.error(e);
+            }
         }
 
         // Initial Load
+        window.addEventListener('resize', fetchTopology); // Redraw SVG on resize
         fetchStatus();
         fetchTopology();
-        triggerAlert();
     </script>
 </body>
 </html>
