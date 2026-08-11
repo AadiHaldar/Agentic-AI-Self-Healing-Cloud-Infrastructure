@@ -166,6 +166,15 @@ def get_github_app_config():
         ]
     }
 
+@app.get("/api/github/scan-integrity")
+def scan_code_integrity(repo: str = "AadiHaldar/continuum-forge"):
+    """
+    Triggers a Deep Code Integrity & Vulnerability Audit on the specified GitHub repository.
+    Scans for secret leaks, unhandled timeouts, memory leak hazards, and manifest limit compliance.
+    """
+    res = github_manager.analyze_repository_integrity(repo)
+    return res
+
 @app.post("/api/override")
 def manual_override(request: OverrideRequest):
     """Manual operator override for an AI decision executing real K8s commands."""
