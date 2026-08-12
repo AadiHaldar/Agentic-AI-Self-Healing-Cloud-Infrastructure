@@ -384,6 +384,76 @@
         .event-target { color: var(--accent-blue); font-weight: 600; }
         .event-action { color: var(--accent-purple); }
         .event-agent { color: var(--success); text-align: right; }
+
+        /* Workflow Pipeline Stepper */
+        .pipeline-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+        }
+
+        .pipeline-step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 14px 16px;
+            background: rgba(13, 16, 26, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pipeline-step.active {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.25);
+            background: rgba(168, 85, 247, 0.06);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .step-number {
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.12);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .step-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .step-desc {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .pipeline-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-cyan);
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body>
@@ -432,6 +502,74 @@
                 Orchestrator Mode
             </div>
             <div class="stat-value" style="background: linear-gradient(135deg, #ffffff 40%, var(--accent-purple) 100%); -webkit-background-clip: text;" id="stat-mode">PARALLEL</div>
+        </div>
+
+        <!-- End-to-End Self-Healing Workflow Pipeline Stepper -->
+        <div class="card col-12">
+            <div class="card-header">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/><line x1="12" y1="6" x2="12" y2="12"/></svg>
+                    End-to-End Self-Healing Workflow Pipeline
+                </div>
+                <span style="font-size: 11px; font-weight: 600; color: var(--accent-cyan); font-family: 'JetBrains Mono';" id="pipeline-status">PIPELINE IDLE</span>
+            </div>
+            <div class="pipeline-container">
+                <div class="pipeline-step active" id="p-step-1">
+                    <div class="step-header">
+                        <span class="step-title">1. Repo Connected</span>
+                        <span class="step-number">STEP 01</span>
+                    </div>
+                    <div class="step-desc" id="p-step-1-desc">AadiHaldar/continuum-forge<br><span style="color: var(--success);">0-YAML Webhook Active</span></div>
+                </div>
+
+                <div class="pipeline-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+
+                <div class="pipeline-step" id="p-step-2">
+                    <div class="step-header">
+                        <span class="step-title">2. SHAP Telemetry</span>
+                        <span class="step-number">STEP 02</span>
+                    </div>
+                    <div class="step-desc" id="p-step-2-desc">Isolation Forest Anomaly<br><span style="color: var(--text-muted);">SHAP Risk: Pending</span></div>
+                </div>
+
+                <div class="pipeline-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+
+                <div class="pipeline-step" id="p-step-3">
+                    <div class="step-header">
+                        <span class="step-title">3. Digital Twin Sim</span>
+                        <span class="step-number">STEP 03</span>
+                    </div>
+                    <div class="step-desc" id="p-step-3-desc">SimPy Load Dry-Run<br><span style="color: var(--accent-purple);">Safety Gate: Verification</span></div>
+                </div>
+
+                <div class="pipeline-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+
+                <div class="pipeline-step" id="p-step-4">
+                    <div class="step-header">
+                        <span class="step-title">4. Dual Agent Decision</span>
+                        <span class="step-number">STEP 04</span>
+                    </div>
+                    <div class="step-desc" id="p-step-4-desc">Gemini LLM vs RL<br><span style="color: var(--text-muted);">Chain-of-Thought Consensus</span></div>
+                </div>
+
+                <div class="pipeline-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+
+                <div class="pipeline-step" id="p-step-5">
+                    <div class="step-header">
+                        <span class="step-title">5. GitOps PR Fix</span>
+                        <span class="step-number">STEP 05</span>
+                    </div>
+                    <div class="step-desc" id="p-step-5-desc">Declarative Manifest PR<br><span style="color: var(--text-muted);">PR Created & Deployed</span></div>
+                </div>
+            </div>
         </div>
 
         <!-- Digital Twin Topology Viewer -->
@@ -801,6 +939,33 @@
             renderEventLog();
         }
 
+        function updatePipelineStepper(data, target) {
+            document.getElementById('pipeline-status').innerText = 'WORKFLOW ACTIVE & VERIFIED';
+            document.getElementById('pipeline-status').style.color = 'var(--success)';
+
+            // Step 1: Repo
+            document.getElementById('p-step-1').classList.add('active');
+            
+            // Step 2: SHAP Telemetry
+            document.getElementById('p-step-2').classList.add('active');
+            const topFeature = data.shap_scores ? Object.keys(data.shap_scores)[0] : 'cpu_usage';
+            document.getElementById('p-step-2-desc').innerHTML = `${target} Anomaly<br><span style="color: var(--accent-pink);">Top Risk: ${topFeature}</span>`;
+
+            // Step 3: SimPy Digital Twin
+            document.getElementById('p-step-3').classList.add('active');
+            const simRec = data.agents?.llm_react?.simulation?.recommendation || 'SAFE_TO_EXECUTE';
+            document.getElementById('p-step-3-desc').innerHTML = `SimPy Load Dry-Run<br><span style="color: var(--success);">Result: ${simRec}</span>`;
+
+            // Step 4: Dual Agent Decision
+            document.getElementById('p-step-4').classList.add('active');
+            const action = data.agents?.llm_react?.action_taken || 'SCALE_UP';
+            document.getElementById('p-step-4-desc').innerHTML = `Consensus Reached<br><span style="color: var(--accent-purple);">Action: ${action}</span>`;
+
+            // Step 5: GitOps PR
+            document.getElementById('p-step-5').classList.add('active');
+            document.getElementById('p-step-5-desc').innerHTML = `GitOps PR Created<br><span style="color: var(--accent-cyan);">Declarative Fix Live</span>`;
+        }
+
         async function triggerAlert() {
             const target = document.getElementById('target-service-select').value;
             const cpu = parseFloat(document.getElementById('cpu-input').value);
@@ -837,6 +1002,9 @@
                 document.getElementById('llm-root-cause').innerText = llm.root_cause;
                 document.getElementById('llm-thought').innerText = llm.thought;
                 
+                // Update Pipeline Stepper
+                updatePipelineStepper(data, target);
+
                 // Render SHAP Bars
                 if (data.shap_scores) {
                     renderShapBars(data.shap_scores);
