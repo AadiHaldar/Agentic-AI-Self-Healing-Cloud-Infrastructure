@@ -45,3 +45,23 @@ class SimPySimulationTools:
             "predicted_max_cpu": round(max_final_cpu, 4),
             "recommendation": "SAFE_TO_EXECUTE" if is_safe else "RISK_OF_OVERLOAD"
         }
+
+    def evaluate_action_matrix(self, target: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Runs multi-action matrix dry-runs (SCALE vs RESTART vs PATCH) concurrently in SimPy Digital Twin.
+        Returns safety scores and optimal choice for the Gemini LLM agent.
+        """
+        logger.info(f"[SimPyTools] Running Multi-Action Safety Matrix Dry-Run for '{target}'...")
+        results = {}
+        for act in ["SCALE", "RESTART", "PATCH"]:
+            results[act] = self.simulate_remediation(action_type=act, target=target, params=params)
+
+        # Select safest action with lowest predicted max CPU
+        best_action = min(results.keys(), key=lambda a: results[a]["predicted_max_cpu"])
+        
+        return {
+            "target": target,
+            "matrix": results,
+            "recommended_action": best_action,
+            "best_safety_score": round(1.0 - results[best_action]["predicted_max_cpu"], 4)
+        }

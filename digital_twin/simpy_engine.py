@@ -41,20 +41,23 @@ class SimPyDigitalTwin:
             # Check if an action was applied to this target or its dependencies
             action = self.active_actions.get(pod_id, "NONE")
             if "RESTART" in action:
-                # Restart resets resource metrics to baseline
-                current_cpu = max(0.15, current_cpu * 0.3)
-                current_mem = max(0.20, current_mem * 0.4)
+                # Restart resets target metrics, but temporarily creates upstream latency load spike
+                current_cpu = max(0.15, current_cpu * 0.25)
+                current_mem = max(0.20, current_mem * 0.35)
             elif "SCALE" in action:
-                # Scaling divides load across replicas
-                current_cpu = max(0.15, current_cpu * 0.5)
-                current_mem = max(0.20, current_mem * 0.6)
+                # Scaling divides load across 3 replicas cleanly
+                current_cpu = max(0.15, current_cpu * 0.40)
+                current_mem = max(0.20, current_mem * 0.50)
             elif "PATCH" in action:
-                # Patching increases capacity ceiling, reducing pressure
-                current_cpu = max(0.15, current_cpu * 0.7)
+                # Patching increases capacity ceiling, reducing pressure by 35%
+                current_cpu = max(0.15, current_cpu * 0.65)
+                current_mem = max(0.20, current_mem * 0.70)
             else:
-                # Natural load drift
-                current_cpu = min(1.0, current_cpu * 1.02)
-                current_mem = min(1.0, current_mem * 1.01)
+                # Natural load drift & upstream dependency pressure
+                upstream_deps = self.topology.get_dependencies(pod_id)
+                dependency_stress = 0.02 if any(self.active_actions.get(d) == "RESTART" for d in upstream_deps) else 0.01
+                current_cpu = min(1.0, current_cpu * (1.0 + dependency_stress))
+                current_mem = min(1.0, current_mem * (1.0 + dependency_stress * 0.5))
 
     def initialize_simulation(self):
         """Seed the simulation environment with the current state of the TopologyGraph."""
