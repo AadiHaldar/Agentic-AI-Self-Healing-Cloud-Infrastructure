@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -153,18 +154,66 @@ async def github_webhook(request: Dict[str, Any]):
 @app.get("/api/github/app-config")
 def get_github_app_config():
     """Return instructions and webhook URL for 1-click GitHub App / Webhook integration."""
+    tunnel_url = "https://crunching-avenging-transport.ngrok-free.dev"
     return {
-        "webhook_url": "http://localhost:8085/api/github/webhook",
+        "webhook_url": f"{tunnel_url}/api/github/webhook",
+        "manifest_setup_url": "http://localhost:8085/api/github/app-manifest-form",
         "events_supported": ["pull_request", "push", "issues"],
         "setup_steps": [
-            "1. Open your target GitHub Repository (e.g. HRA_Final)",
-            "2. Go to Settings -> Webhooks -> Add Webhook",
-            "3. Paste Payload URL: http://<your-host>:8085/api/github/webhook",
-            "4. Select Content Type: application/json",
-            "5. Select Events: 'Pull requests' and 'Pushes'",
-            "6. Click 'Add Webhook'. Done! Zero YAML files or code changes needed."
+            "1. Click '1-Click Register GitHub App' to pre-fill GitHub permissions",
+            "2. Click 'Create GitHub App' on GitHub",
+            "3. Select repositories (e.g. Amrita-Express) to install",
+            "4. Done! App can now automatically open PRs & post review comments with 0 user access sharing."
         ]
     }
+
+@app.get("/api/github/app-manifest-form", response_class=HTMLResponse)
+def get_github_app_manifest_form():
+    """Returns an auto-submitting HTML form that redirects to GitHub App creation with pre-configured permissions."""
+    tunnel_url = "https://crunching-avenging-transport.ngrok-free.dev"
+    manifest_json = json.dumps({
+        "name": f"Agentic-AI-Self-Healing-{int(time.time()) % 10000}",
+        "url": tunnel_url,
+        "hook_attributes": {
+            "url": f"{tunnel_url}/api/github/webhook",
+            "active": True
+        },
+        "redirect_url": "http://localhost:8085/dashboard",
+        "public": True,
+        "default_permissions": {
+            "pull_requests": "write",
+            "contents": "write",
+            "issues": "write",
+            "metadata": "read"
+        },
+        "default_events": [
+            "pull_request",
+            "push",
+            "issues"
+        ]
+    })
+    
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <title>Register GitHub App - Agentic AI Self-Healing</title>
+    <style>
+        body {{ font-family: sans-serif; background: #06070a; color: #fff; text-align: center; padding-top: 50px; }}
+        .btn {{ background: #a855f7; color: #fff; padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }}
+        .btn:hover {{ background: #9333ea; }}
+    </style>
+</head>
+<body>
+    <h2>🚀 1-Click Register GitHub App</h2>
+    <p>Pre-configuring permissions (Pull Requests Write, Contents Write, Issues Write) for zero-friction PR creation.</p>
+    <br>
+    <form action="https://github.com/settings/apps/new" method="post">
+        <input type="hidden" name="manifest" value='{manifest_json}'>
+        <button type="submit" class="btn">Click Here to Create & Install GitHub App on GitHub</button>
+    </form>
+</body>
+</html>"""
+    return html
 
 @app.get("/api/github/scan-integrity")
 def scan_code_integrity(repo: str = "AadiHaldar/continuum-forge"):
