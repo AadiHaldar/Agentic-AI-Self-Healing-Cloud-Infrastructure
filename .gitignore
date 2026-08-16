@@ -18,8 +18,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 .env
+.env.app
 venv/
 env/
+scratch/
+
+# pr_review_agent — never commit app credentials or SQLite DB
+data/
+*.db
 
 # Node
 node_modules/

@@ -1,6 +1,9 @@
+import logging
 import os
+import json
+import time
 import numpy as np
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -13,10 +16,22 @@ from agentic_engine.tools.k8s_tools import K8sRemediationTools
 from detection.anomaly.isolation_forest import MetricsAnomalyDetector
 from detection.explainer.shap_explainer import SHAPExplainer
 
+logger = logging.getLogger(__name__)
+
 app = FastAPI(
     title="Agentic AI Self-Healing Infrastructure Dashboard API",
     version="2.0.0"
 )
+
+# ── Mount PR Review Agent router ──────────────────────────────────────────────
+try:
+    from pr_review_agent.webhook_handler import router as pr_review_router
+    app.include_router(pr_review_router)
+    logger.info("[main] pr_review_agent router mounted")
+except Exception as _pr_import_err:
+    logger.warning(
+        "[main] pr_review_agent not mounted (dependency missing?): %s", _pr_import_err
+    )
 
 # Enable CORS for local UI access
 app.add_middleware(
@@ -142,13 +157,19 @@ def create_github_pr(request: GitOpsPRRequest):
     return res
 
 @app.post("/api/github/webhook")
-async def github_webhook(request: Dict[str, Any]):
+async def github_webhook(request: Request):
     """
     GitHub App Webhook Endpoint.
-    Receives pull_request/push/issues HTTP POST events from GitHub and triggers Agentic AI verification.
+    Receives pull_request/push/issues HTTP POST events from GitHub
+    and triggers the legacy infra-healing audit comment.
+    Real PR review analysis is handled by pr_review_agent.webhook_handler (Phase 3).
     """
-    event_type = "pull_request"
-    res = github_manager.handle_webhook_event(request, event_type=event_type)
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    event_type = request.headers.get("X-GitHub-Event", "pull_request")
+    res = github_manager.handle_webhook_event(payload, event_type=event_type)
     return res
 
 @app.get("/api/github/app-config")
@@ -157,7 +178,7 @@ def get_github_app_config():
     tunnel_url = "https://crunching-avenging-transport.ngrok-free.dev"
     return {
         "webhook_url": f"{tunnel_url}/api/github/webhook",
-        "manifest_setup_url": "http://localhost:8085/api/github/app-manifest-form",
+        "manifest_setup_url": f"{tunnel_url}/api/github/app-manifest-form",
         "events_supported": ["pull_request", "push", "issues"],
         "setup_steps": [
             "1. Click '1-Click Register GitHub App' to pre-fill GitHub permissions",
@@ -169,60 +190,13 @@ def get_github_app_config():
 
 @app.get("/api/github/app-manifest-form", response_class=HTMLResponse)
 def get_github_app_manifest_form():
-    """Returns an auto-submitting HTML form that redirects to GitHub App creation with pre-configured permissions."""
-    tunnel_url = "https://crunching-avenging-transport.ngrok-free.dev"
-    manifest_json = json.dumps({
-        "name": f"Agentic-AI-Self-Healing-{int(time.time()) % 10000}",
-        "url": tunnel_url,
-        "hook_attributes": {
-            "url": f"{tunnel_url}/api/github/webhook",
-            "active": True
-        },
-        "redirect_url": "http://localhost:8085/dashboard",
-        "public": True,
-        "default_permissions": {
-            "pull_requests": "write",
-            "contents": "write",
-            "issues": "write",
-            "metadata": "read"
-        },
-        "default_events": [
-            "pull_request",
-            "push",
-            "issues"
-        ]
-    })
-    
-    html = f"""<!DOCTYPE html>
-<html>
-<head>
-    <title>Register GitHub App - Agentic AI Self-Healing</title>
-    <style>
-        body {{ font-family: sans-serif; background: #06070a; color: #fff; text-align: center; padding-top: 50px; }}
-        .btn {{ background: #a855f7; color: #fff; padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }}
-        .btn:hover {{ background: #9333ea; }}
-    </style>
-</head>
-<body>
-    <h2>🚀 1-Click Register GitHub App</h2>
-    <p>Pre-configuring permissions (Pull Requests Write, Contents Write, Issues Write) for zero-friction PR creation.</p>
-    <br>
-    <form action="https://github.com/settings/apps/new" method="post">
-        <input type="hidden" name="manifest" value='{manifest_json}'>
-        <button type="submit" class="btn">Click Here to Create & Install GitHub App on GitHub</button>
-    </form>
-</body>
-</html>"""
-    return html
+    """Redirect to the new /install page (handled by pr_review_agent router)."""
+    return HTMLResponse(
+        '<meta http-equiv="refresh" content="0; url=/install">'
+        '<p>Redirecting to <a href="/install">/install</a>...</p>'
+    )
 
-@app.get("/api/github/scan-integrity")
-def scan_code_integrity(repo: str = "AadiHaldar/continuum-forge"):
-    """
-    Triggers a Deep Code Integrity & Vulnerability Audit on the specified GitHub repository.
-    Scans for secret leaks, unhandled timeouts, memory leak hazards, and manifest limit compliance.
-    """
-    res = github_manager.analyze_repository_integrity(repo)
-    return res
+
 
 @app.post("/api/override")
 def manual_override(request: OverrideRequest):

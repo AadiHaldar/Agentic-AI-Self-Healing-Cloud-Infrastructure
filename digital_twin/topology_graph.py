@@ -40,4 +40,10 @@ class TopologyGraph:
 
     def to_dict(self) -> Dict[str, Any]:
         """Export the graph as a dictionary (e.g., for JSON serialization)."""
-        return nx.node_link_data(self.graph)
+        data = nx.node_link_data(self.graph)
+        if "edges" in data and "links" not in data:
+            data["links"] = data["edges"]
+        elif "links" in data and "edges" not in data:
+            data["edges"] = data["links"]
+        return data
+

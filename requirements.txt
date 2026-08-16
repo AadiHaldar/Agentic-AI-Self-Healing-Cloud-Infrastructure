@@ -12,3 +12,16 @@ pydantic>=2.0.0
 google-generativeai
 python-dotenv
 pandas
+
+# ── pr_review_agent dependencies ──────────────────────────────────────────────
+# GitHub App JWT authentication (RS256)
+PyJWT>=2.8.0
+cryptography>=41.0.0
+# Per-repo config YAML parsing
+PyYAML>=6.0.1
+# Gemini 2.0 Flash (new SDK)
+google-genai>=0.7.0
+
+# Optional static analysis tools (install separately as needed):
+#   pip install ruff bandit detect-secrets pip-audit
+# ESLint is invoked via npx (no pip install needed)

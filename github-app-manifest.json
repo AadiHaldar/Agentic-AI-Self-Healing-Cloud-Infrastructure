@@ -1,0 +1,26 @@
+{
+  "name": "agentic-review-agent",
+  "url": "https://your-tunnel-url",
+  "hook_attributes": {
+    "url": "https://your-tunnel-url/webhooks/github",
+    "active": true
+  },
+  "redirect_url": "https://your-tunnel-url/api/github/app-callback",
+  "description": "Agentic AI Self-Healing Infrastructure — automated code review with static analysis, Gemini LLM, and quality gate checks.",
+  "public": true,
+  "default_permissions": {
+    "pull_requests": "write",
+    "contents": "write",
+    "checks": "write",
+    "metadata": "read",
+    "issues": "write"
+  },
+  "default_events": [
+    "pull_request",
+    "pull_request_review",
+    "pull_request_review_comment",
+    "issue_comment",
+    "check_suite",
+    "check_run"
+  ]
+}
