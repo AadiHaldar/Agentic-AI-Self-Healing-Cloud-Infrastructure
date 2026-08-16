@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agentic AI Self-Healing Cloud Infrastructure</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>">
+    <title>Agentic AI Self-Healing & Infrastructure Control Layer (CodeRabbit Style)</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f97316'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #06070a;
-            --card-bg: rgba(13, 16, 26, 0.82);
+            --bg-dark: #0b0c10;
+            --bg-card: rgba(18, 20, 29, 0.9);
             --card-border: rgba(255, 255, 255, 0.08);
+            --brand-orange: #f97316;
+            --brand-orange-glow: rgba(249, 115, 22, 0.25);
             --accent-purple: #a855f7;
-            --accent-pink: #ec4899;
-            --accent-blue: #3b82f6;
             --accent-cyan: #06b6d4;
-            --glow-purple: rgba(168, 85, 247, 0.25);
+            --accent-pink: #ec4899;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --success: #10b981;
             --warning: #f59e0b;
-            --danger: #f43f5e;
+            --danger: #ef4444;
         }
 
         * {
@@ -35,1082 +35,852 @@
         body {
             background-color: var(--bg-dark);
             background-image: 
-                radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.15) 0px, transparent 40%),
-                radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.12) 0px, transparent 40%),
-                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+                radial-gradient(circle at 10% 10%, rgba(249, 115, 22, 0.12) 0px, transparent 35%),
+                radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.10) 0px, transparent 35%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
             color: var(--text-main);
             min-height: 100vh;
-            padding: 32px 40px;
+            padding: 24px 40px 60px 40px;
         }
 
-        /* Top Header Navigation */
+        /* Top Announcement Banner */
+        .announcement-bar {
+            background: linear-gradient(90deg, rgba(249, 115, 22, 0.15), rgba(168, 85, 247, 0.15));
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 8px;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .announcement-bar a {
+            color: var(--brand-orange);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        /* Navigation Header */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 28px;
+            padding-bottom: 20px;
             border-bottom: 1px solid var(--card-border);
             margin-bottom: 32px;
-            position: relative;
-        }
-
-        header::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 240px;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink), transparent);
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
         }
 
         .brand-logo {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: rgba(168, 85, 247, 0.08);
-            border: 1px solid rgba(168, 85, 247, 0.4);
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 24px var(--glow-purple);
+            box-shadow: 0 0 20px var(--brand-orange-glow);
         }
 
         .brand-logo svg {
-            width: 22px;
-            height: 22px;
-            stroke: var(--accent-purple);
+            width: 20px;
+            height: 20px;
+            fill: white;
         }
 
         .brand-title h1 {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.6px;
-            background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .brand-title p {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 400;
-            letter-spacing: 0.2px;
-        }
-
-        .status-badge {
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--success);
-            letter-spacing: 0.5px;
-        }
-
-        .status-dot-hollow {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            border: 2px solid var(--success);
-            background: transparent;
-            box-shadow: 0 0 12px var(--success);
-            animation: pulse-ring 2s infinite;
-        }
-
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 1; }
-            50% { transform: scale(1.15); opacity: 0.5; }
-            100% { transform: scale(0.95); opacity: 1; }
-        }
-
-        /* Dashboard Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 24px;
-        }
-
-        .col-4 { grid-column: span 4; }
-        .col-8 { grid-column: span 8; }
-        .col-12 { grid-column: span 12; }
-
-        /* Premium Card Design */
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 24px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-            transition: border-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 3px;
-            height: 100%;
-            background: linear-gradient(180deg, var(--accent-purple), var(--accent-pink), var(--accent-blue));
-            opacity: 0.85;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-        }
-
-        .card-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card-title svg {
-            width: 16px;
-            height: 16px;
-            stroke: var(--accent-purple);
-        }
-
-        /* Stat Numbers */
-        .stat-value {
-            font-size: 38px;
+            font-size: 22px;
             font-weight: 800;
-            letter-spacing: -1px;
-            margin-top: 4px;
-            background: linear-gradient(135deg, #ffffff 40%, var(--accent-purple) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
         }
 
-        /* Loading Spinner */
-        .loading-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(6, 7, 10, 0.7);
-            backdrop-filter: blur(4px);
-            z-index: 10;
+        .nav-links {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 16px;
-            transition: opacity 0.3s ease;
-        }
-
-        .loading-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .spinner {
-            width: 32px;
-            height: 32px;
-            border: 3px solid rgba(168, 85, 247, 0.2);
-            border-top-color: var(--accent-purple);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* Agent Comparison Panel */
-        .agent-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .agent-card {
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 18px;
-            background: rgba(255, 255, 255, 0.015);
-            transition: all 0.25s ease;
-        }
-
-        .agent-name {
+            gap: 28px;
             font-size: 14px;
-            font-weight: 700;
-            color: var(--accent-purple);
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            font-weight: 500;
+            color: var(--text-muted);
         }
 
-        .code-block {
-            font-family: 'JetBrains Mono', monospace;
-            background: #040508;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 12.5px;
-            color: #38bdf8;
-            margin-top: 10px;
-            line-height: 1.6;
-            overflow-x: auto;
-            white-space: pre-wrap;
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
         }
 
-        /* Hollow Buttons & Form Inputs */
-        .btn {
-            background: transparent;
+        .nav-links a:hover {
             color: var(--text-main);
-            border: 1px solid var(--accent-purple);
-            padding: 10px 22px;
-            border-radius: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
             font-weight: 600;
-            font-size: 13.5px;
             cursor: pointer;
-            transition: all 0.25s ease;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 0 16px var(--glow-purple);
-        }
-
-        .btn svg {
-            width: 15px;
-            height: 15px;
-            stroke: var(--accent-purple);
-            transition: stroke 0.25s ease;
+            transition: all 0.2s;
         }
 
         .btn:hover {
-            background: var(--accent-purple);
-            color: #ffffff;
-            box-shadow: 0 0 28px rgba(168, 85, 247, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
-        .btn:hover svg {
-            stroke: #ffffff;
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            border: none;
+            color: white;
+            box-shadow: 0 0 16px var(--brand-orange-glow);
         }
 
-        .btn-danger {
-            border-color: var(--danger);
-            box-shadow: 0 0 16px rgba(244, 63, 94, 0.2);
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ea580c, #c2410c);
         }
 
-        .btn-danger svg {
-            stroke: var(--danger);
-        }
-
-        .btn-danger:hover {
-            background: var(--danger);
-            color: #ffffff;
-            box-shadow: 0 0 28px rgba(244, 63, 94, 0.5);
-        }
-
-        .form-group {
+        .status-badge {
             display: flex;
-            gap: 16px;
-            margin-top: 14px;
             align-items: center;
-        }
-
-        input, select {
-            background: #040508;
-            border: 1px solid var(--card-border);
-            color: var(--text-main);
-            padding: 11px 16px;
-            border-radius: 10px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s ease;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--accent-purple);
-        }
-
-        /* Event Timeline */
-        .event-log-container {
-            display: flex;
-            flex-direction: column;
             gap: 8px;
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .event-log-container::-webkit-scrollbar {
-            width: 6px;
-        }
-        .event-log-container::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-        }
-
-        .event-row {
-            display: grid;
-            grid-template-columns: 100px 150px 1fr 150px;
-            gap: 16px;
-            padding: 10px 16px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            font-size: 13px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--success);
             font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 36px;
+        }
+
+        .hero-tag {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: var(--brand-orange);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .hero-title {
+            font-size: 44px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 12px;
+            max-width: 650px;
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            color: var(--text-muted);
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
+        /* 4-Tab Feature Stepper (CodeRabbit Style) */
+        .stepper-nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 12px 12px 0 0;
+            overflow: hidden;
+        }
+
+        .stepper-tab {
+            padding: 16px 20px;
+            background: rgba(18, 20, 29, 0.6);
+            border: none;
+            color: var(--text-muted);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
             align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .stepper-tab:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+        }
+
+        .stepper-tab.active {
+            background: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        .stepper-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--brand-orange);
+        }
+
+        .tab-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--brand-orange);
+            opacity: 0.8;
+        }
+
+        .tab-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        /* Tab Content Display Container */
+        .tab-display-card {
+            background: var(--bg-card);
+            border: 1px solid var(--card-border);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            padding: 28px;
+            margin-bottom: 36px;
+            min-height: 480px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
             animation: fadeIn 0.3s ease;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        .event-time { color: var(--text-muted); }
-        .event-target { color: var(--accent-blue); font-weight: 600; }
-        .event-action { color: var(--accent-purple); }
-        .event-agent { color: var(--success); text-align: right; }
-
-        /* Workflow Pipeline Stepper */
-        .pipeline-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 16px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.015);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-        }
-
-        .pipeline-step {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 14px 16px;
-            background: rgba(13, 16, 26, 0.9);
+        /* CodeRabbit Review Card Style */
+        .review-card {
+            background: rgba(13, 16, 26, 0.95);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            position: relative;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
         }
 
-        .pipeline-step.active {
-            border-color: var(--accent-purple);
-            box-shadow: 0 0 16px rgba(168, 85, 247, 0.25);
-            background: rgba(168, 85, 247, 0.06);
-        }
-
-        .step-header {
+        .review-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 13px;
         }
 
-        .step-number {
-            font-size: 10px;
+        .bot-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            color: var(--brand-orange);
+        }
+
+        .badge-issue {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: var(--danger);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-simpy {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: var(--success);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
             font-weight: 700;
             font-family: 'JetBrains Mono', monospace;
-            color: var(--accent-cyan);
-            background: rgba(6, 182, 212, 0.12);
-            padding: 2px 8px;
-            border-radius: 4px;
-            border: 1px solid rgba(6, 182, 212, 0.3);
         }
 
-        .step-title {
-            font-size: 13px;
+        .review-body {
+            padding: 20px;
+        }
+
+        .review-title {
+            font-size: 16px;
             font-weight: 700;
+            margin-bottom: 8px;
             color: var(--text-main);
         }
 
-        .step-desc {
-            font-size: 11px;
-            font-family: 'JetBrains Mono', monospace;
+        .review-desc {
+            font-size: 13px;
             color: var(--text-muted);
-            line-height: 1.4;
+            margin-bottom: 16px;
+            line-height: 1.5;
         }
 
-        .pipeline-arrow {
+        /* Diff Block */
+        .diff-block {
+            background: #06070a;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .diff-del {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: block;
+        }
+
+        .diff-add {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: block;
+        }
+
+        /* Kanban Board Style (Prioritize Tab) */
+        .kanban-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .kanban-col {
+            background: rgba(13, 16, 26, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .kanban-header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: var(--accent-cyan);
-            opacity: 0.6;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .p0-tag { color: var(--danger); }
+        .p1-tag { color: var(--warning); }
+        .p2-tag { color: var(--accent-cyan); }
+
+        .kanban-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .kanban-card-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .kanban-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .tag-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Topology SVG Styles (Understand Tab) */
+        .topology-box {
+            width: 100%;
+            height: 320px;
+            background: #06070a;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Security Audit Table (Secure Tab) */
+        .audit-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .audit-table th, .audit-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .audit-table th {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Controls Section at Bottom */
+        .control-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .control-inputs {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        select, input[type="number"] {
+            background: #06070a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--brand-orange);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
         }
     </style>
 </head>
 <body>
 
-    <!-- Header Navigation -->
+    <!-- Top Announcement Banner -->
+    <div class="announcement-bar">
+        ⚡ <span>Introducing SimPy Digital Twin Safety Gates & Agentic AI Infrastructure Control Layer.</span>
+        <a href="https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure" target="_blank">View GitHub Repo &rarr;</a>
+    </div>
+
+    <!-- Navigation Header -->
     <header>
         <div class="brand">
             <div class="brand-logo">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
+                <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             </div>
             <div class="brand-title">
-                <h1>Agentic AI Self-Healing Infrastructure</h1>
-                <p>Digital Twin Operations & Parallel ReAct Decision Engine</p>
+                <h1>Agentic AI Self-Healing</h1>
             </div>
         </div>
-        <div class="status-badge" id="system-status-badge">
-            <div class="status-dot-hollow"></div>
-            <span id="status-text">SYSTEM HEALTHY</span>
+
+        <nav class="nav-links">
+            <a href="#review">Review</a>
+            <a href="#prioritize">Prioritize</a>
+            <a href="#understand">Understand</a>
+            <a href="#secure">Secure</a>
+            <a href="#gitops">GitOps PRs</a>
+        </nav>
+
+        <div class="header-actions">
+            <a href="/api/github/app-manifest-form" target="_blank" class="btn btn-primary">
+                ⚡ 1-Click Register GitHub App
+            </a>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                <span id="status-text">SYSTEM HEALTHY</span>
+            </div>
         </div>
     </header>
 
-    <!-- Main Grid -->
-    <div class="dashboard-grid">
-        <!-- Stat Cards -->
-        <div class="card col-4">
-            <div class="card-title">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-                Total Active Pods
-            </div>
-            <div class="stat-value" id="stat-total-pods">4</div>
-        </div>
-
-        <div class="card col-4">
-            <div class="card-title">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Active Anomalies
-            </div>
-            <div class="stat-value" style="background: linear-gradient(135deg, #ffffff 40%, var(--warning) 100%); -webkit-background-clip: text;" id="stat-anomalies">1</div>
-        </div>
-
-        <div class="card col-4">
-            <div class="card-title">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Orchestrator Mode
-            </div>
-            <div class="stat-value" style="background: linear-gradient(135deg, #ffffff 40%, var(--accent-purple) 100%); -webkit-background-clip: text;" id="stat-mode">PARALLEL</div>
-        </div>
-
-        <!-- End-to-End Self-Healing Workflow Pipeline Stepper -->
-        <div class="card col-12">
-            <div class="card-header">
-                <div class="card-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/><line x1="12" y1="6" x2="12" y2="12"/></svg>
-                    End-to-End Self-Healing Workflow Pipeline
-                </div>
-                <span style="font-size: 11px; font-weight: 600; color: var(--accent-cyan); font-family: 'JetBrains Mono';" id="pipeline-status">PIPELINE IDLE</span>
-            </div>
-            <div class="pipeline-container">
-                <div class="pipeline-step active" id="p-step-1">
-                    <div class="step-header">
-                        <span class="step-title">1. Repo Connected</span>
-                        <span class="step-number">STEP 01</span>
-                    </div>
-                    <div class="step-desc" id="p-step-1-desc">AadiHaldar/continuum-forge<br><span style="color: var(--success);">0-YAML Webhook Active</span></div>
-                </div>
-
-                <div class="pipeline-arrow">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-
-                <div class="pipeline-step" id="p-step-2">
-                    <div class="step-header">
-                        <span class="step-title">2. SHAP Telemetry</span>
-                        <span class="step-number">STEP 02</span>
-                    </div>
-                    <div class="step-desc" id="p-step-2-desc">Isolation Forest Anomaly<br><span style="color: var(--text-muted);">SHAP Risk: Pending</span></div>
-                </div>
-
-                <div class="pipeline-arrow">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-
-                <div class="pipeline-step" id="p-step-3">
-                    <div class="step-header">
-                        <span class="step-title">3. Digital Twin Sim</span>
-                        <span class="step-number">STEP 03</span>
-                    </div>
-                    <div class="step-desc" id="p-step-3-desc">SimPy Load Dry-Run<br><span style="color: var(--accent-purple);">Safety Gate: Verification</span></div>
-                </div>
-
-                <div class="pipeline-arrow">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-
-                <div class="pipeline-step" id="p-step-4">
-                    <div class="step-header">
-                        <span class="step-title">4. Dual Agent Decision</span>
-                        <span class="step-number">STEP 04</span>
-                    </div>
-                    <div class="step-desc" id="p-step-4-desc">Gemini LLM vs RL<br><span style="color: var(--text-muted);">Chain-of-Thought Consensus</span></div>
-                </div>
-
-                <div class="pipeline-arrow">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-
-                <div class="pipeline-step" id="p-step-5">
-                    <div class="step-header">
-                        <span class="step-title">5. GitOps PR Fix</span>
-                        <span class="step-number">STEP 05</span>
-                    </div>
-                    <div class="step-desc" id="p-step-5-desc">Declarative Manifest PR<br><span style="color: var(--text-muted);">PR Created & Deployed</span></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Digital Twin Topology Viewer -->
-        <div class="card col-12">
-            <div class="card-header">
-                <div class="card-title">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                    Digital Twin Topology Graph
-                </div>
-                <button class="btn" onclick="fetchTopology()">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                    Refresh Topology
-                </button>
-            </div>
-            <div id="topology-container" style="width: 100%; height: 200px; margin-top: 10px;">
-                <!-- SVG nodes populated dynamically -->
-            </div>
-        </div>
-
-        <!-- Parallel Agent Evaluation Engine -->
-        <div class="card col-8">
-            <div class="card-spinner loading-overlay hidden">
-                <div class="spinner"></div>
-            </div>
-            <div class="card-header">
-                <div class="card-title">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    Parallel Agent Decision Comparison
-                </div>
-                <span style="font-size: 12px; color: var(--accent-cyan); font-weight: 600;" id="agreement-status">Evaluating...</span>
-            </div>
-            <div class="agent-grid">
-                <div class="agent-card">
-                    <div class="agent-name">
-                        <span>SimiFed RL Baseline</span>
-                        <span id="rl-latency" style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono';">-- ms</span>
-                    </div>
-                    <p style="font-size: 12px; color: var(--text-muted);">SF-DTM Q-Table & Cosine Similarity Policy</p>
-                    <div class="code-block" id="rl-decision">Action: ...<br>Rationale: ...</div>
-                </div>
-
-                <div class="agent-card">
-                    <div class="agent-name">
-                        <span>LLM ReAct Agent (Gemini)</span>
-                        <span id="llm-latency" style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono';">-- ms</span>
-                    </div>
-                    <p style="font-size: 12px; color: var(--text-muted);">Reason -> SimPy Dry-Run -> Act Framework</p>
-                    <div class="code-block" id="llm-decision">Action: ...<br>Simulation: ...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SHAP Explanation Panel -->
-        <div class="card col-4">
-            <div class="card-spinner loading-overlay hidden">
-                <div class="spinner"></div>
-            </div>
-            <div class="card-header">
-                <div class="card-title">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                    SHAP Feature Attribution
-                </div>
-            </div>
-            <div id="shap-chart-container" style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
-                <!-- Dynamic horizontal bars -->
-            </div>
-        </div>
-
-        <!-- LLM Chain-of-Thought Reasoning Panel -->
-        <div class="card col-12">
-            <div class="card-spinner loading-overlay hidden">
-                <div class="spinner"></div>
-            </div>
-            <div class="card-header">
-                <div class="card-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
-                    LLM Chain-of-Thought Reasoning
-                </div>
-            </div>
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-muted);">
-                <p><strong style="color: var(--accent-cyan);">Root Cause:</strong> <span id="llm-root-cause">Awaiting evaluation...</span></p>
-                <p style="margin-top: 12px;"><strong style="color: var(--accent-purple);">Thought Process:</strong></p>
-                <div class="code-block" id="llm-thought">Awaiting evaluation...</div>
-            </div>
-        </div>
-
-        <!-- Event Timeline / Log Panel -->
-        <div class="card col-12">
-            <div class="card-header">
-                <div class="card-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    Healing Action Timeline
-                </div>
-            </div>
-            <div class="event-log-container" id="event-log-container">
-                <!-- Log entries dynamically populated -->
-            </div>
-        </div>
-
-        <!-- GitHub GitOps & Code Patch Audit Panel -->
-        <div class="card col-12">
-            <div class="card-header">
-                <div class="card-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-                    GitHub GitOps & Code Patch Pull Requests
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <a href="/api/github/app-manifest-form" target="_blank" class="btn" style="border-color: var(--accent-purple); color: var(--accent-purple); text-decoration: none;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                        1-Click Register GitHub App
-                    </a>
-                    <span id="github-mode-badge" style="font-size: 12px; color: var(--accent-purple); font-weight: 600; font-family: 'JetBrains Mono';">GITOPS MODE ACTIVE</span>
-                </div>
-            </div>
-            <div id="github-pr-list" class="event-log-container" style="max-height: 280px;">
-                <div style="color: var(--text-muted); font-size: 13px; font-family: 'JetBrains Mono';">No GitHub Pull Requests generated yet. Run an evaluation or click 'Generate GitOps PR'.</div>
-            </div>
-        </div>
-
-        <!-- Interactive Fault Injection & Manual Override -->
-        <div class="card col-12">
-            <div class="card-header">
-                <div class="card-title">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                    Interactive Operator Control & Fault Injection
-                </div>
-            </div>
-            <div class="form-group">
-                <select id="target-service-select">
-                    <option value="checkoutservice">checkoutservice</option>
-                    <option value="frontend">frontend</option>
-                    <option value="cartservice">cartservice</option>
-                    <option value="redis-cart">redis-cart</option>
-                </select>
-                <input type="number" id="cpu-input" placeholder="CPU Usage (0.0 - 1.0)" value="0.94" step="0.05" style="width: 220px;">
-                <button class="btn btn-danger" onclick="triggerAlert()">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    Inject CPU Spike Alert
-                </button>
-                <button class="btn" onclick="triggerGitOpsPR()" style="margin-left: 10px; border-color: var(--accent-purple); color: var(--accent-purple);">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/></svg>
-                    Create GitOps PR
-                </button>
-                <button class="btn" onclick="executeOverride()" style="margin-left: auto;">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    Manual Operator Override
-                </button>
-            </div>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div>
+            <div class="hero-tag">AGENTIC CHANGE MANAGEMENT & INFRASTRUCTURE CONTROL</div>
+            <div class="hero-title">The future isn't writing code. It's prioritizing & healing it.</div>
+            <div class="hero-subtitle">We help cloud teams review, simulate, prioritize, understand, and self-heal microservice agent outputs in real-time.</div>
         </div>
     </div>
 
-    <!-- Application Script -->
+    <!-- 4-Tab Feature Stepper (CodeRabbit Style) -->
+    <div class="stepper-nav">
+        <button class="stepper-tab active" onclick="switchTab('tab-review', this)">
+            <span class="tab-num">01</span>
+            <span class="tab-title">Review every PR automatically</span>
+        </button>
+        <button class="stepper-tab" onclick="switchTab('tab-prioritize', this)">
+            <span class="tab-num">02</span>
+            <span class="tab-title">Prioritize PR flood</span>
+        </button>
+        <button class="stepper-tab" onclick="switchTab('tab-understand', this)">
+            <span class="tab-num">03</span>
+            <span class="tab-title">Understand topology & blast radius</span>
+        </button>
+        <button class="stepper-tab" onclick="switchTab('tab-secure', this)">
+            <span class="tab-num">04</span>
+            <span class="tab-title">Secure & audit integrity</span>
+        </button>
+    </div>
+
+    <!-- Tab Content Display Card -->
+    <div class="tab-display-card">
+        
+        <!-- Tab 01: Automated PR Review & Diff Inspector -->
+        <div id="tab-review" class="tab-pane active">
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="bot-tag">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
+                        <span>coderabbitai[bot] / Agentic-AI-Self-Healing</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <span class="badge-issue">Potential Issue | Major</span>
+                        <span class="badge-simpy">SimPy Twin: ✅ SAFE TO MERGE</span>
+                    </div>
+                </div>
+                <div class="review-body">
+                    <div class="review-title">Reject expired refresh tokens before issuing a session context.</div>
+                    <div class="review-desc">Check the token expiration parameter in <code>createSession()</code> before creating a new authenticated session to prevent memory leaks and unauthorized session persistence.</div>
+                    
+                    <div class="diff-block">
+                        <span style="color: var(--text-muted);">@@ -42,2 +42,3 @@ export async function createSession(payload)</span>
+                        <span class="diff-del">- return issueSession(payload.userId);</span>
+                        <span class="diff-add">+ if (payload.expiresAt &lt;= Date.now()) return null;</span>
+                        <span class="diff-add">+ return issueSession(payload.userId);</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic PR List Container -->
+            <div id="pr-reviews-container">
+                <!-- Dynamically populated from /api/github/prs -->
+            </div>
+        </div>
+
+        <!-- Tab 02: PR Prioritization & Triage Kanban Board -->
+        <div id="tab-prioritize" class="tab-pane">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">PR Triage Queue & Risk Ranking</h3>
+            <div class="kanban-grid">
+                
+                <!-- P0 Column -->
+                <div class="kanban-col">
+                    <div class="kanban-header">
+                        <span class="p0-tag">P0 — Critical Risk (Needs Immediate Action)</span>
+                        <span id="p0-count">1</span>
+                    </div>
+                    <div class="kanban-card">
+                        <div class="kanban-card-title">Memory leak in audio buffer worker</div>
+                        <div style="color: var(--text-muted); font-size: 12px;">cv_matcher / upload_recording.py</div>
+                        <div class="kanban-tags">
+                            <span class="tag-pill" style="color: var(--danger);">High Risk</span>
+                            <span class="tag-pill">SimPy: ❌ RESTART UNSAFE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P1 Column -->
+                <div class="kanban-col">
+                    <div class="kanban-header">
+                        <span class="p1-tag">P1 — High Priority (Review Needed)</span>
+                        <span id="p1-count">2</span>
+                    </div>
+                    <div class="kanban-card">
+                        <div class="kanban-card-title">Scale checkoutservice to 6 replicas</div>
+                        <div style="color: var(--text-muted); font-size: 12px;">infrastructure/manifests/checkout.yaml</div>
+                        <div class="kanban-tags">
+                            <span class="tag-pill" style="color: var(--warning);">GitOps PR</span>
+                            <span class="tag-pill">SimPy: ✅ SAFE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P2 Column -->
+                <div class="kanban-col">
+                    <div class="kanban-header">
+                        <span class="p2-tag">P2 — Routine & Safe to Merge</span>
+                        <span id="p2-count">3</span>
+                    </div>
+                    <div class="kanban-card">
+                        <div class="kanban-card-title">Auto-generated System Architecture README</div>
+                        <div style="color: var(--text-muted); font-size: 12px;">paulaaditya/Amrita-Express</div>
+                        <div class="kanban-tags">
+                            <span class="tag-pill" style="color: var(--success);">Auto Docs</span>
+                            <span class="tag-pill">Score: 95/100</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab 03: Topology & Blast Radius Analyzer -->
+        <div id="tab-understand" class="tab-pane">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Microservice Topology Graph & Blast Radius Analysis</h3>
+            <div id="topology-container" class="topology-box">
+                <!-- SVG Graph dynamically rendered -->
+            </div>
+        </div>
+
+        <!-- Tab 04: Code Integrity & Security Audit -->
+        <div id="tab-secure" class="tab-pane">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Real-Time Code Integrity & Security Audit (Score: 95 / 100)</h3>
+            <table class="audit-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Check Item</th>
+                        <th>Status</th>
+                        <th>Score</th>
+                        <th>Findings & Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🔐 <strong>Secret Protection</strong></td>
+                        <td>API Key & Private Token Leak Scan</td>
+                        <td><span style="color: var(--success); font-weight: 700;">✅ PASSED</span></td>
+                        <td><code>100 / 100</code></td>
+                        <td>0 hardcoded credentials found in source files.</td>
+                    </tr>
+                    <tr>
+                        <td>⏱️ <strong>Resource Safety</strong></td>
+                        <td>Timeout & Unhandled Loop Analysis</td>
+                        <td><span style="color: var(--success); font-weight: 700;">✅ PASSED</span></td>
+                        <td><code>95 / 100</code></td>
+                        <td>Async streaming loops wrapped with 5s timeout guards.</td>
+                    </tr>
+                    <tr>
+                        <td>🐳 <strong>Container Bounds</strong></td>
+                        <td>Kubernetes / Docker Memory Limits</td>
+                        <td><span style="color: var(--success); font-weight: 700;">✅ PASSED</span></td>
+                        <td><code>90 / 100</code></td>
+                        <td>CPU 1000m and RAM 2048Mi properly specified.</td>
+                    </tr>
+                    <tr>
+                        <td>🧹 <strong>Memory & GC</strong></td>
+                        <td>Buffer & Stream Worker Disposals</td>
+                        <td><span style="color: var(--success); font-weight: 700;">✅ PASSED</span></td>
+                        <td><code>98 / 100</code></td>
+                        <td>Audio/file streams released in finally blocks.</td>
+                    </tr>
+                    <tr>
+                        <td>🛡️ <strong>Dependency Security</strong></td>
+                        <td>Vulnerability & CVE Audit</td>
+                        <td><span style="color: var(--success); font-weight: 700;">✅ PASSED</span></td>
+                        <td><code>92 / 100</code></td>
+                        <td>All dependencies up-to-date with 0 critical CVEs.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- Bottom Interactive Control & Fault Injection Panel -->
+    <div class="control-panel">
+        <div>
+            <div style="font-weight: 700; font-size: 15px;">Interactive Fault Injection & Operator Control</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Inject chaos alerts or trigger automated GitOps self-healing PRs.</div>
+        </div>
+        <div class="control-inputs">
+            <select id="target-service-select">
+                <option value="checkoutservice">checkoutservice</option>
+                <option value="frontend">frontend</option>
+                <option value="cartservice">cartservice</option>
+                <option value="redis-cart">redis-cart</option>
+            </select>
+            <input type="number" id="cpu-input" value="0.94" step="0.05" style="width: 140px;">
+            <button class="btn btn-danger" onclick="triggerAlert()">
+                Inject CPU Spike Alert
+            </button>
+            <button class="btn" onclick="triggerGitOpsPR()" style="border-color: var(--brand-orange); color: var(--brand-orange);">
+                Create GitOps PR
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
     <script>
         const API_BASE = "/api";
-        let eventLog = [];
 
-        function setSpinners(active) {
-            document.querySelectorAll('.card-spinner').forEach(el => {
-                if (active) el.classList.remove('hidden');
-                else el.classList.add('hidden');
-            });
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.stepper-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            
+            el.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+            
+            if (tabId === 'tab-understand') {
+                fetchTopology();
+            }
         }
 
         async function fetchStatus() {
             try {
                 const res = await fetch(`${API_BASE}/status`);
                 const data = await res.json();
-                document.getElementById('stat-total-pods').innerText = data.total_pods;
-                document.getElementById('stat-anomalies').innerText = data.active_anomalies;
-                document.getElementById('stat-mode').innerText = data.active_mode.toUpperCase();
-                
-                const badge = document.getElementById('system-status-badge');
-                const text = document.getElementById('status-text');
-                if(data.status === "DEGRADED") {
-                    badge.style.background = "rgba(244, 63, 94, 0.08)";
-                    badge.style.borderColor = "rgba(244, 63, 94, 0.3)";
-                    badge.style.color = "var(--danger)";
-                    text.innerText = "SYSTEM DEGRADED";
-                } else {
-                    badge.style.background = "rgba(16, 185, 129, 0.08)";
-                    badge.style.borderColor = "rgba(16, 185, 129, 0.3)";
-                    badge.style.color = "var(--success)";
-                    text.innerText = "SYSTEM HEALTHY";
-                }
-            } catch(e) {
-                console.error("API error", e);
+                document.getElementById('status-text').innerText = data.status === 'HEALTHY' ? 'SYSTEM HEALTHY' : 'SYSTEM DEGRADED';
+            } catch (e) {
+                console.error("Status fetch error", e);
             }
         }
 
         async function fetchTopology() {
+            const container = document.getElementById('topology-container');
             try {
                 const res = await fetch(`${API_BASE}/topology`);
                 const data = await res.json();
-                renderTopology(data);
-            } catch(e) { console.error(e); }
-        }
+                
+                let svgHtml = `<svg width="100%" height="100%" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#06b6d4" />
+                        </marker>
+                    </defs>`;
 
-        function renderTopology(data) {
-            const container = document.getElementById('topology-container');
-            const svgWidth = container.clientWidth || 800;
-            const svgHeight = 200;
-            
-            // Simple depth calculation for column layout
-            let depth = {};
-            let roots = data.nodes.filter(n => !data.links.some(l => l.target === n.id));
-            if (roots.length === 0 && data.nodes.length > 0) roots = [data.nodes[0]];
-            
-            let queue = roots.map(r => ({id: r.id, d: 0}));
-            while(queue.length) {
-                let curr = queue.shift();
-                if (depth[curr.id] !== undefined) continue;
-                depth[curr.id] = curr.d;
-                data.links.filter(l => l.source === curr.id).forEach(l => {
-                    if (depth[l.target] === undefined) queue.push({id: l.target, d: curr.d + 1});
-                });
-            }
-            
-            data.nodes.forEach(n => { if(depth[n.id] === undefined) depth[n.id] = 0; });
-            
-            let maxDepth = Math.max(0, ...Object.values(depth));
-            let xStep = svgWidth / (maxDepth + 2);
-            let depthCounts = {};
-            data.nodes.forEach(n => { depthCounts[depth[n.id]] = (depthCounts[depth[n.id]] || 0) + 1; });
-            
-            let nodePositions = {};
-            let currentY = {};
-            data.nodes.forEach(n => {
-                let d = depth[n.id];
-                let totalInDepth = depthCounts[d];
-                let yStep = svgHeight / (totalInDepth + 1);
-                currentY[d] = (currentY[d] || 0) + 1;
-                nodePositions[n.id] = {
-                    x: (d + 1) * xStep,
-                    y: currentY[d] * yStep,
-                    ...n
+                const nodePositions = {
+                    'frontend': {x: 100, y: 150},
+                    'checkoutservice': {x: 320, y: 80},
+                    'cartservice': {x: 320, y: 220},
+                    'redis-cart': {x: 580, y: 220},
+                    'emailservice': {x: 580, y: 80}
                 };
-            });
 
-            let svgHtml = `<svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}">
-                <defs>
-                    <marker id="arrow" viewBox="0 0 10 10" refX="60" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent-cyan)" />
-                    </marker>
-                </defs>`;
-                
-            data.links.forEach(l => {
-                let src = nodePositions[l.source];
-                let tgt = nodePositions[l.target];
-                if (src && tgt) {
-                    svgHtml += `<line x1="${src.x}" y1="${src.y}" x2="${tgt.x}" y2="${tgt.y}" stroke="var(--accent-cyan)" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="4,4" opacity="0.6" />`;
-                }
-            });
-            
-            data.nodes.forEach(n => {
-                let pos = nodePositions[n.id];
-                let isCritical = n.cpu_usage && n.cpu_usage > 0.8;
-                let strokeColor = isCritical ? 'var(--danger)' : 'var(--accent-purple)';
-                let fillColor = isCritical ? 'rgba(244, 63, 94, 0.1)' : 'rgba(168, 85, 247, 0.08)';
-                svgHtml += `
-                    <rect x="${pos.x - 55}" y="${pos.y - 18}" width="110" height="36" rx="6" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
-                    <text x="${pos.x}" y="${pos.y + 4}" fill="var(--text-main)" font-size="12" font-family="'JetBrains Mono', monospace" text-anchor="middle">${n.id}</text>
-                `;
-            });
-            
-            svgHtml += `</svg>`;
-            container.innerHTML = svgHtml;
-        }
+                // Draw links
+                data.links.forEach(l => {
+                    const src = nodePositions[l.source] || {x: 100, y: 150};
+                    const tgt = nodePositions[l.target] || {x: 580, y: 150};
+                    svgHtml += `<line x1="${src.x+60}" y1="${src.y}" x2="${tgt.x-60}" y2="${tgt.y}" stroke="#06b6d4" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrow)"/>`;
+                });
 
-        function renderShapBars(scores) {
-            const container = document.getElementById('shap-chart-container');
-            container.innerHTML = '';
-            
-            let maxVal = Math.max(...Object.values(scores).map(Math.abs));
-            if (maxVal === 0) maxVal = 1;
-            
-            for (const [feature, value] of Object.entries(scores)) {
-                const row = document.createElement('div');
-                row.style.display = 'flex';
-                row.style.alignItems = 'center';
-                row.style.fontFamily = "'JetBrains Mono', monospace";
-                row.style.fontSize = '12px';
-                
-                const label = document.createElement('div');
-                label.innerText = feature;
-                label.style.width = '120px';
-                label.style.color = 'var(--text-muted)';
-                label.style.textAlign = 'right';
-                label.style.paddingRight = '12px';
-                
-                const barWrapper = document.createElement('div');
-                barWrapper.style.flex = '1';
-                barWrapper.style.display = 'flex';
-                barWrapper.style.position = 'relative';
-                barWrapper.style.alignItems = 'center';
-                
-                const zeroLine = document.createElement('div');
-                zeroLine.style.position = 'absolute';
-                zeroLine.style.left = '50%';
-                zeroLine.style.top = '-4px';
-                zeroLine.style.bottom = '-4px';
-                zeroLine.style.width = '1px';
-                zeroLine.style.backgroundColor = 'rgba(255,255,255,0.1)';
-                
-                const bar = document.createElement('div');
-                bar.style.height = '14px';
-                bar.style.borderRadius = '2px';
-                
-                const percent = (Math.abs(value) / maxVal) * 50;
-                bar.style.width = `${percent}%`;
-                
-                if (value >= 0) {
-                    bar.style.backgroundColor = 'var(--accent-purple)';
-                    bar.style.marginLeft = '50%';
-                } else {
-                    bar.style.backgroundColor = 'var(--accent-pink)';
-                    bar.style.marginLeft = `${50 - percent}%`;
-                }
-                
-                barWrapper.appendChild(zeroLine);
-                barWrapper.appendChild(bar);
-                
-                const valLabel = document.createElement('div');
-                valLabel.innerText = value.toFixed(3);
-                valLabel.style.width = '50px';
-                valLabel.style.textAlign = value >= 0 ? 'left' : 'right';
-                valLabel.style.paddingLeft = value >= 0 ? '8px' : '0';
-                valLabel.style.paddingRight = value < 0 ? '8px' : '0';
-                valLabel.style.color = 'var(--text-main)';
-                
-                row.appendChild(label);
-                
-                if (value < 0) {
-                    row.appendChild(valLabel);
-                    row.appendChild(barWrapper);
-                } else {
-                    row.appendChild(barWrapper);
-                    row.appendChild(valLabel);
-                }
-                
-                container.appendChild(row);
+                // Draw nodes
+                data.nodes.forEach(n => {
+                    const pos = nodePositions[n.id] || {x: 400, y: 150};
+                    const isAnomalous = n.cpu_usage > 0.8;
+                    const fill = isAnomalous ? 'rgba(239, 68, 68, 0.2)' : 'rgba(168, 85, 247, 0.15)';
+                    const border = isAnomalous ? '#ef4444' : '#a855f7';
+
+                    svgHtml += `<g transform="translate(${pos.x-60}, ${pos.y-30})">
+                        <rect width="120" height="60" rx="8" fill="${fill}" stroke="${border}" stroke-width="2"/>
+                        <text x="60" y="28" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">${n.id}</text>
+                        <text x="60" y="46" fill="#94a3b8" font-size="10" text-anchor="middle">CPU: ${(n.cpu_usage*100).toFixed(1)}%</text>
+                    </g>`;
+                });
+
+                svgHtml += `</svg>`;
+                container.innerHTML = svgHtml;
+            } catch (e) {
+                console.error("Topology fetch error", e);
             }
-        }
-
-        function renderEventLog() {
-            const container = document.getElementById('event-log-container');
-            container.innerHTML = '';
-            eventLog.forEach(evt => {
-                const row = document.createElement('div');
-                row.className = 'event-row';
-                row.innerHTML = `
-                    <div class="event-time">${evt.timestamp}</div>
-                    <div class="event-target">${evt.target}</div>
-                    <div class="event-action">${evt.action}</div>
-                    <div class="event-agent">${evt.agent}</div>
-                `;
-                container.appendChild(row);
-            });
-        }
-
-        function addEvent(target, action, agent) {
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
-                            now.getMinutes().toString().padStart(2, '0') + ':' + 
-                            now.getSeconds().toString().padStart(2, '0');
-                            
-            eventLog.unshift({
-                timestamp: timeStr,
-                target: target,
-                action: action,
-                agent: agent
-            });
-            if (eventLog.length > 10) eventLog.pop();
-            renderEventLog();
-        }
-
-        function updatePipelineStepper(data, target) {
-            document.getElementById('pipeline-status').innerText = 'WORKFLOW ACTIVE & VERIFIED';
-            document.getElementById('pipeline-status').style.color = 'var(--success)';
-
-            // Step 1: Repo
-            document.getElementById('p-step-1').classList.add('active');
-            
-            // Step 2: SHAP Telemetry
-            document.getElementById('p-step-2').classList.add('active');
-            const topFeature = data.shap_scores ? Object.keys(data.shap_scores)[0] : 'cpu_usage';
-            document.getElementById('p-step-2-desc').innerHTML = `${target} Anomaly<br><span style="color: var(--accent-pink);">Top Risk: ${topFeature}</span>`;
-
-            // Step 3: SimPy Digital Twin
-            document.getElementById('p-step-3').classList.add('active');
-            const simRec = data.agents?.llm_react?.simulation?.recommendation || 'SAFE_TO_EXECUTE';
-            document.getElementById('p-step-3-desc').innerHTML = `SimPy Load Dry-Run<br><span style="color: var(--success);">Result: ${simRec}</span>`;
-
-            // Step 4: Dual Agent Decision
-            document.getElementById('p-step-4').classList.add('active');
-            const action = data.agents?.llm_react?.action_taken || 'SCALE_UP';
-            document.getElementById('p-step-4-desc').innerHTML = `Consensus Reached<br><span style="color: var(--accent-purple);">Action: ${action}</span>`;
-
-            // Step 5: GitOps PR
-            document.getElementById('p-step-5').classList.add('active');
-            document.getElementById('p-step-5-desc').innerHTML = `GitOps PR Created<br><span style="color: var(--accent-cyan);">Declarative Fix Live</span>`;
         }
 
         async function triggerAlert() {
             const target = document.getElementById('target-service-select').value;
             const cpu = parseFloat(document.getElementById('cpu-input').value);
             
-            const payload = {
-                target_service: target,
-                cpu_usage: cpu,
-                mem_usage: 0.75,
-                is_anomaly: true
-            };
-
-            setSpinners(true);
-
             try {
                 const res = await fetch(`${API_BASE}/evaluate`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ target_service: target, cpu_usage: cpu, mem_usage: 0.75, is_anomaly: true })
                 });
                 const data = await res.json();
-                
-                const rl = data.agents.rl_simifed;
-                const llm = data.agents.llm_react;
-                
-                document.getElementById('rl-latency').innerText = `${(rl.latency_seconds * 1000).toFixed(2)} ms`;
-                document.getElementById('rl-decision').innerText = `Action: ${rl.action}\nRationale: ${rl.rationale}`;
-                
-                document.getElementById('llm-latency').innerText = `${llm.latency_seconds.toFixed(2)} s`;
-                document.getElementById('llm-decision').innerText = `Action: ${llm.action_taken}\nSimulation: ${llm.simulation.recommendation}`;
-                
-                document.getElementById('agreement-status').innerText = data.comparison.recommendation;
-                
-                // Populate LLM Reasoning
-                document.getElementById('llm-root-cause').innerText = llm.root_cause;
-                document.getElementById('llm-thought').innerText = llm.thought;
-                
-                // Update Pipeline Stepper
-                updatePipelineStepper(data, target);
-
-                // Render SHAP Bars
-                if (data.shap_scores) {
-                    renderShapBars(data.shap_scores);
-                }
-
-                // Add to Event Timeline
-                addEvent(target, llm.action_taken, "LLM ReAct Consensus");
-                
+                alert(`Evaluated ${target}! SimPy Verdict: ${data.agents.llm_react.simulation.recommendation}`);
                 fetchStatus();
                 fetchTopology();
-                fetchGithubPRs();
-            } catch(e) { 
-                console.error(e); 
-            } finally {
-                setSpinners(false);
-            }
-        }
-
-        async function executeOverride() {
-            const target = document.getElementById('target-service-select').value;
-            try {
-                const res = await fetch(`${API_BASE}/override`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        target_service: target,
-                        override_action: "SCALE_UP",
-                        reason: "Operator manual scaling bypass"
-                    })
-                });
-                const data = await res.json();
-                addEvent(target, "SCALE_UP (MANUAL)", "Human Operator");
-                alert(data.message || "Manual override successful");
-            } catch(e) {
-                console.error(e);
-            }
-        }
-
-        async function fetchGithubPRs() {
-            try {
-                const res = await fetch(`${API_BASE}/github/prs`);
-                const data = await res.json();
-                const container = document.getElementById('github-pr-list');
-                const badge = document.getElementById('github-mode-badge');
-                
-                badge.innerText = data.is_live_mode ? `LIVE GITOPS MODE (${data.repo})` : `SIMULATED GITOPS MODE (${data.repo})`;
-                badge.style.color = data.is_live_mode ? 'var(--success)' : 'var(--accent-purple)';
-
-                if (!data.prs || data.prs.length === 0) {
-                    container.innerHTML = `<div style="color: var(--text-muted); font-size: 13px; font-family: 'JetBrains Mono'; padding: 8px;">No GitHub Pull Requests generated yet. Run an evaluation or click 'Create GitOps PR'.</div>`;
-                    return;
-                }
-
-                container.innerHTML = '';
-                data.prs.forEach(pr => {
-                    const row = document.createElement('div');
-                    row.className = 'event-row';
-                    row.style.gridTemplateColumns = '80px 140px 1fr 180px';
-                    row.innerHTML = `
-                        <div class="event-time" style="color: var(--accent-cyan);">PR #${pr.pr_number}</div>
-                        <div class="event-target" style="color: var(--accent-purple);">${pr.service}</div>
-                        <div class="event-action" style="font-size: 12px;"><a href="${pr.pr_url}" target="_blank" style="color: var(--text-main); text-decoration: underline;">${pr.pr_title}</a></div>
-                        <div class="event-agent" style="font-size: 11px; color: var(--text-muted);">${pr.created_at} (${pr.mode})</div>
-                    `;
-                    container.appendChild(row);
-                });
-            } catch(e) {
-                console.error("Error fetching GitHub PRs:", e);
+            } catch (e) {
+                alert("Error triggering evaluation: " + e);
             }
         }
 
         async function triggerGitOpsPR() {
             const target = document.getElementById('target-service-select').value;
-            setSpinners(true);
             try {
                 const res = await fetch(`${API_BASE}/github/create-pr`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        service: target,
-                        replicas: 3,
-                        cpu_limit: "1000m",
-                        pr_type: "GITOPS"
-                    })
+                    body: JSON.stringify({ service: target, replicas: 3, cpu_limit: "1000m", pr_type: "GITOPS" })
                 });
                 const data = await res.json();
-                addEvent(target, `GitOps PR #${data.pr_number} Created`, "Agentic GitOps");
-                await fetchGithubPRs();
-            } catch(e) {
-                console.error("Error creating GitOps PR:", e);
-            } finally {
-                setSpinners(false);
+                alert(`GitOps PR Created: ${data.pr_url}`);
+            } catch (e) {
+                alert("Error creating GitOps PR: " + e);
             }
         }
 
-        // Initial Load
-        window.addEventListener('resize', fetchTopology); // Redraw SVG on resize
+        // Initialize on load
         fetchStatus();
         fetchTopology();
-        fetchGithubPRs();
     </script>
 </body>
 </html>
