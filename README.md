@@ -11,7 +11,7 @@
 
 ---
 
-## 📑 Table of Contents
+##  Table of Contents
 
 - [Executive Overview](#-executive-overview)
 - [System Architecture](#-system-architecture)
@@ -34,7 +34,7 @@
 
 ---
 
-## 🌟 Executive Overview
+##  Executive Overview
 
 Modern cloud engineering teams face two critical operational bottlenecks:
 1. **PR Review Velocity & Security Drift:** Code reviews take hours or days; subtle security vulnerabilities, dependency CVEs, missing unit tests, and secret leaks slip into main branches.
@@ -57,7 +57,7 @@ This repository provides an integrated, dual-engine solution:
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ```mermaid
 graph TB
@@ -120,7 +120,7 @@ graph TB
 
 ---
 
-## 🔍 Product A — PR Review Agent
+##  Product A — PR Review Agent
 
 The PR Review Agent (`pr_review_agent/`) automatically inspects pull requests, detects vulnerabilities and lint errors, generates visual call graphs, and posts actionable inline suggestions directly to GitHub.
 
@@ -179,7 +179,7 @@ ignore_globs:
 
 ---
 
-## ⚡ Product B — Infrastructure Self-Healing Engine
+##  Product B — Infrastructure Self-Healing Engine
 
 The infrastructure self-healing engine (`agentic_engine/` + `digital_twin/`) monitors running clusters and microservices, analyzes telemetry anomalies, and applies safe remediation actions.
 
@@ -203,7 +203,7 @@ The orchestrator runs two distinct decision engines concurrently for real-time c
 
 ---
 
-## 🚀 GitHub App 1-Click Manifest Flow
+##  GitHub App 1-Click Manifest Flow
 
 The platform uses GitHub's **App Manifest Flow** for zero-friction installation:
 - **Zero Token Sharing**: Developers never share Personal Access Tokens (PATs).
@@ -215,7 +215,7 @@ The platform uses GitHub's **App Manifest Flow** for zero-friction installation:
 
 ---
 
-## 📁 Repository Structure
+##  Repository Structure
 
 ```
 ├── agentic_engine/                  # Product B: Self-Healing Infrastructure
@@ -258,7 +258,7 @@ The platform uses GitHub's **App Manifest Flow** for zero-friction installation:
 
 ---
 
-## 🔌 API & Webhook Reference
+##  API & Webhook Reference
 
 | Method | Endpoint | Description |
 |:---|:---|:---|
@@ -276,7 +276,7 @@ The platform uses GitHub's **App Manifest Flow** for zero-friction installation:
 
 ---
 
-## 🛠️ Getting Started Locally
+##  Getting Started Locally
 
 ### 1. Prerequisites
 - Python 3.10+
@@ -316,7 +316,7 @@ Open `https://<your-ngrok-subdomain>.ngrok-free.app/install` in your browser, cl
 
 ---
 
-## 🧪 Running the Test Suite
+##  Running the Test Suite
 
 The test suite covers unit, integration, and security verification across all subsystems:
 
@@ -333,7 +333,7 @@ $env:PYTHONPATH = "."; python tests/e2e_evaluation.py
 
 ---
 
-## 📊 Implementation Status Matrix
+##  Implementation Status Matrix
 
 | Subsystem / Feature | Status | Notes |
 |:---|:---:|:---|
@@ -355,6 +355,6 @@ $env:PYTHONPATH = "."; python tests/e2e_evaluation.py
 
 ---
 
-## 📜 License
+##  License
 
 Distributed under the MIT License. Developed for research in Autonomous Cloud Systems and Agentic AI Code Intelligence.
