@@ -86,7 +86,7 @@ graph TB
         MERMAID["AST Call Graph Generator"]
         PUB["GitHub Review & Check Run Publisher"]
         CHAT["@review-bot Chat Handler"]
-        DB_SQLITE[(SQLite WAL Database & .env.app<br/>App Credentials, Repos, Suppressions)]
+        DB_SQLITE[("SQLite WAL Database & .env.app<br/>App Credentials, Repos, Suppressions")]
     end
 
     subgraph "Runtime Self-Healing Cloud Engine (agentic_engine/ & digital_twin/)"
@@ -101,8 +101,8 @@ graph TB
         K8S_TOOLS["Hardened K8s & AKS Execution Engine"]
     end
 
-    DEV -->|Opens PR| PR
-    PR -->|Webhook Event| GH_APP
+    DEV -->|"Opens PR"| PR
+    PR -->|"Webhook Event"| GH_APP
     GH_APP --> HMAC
     HMAC --> AUTH
     AUTH --> SA
@@ -113,8 +113,8 @@ graph TB
     DEDUP --> DB_SQLITE
     DEDUP --> MERMAID
     MERMAID --> PUB
-    PUB -->|Inline Comments & Quality Gate| PR
-    PR -->|@review-bot mention| CHAT
+    PUB -->|"Inline Comments & Quality Gate"| PR
+    PR -->|"@review-bot mention"| CHAT
     CHAT --> PUB
 
     TELEMETRY --> IFOREST

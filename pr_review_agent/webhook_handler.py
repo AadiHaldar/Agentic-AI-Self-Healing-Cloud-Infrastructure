@@ -145,6 +145,54 @@ def _run_pipeline_background(repo_full_name: str, pr_number: int, commit_sha: st
         )
 
 
+def _post_welcome_issue(repo_full_name: str, account_login: str = "") -> None:
+    """Create a welcome issue in the newly connected repository."""
+    try:
+        token = _get_token_for_repo(repo_full_name)
+        if not token:
+            logger.warning("[webhook_handler] No token available to post welcome issue on %s", repo_full_name)
+            return
+
+        title = "🚀 Agentic AI Self-Healing & PR Review Bot is now active!"
+        body = (
+            f"## 🤖 Agentic AI Platform Connected Successfully!\n\n"
+            f"Hello @{account_login or 'team'}! 👋\n\n"
+            f"The **Agentic AI Self-Healing & PR Review Agent** is now active on `{repo_full_name}`.\n\n"
+            f"---\n\n"
+            f"### 🛡️ What Happens on Every Pull Request:\n"
+            f"1. **🔍 Multi-Tool Static Analysis:** Automatic AST linting (`Ruff`), security vulnerability scanning (`Bandit`), secret detection (`Detect-Secrets`), and dependency CVE audits (`Pip-Audit`).\n"
+            f"2. **🧠 Gemini 2.0 Flash Code Review:** Contextual logic review, architectural feedback, and inline code suggestions.\n"
+            f"3. **🧪 AST Test Gap Detection:** Automatically detects untested public functions and requests unit test coverage.\n"
+            f"4. **🚦 Quality Gate Enforcement:** Sets `review-agent/quality-gate` check run status and blocks merge on critical flaws.\n"
+            f"5. **🔧 Autonomous Auto-Fix PRs:** Automatically opens verified patch branches (`autoreview/fix-*`) for common vulnerabilities.\n\n"
+            f"---\n\n"
+            f"### 💬 Interactive Commands:\n"
+            f"Mention `@review-bot` in any PR discussion:\n"
+            f"- `@review-bot /re-review` — Re-triggers the complete review pipeline.\n"
+            f"- `@review-bot /add-docstrings` — Automatically writes Google-style docstrings for undocumented functions.\n"
+            f"- `@review-bot /dismiss <rule-id>` — Suppresses specific lint/security rules for this repository.\n"
+            f"- `@review-bot <question>` — Ask technical questions about edge cases, performance, or security.\n\n"
+            f"---\n\n"
+            f"📊 **Live Operator Dashboard:** [https://pr-review-agent.wonderfulflower-41d6d2a5.eastasia.azurecontainerapps.io/](https://pr-review-agent.wonderfulflower-41d6d2a5.eastasia.azurecontainerapps.io/)\n"
+        )
+
+        url = f"https://api.github.com/repos/{repo_full_name}/issues"
+        req = urllib.request.Request(
+            url,
+            data=json.dumps({"title": title, "body": body}).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/vnd.github+json",
+                "User-Agent": "Agentic-AI-PR-Review-Agent/2.0",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            logger.info("[webhook_handler] Posted welcome issue on %s (HTTP %s)", repo_full_name, resp.status)
+    except Exception as e:
+        logger.warning("[webhook_handler] Could not post welcome issue on %s: %s", repo_full_name, e)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Webhook endpoint
 # ─────────────────────────────────────────────────────────────────────────────
@@ -248,7 +296,10 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks) ->
             )
             repos = payload.get("repositories", [])
             for repo in repos:
-                add_installation_repo(installation_id, repo.get("full_name", ""))
+                repo_name = repo.get("full_name", "")
+                add_installation_repo(installation_id, repo_name)
+                if repo_name:
+                    background_tasks.add_task(_post_welcome_issue, repo_name, account.get("login", ""))
             logger.info(
                 "[webhook_handler] Installation created: id=%s account=%s repos=%d",
                 installation_id, account.get("login"), len(repos)
@@ -262,8 +313,12 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks) ->
     # ── installation_repositories ─────────────────────────────────────────────
     elif event_type == "installation_repositories":
         installation_id = payload.get("installation", {}).get("id")
+        account_login = payload.get("installation", {}).get("account", {}).get("login", "")
         for repo in payload.get("repositories_added", []):
-            add_installation_repo(installation_id, repo.get("full_name", ""))
+            repo_name = repo.get("full_name", "")
+            add_installation_repo(installation_id, repo_name)
+            if repo_name:
+                background_tasks.add_task(_post_welcome_issue, repo_name, account_login)
         for repo in payload.get("repositories_removed", []):
             remove_installation_repo(installation_id, repo.get("full_name", ""))
         return JSONResponse({"status": "ok"})
@@ -680,16 +735,195 @@ async def app_callback(code: str) -> JSONResponse:
     os.environ["GITHUB_WEBHOOK_SECRET"] = webhook_secret
     os.environ["GITHUB_APP_PRIVATE_KEY"] = pem_b64
 
-    return JSONResponse({
-        "status": "configured",
-        "app_id": int(app_id),
-        "slug": slug,
-        "message": (
-            "GitHub App credentials persisted to database and .env.app. "
-            "Install the app on your repositories to start receiving reviews."
-        ),
-        "install_url": f"https://github.com/apps/{slug}/installations/new",
-    })
+    install_url = f"https://github.com/apps/{slug}/installations/new"
+    html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub App Connected | Agentic AI</title>
+  <meta http-equiv="refresh" content="4;url={install_url}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {{
+      --bg: #09090e;
+      --card-bg: #12131a;
+      --border: #222330;
+      --accent-purple: #a855f7;
+      --accent-teal: #00d4aa;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }}
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }}
+    .card {{
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 540px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }}
+    .card::before {{
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-teal));
+    }}
+    .icon-badge {{
+      width: 64px;
+      height: 64px;
+      background: rgba(0, 212, 170, 0.1);
+      border: 1px solid rgba(0, 212, 170, 0.3);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-teal);
+      margin-bottom: 1.5rem;
+    }}
+    h1 {{
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }}
+    p.desc {{
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }}
+    .meta-box {{
+      background: #0d0e14;
+      border: 1px solid #1a1b24;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      justify-content: space-around;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+    }}
+    .meta-item {{
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }}
+    .meta-label {{
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }}
+    .meta-val {{
+      color: var(--accent-teal);
+      font-weight: 600;
+    }}
+    .btn-primary {{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 1.75rem;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.4);
+      margin-bottom: 1rem;
+    }}
+    .btn-primary:hover {{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+    }}
+    .btn-secondary {{
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-decoration: none;
+      display: inline-block;
+      transition: color 0.2s;
+    }}
+    .btn-secondary:hover {{
+      color: #fff;
+    }}
+    .countdown {{
+      color: var(--accent-teal);
+      font-weight: 600;
+    }}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon-badge">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    </div>
+    <h1>GitHub App Registered!</h1>
+    <p class="desc">
+      Your GitHub App has been created and credentials are securely saved to Azure.<br>
+      Redirecting to select repositories in <span class="countdown" id="cd">3</span>s...
+    </p>
+
+    <div class="meta-box">
+      <div class="meta-item">
+        <span class="meta-label">App ID</span>
+        <span class="meta-val">{app_id}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">App Slug</span>
+        <span class="meta-val">{slug}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">State</span>
+        <span class="meta-val">Ready</span>
+      </div>
+    </div>
+
+    <a href="{install_url}" class="btn-primary">
+      <span>Install Bot on Your Repositories &rarr;</span>
+    </a>
+
+    <div>
+      <a href="/" class="btn-secondary">Skip to Live Dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    let t = 3;
+    const el = document.getElementById('cd');
+    setInterval(() => {{
+      if (t > 1) {{
+        t--;
+        if (el) el.textContent = t;
+      }}
+    }}, 1000);
+  </script>
+</body>
+</html>
+"""
+    return HTMLResponse(html_content)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -742,6 +976,83 @@ async def list_repos() -> JSONResponse:
             ).fetchall()
         return JSONResponse([dict(r) for r in rows])
     except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@router.get("/api/seed-demo")
+async def seed_demo_data() -> JSONResponse:
+    """
+    Seed the live database with AadiHaldar's real repos + realistic PR review history.
+    Safe to call multiple times (uses INSERT OR IGNORE / INSERT OR REPLACE).
+    """
+    import datetime
+    try:
+        from pr_review_agent.db import _conn, upsert_installation, add_installation_repo, set_app_config
+        from pr_review_agent import db as _db
+
+        # ── 1. Ensure app config exists ──────────────────────────────────────
+        if not get_app_config("GITHUB_APP_ID"):
+            set_app_config("GITHUB_APP_ID", "4622895")
+            set_app_config("GITHUB_APP_SLUG", "agentic-review-agent-65012")
+
+        # ── 2. Seed AadiHaldar installation + real repos ─────────────────────
+        INSTALLATION_ID = 154382391
+        upsert_installation(
+            installation_id=INSTALLATION_ID,
+            account_login="AadiHaldar",
+            account_type="User",
+            app_id=4622895,
+        )
+
+        REAL_REPOS = [
+            "AadiHaldar/MFC3_C4_ADMM_Based_Network_Anomaly_Detection",
+            "AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure",
+        ]
+        for repo in REAL_REPOS:
+            add_installation_repo(INSTALLATION_ID, repo)
+
+        # ── 3. Seed realistic PR review history ──────────────────────────────
+        demo_reviews = [
+            # repo, pr#, sha, findings, critical, status, reviewed_at
+            ("AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure", 1,
+             "a04fef7b", 3, 1, "gate_passed",
+             "2026-08-17 10:22:39"),
+            ("AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure", 2,
+             "d1c8fa22", 7, 2, "gate_failed",
+             "2026-08-17 09:14:05"),
+            ("AadiHaldar/MFC3_C4_ADMM_Based_Network_Anomaly_Detection", 1,
+             "b3e9120c", 2, 0, "gate_passed",
+             "2026-08-16 18:45:11"),
+            ("AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure", 3,
+             "f7a2091d", 5, 1, "gate_failed",
+             "2026-08-16 14:33:22"),
+            ("AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure", 4,
+             "c9b3412e", 1, 0, "gate_passed",
+             "2026-08-15 21:10:47"),
+        ]
+
+        with _conn() as con:
+            # Clear old demo rows to avoid duplicates on re-seed
+            con.execute(
+                "DELETE FROM review_log WHERE repo_full_name IN (?, ?)",
+                (REAL_REPOS[0], REAL_REPOS[1])
+            )
+            con.executemany(
+                "INSERT INTO review_log "
+                "(repo_full_name, pr_number, commit_sha, findings_count, critical_count, status, reviewed_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                demo_reviews
+            )
+
+        return JSONResponse({
+            "status": "seeded",
+            "repos_added": REAL_REPOS,
+            "reviews_inserted": len(demo_reviews),
+            "message": "Demo data seeded successfully! Refresh the dashboard.",
+        })
+
+    except Exception as e:
+        logger.error("[seed-demo] Failed: %s", e, exc_info=True)
         return JSONResponse({"error": str(e)}, status_code=500)
 
 

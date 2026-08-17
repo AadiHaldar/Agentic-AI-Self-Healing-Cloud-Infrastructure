@@ -7,6 +7,10 @@
 *.sln
 *.swp
 
+# Workflows (OAuth token lacks workflow scope)
+.github/
+
+
 # Temporary/Extraction files
 temp_docx/
 temp.zip
@@ -48,3 +52,6 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+*.exe
+~$*
+

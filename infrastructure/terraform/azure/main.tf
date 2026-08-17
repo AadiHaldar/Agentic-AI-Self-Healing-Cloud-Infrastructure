@@ -56,47 +56,7 @@ resource "azurerm_log_analytics_workspace" "logs" {
   }
 }
 
-# 4. Azure Kubernetes Service (AKS) Cluster
-resource "azurerm_kubernetes_cluster" "aks" {
-  name                = var.cluster_name
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  dns_prefix          = "${var.cluster_name}-dns"
+# 4. (Optional) AKS Cluster — Commented out to prevent student VM quota limits (Azure Container Apps is used instead)
+# resource "azurerm_kubernetes_cluster" "aks" { ... }
+# resource "azurerm_role_assignment" "aks_acr_pull" { ... }
 
-  default_node_pool {
-    name                = "systempool"
-    node_count          = var.node_count
-    vm_size             = var.vm_size
-    enable_auto_scaling = true
-    min_count           = 1
-    max_count           = 5
-    os_disk_size_gb     = 50
-  }
-
-  identity {
-    type = "SystemAssigned"
-  }
-
-  oms_agent {
-    log_analytics_workspace_id = azurerm_log_analytics_workspace.logs.id
-  }
-
-  network_profile {
-    network_plugin    = "kubenet"
-    load_balancer_sku = "standard"
-  }
-
-  tags = {
-    Environment = var.environment
-    Project     = "Agentic-AI-Self-Healing-Cloud"
-    ManagedBy   = "Terraform"
-  }
-}
-
-# 5. Grant AKS Managed Identity AcrPull role on ACR
-resource "azurerm_role_assignment" "aks_acr_pull" {
-  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-  role_definition_name             = "AcrPull"
-  scope                            = azurerm_container_registry.acr.id
-  skip_service_principal_aad_check = true
-}

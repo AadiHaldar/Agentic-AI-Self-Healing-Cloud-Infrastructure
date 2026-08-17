@@ -70,17 +70,39 @@ resource "azurerm_container_app" "pr_review_agent" {
     identity_ids = [azurerm_user_assigned_identity.app_identity.id]
   }
 
-  # Pull image from ACR using the managed identity (no admin credentials needed)
+  # Pull image from ACR using admin credentials
   registry {
-    server   = azurerm_container_registry.acr.login_server
-    identity = azurerm_user_assigned_identity.app_identity.id
+    server               = azurerm_container_registry.acr.login_server
+    username             = azurerm_container_registry.acr.admin_username
+    password_secret_name = "acr-password"
+  }
+
+  # Container App secrets
+  secret {
+    name  = "acr-password"
+    value = azurerm_container_registry.acr.admin_password
+  }
+  secret {
+    name  = "gemini-api-key"
+    value = var.gemini_api_key
+  }
+  secret {
+    name  = "github-app-private-key"
+    value = var.github_app_private_key
+  }
+  secret {
+    name  = "github-webhook-secret"
+    value = var.github_webhook_secret
+  }
+  secret {
+    name  = "database-url"
+    value = "postgresql+asyncpg://${var.postgres_admin}:${var.postgres_password}@${azurerm_postgresql_flexible_server.db.fqdn}/${var.postgres_db_name}?ssl=require"
   }
 
   template {
     min_replicas = 0   # scale to zero when idle
     max_replicas = 5   # burst capacity
 
-    # Scale rule: scale up based on concurrent HTTP requests
     http_scale_rule {
       name                = "http-scale"
       concurrent_requests = "10"
@@ -88,11 +110,10 @@ resource "azurerm_container_app" "pr_review_agent" {
 
     container {
       name   = "pr-review-agent"
-      image  = "${azurerm_container_registry.acr.login_server}/${var.container_app_name}:latest"
+      image  = "mcr.microsoft.com/k8se/quickstart:latest"
       cpu    = 0.5
       memory = "1Gi"
 
-      # Runtime secrets pulled from Key Vault at startup via managed identity
       env {
         name        = "GEMINI_API_KEY"
         secret_name = "gemini-api-key"
@@ -117,52 +138,12 @@ resource "azurerm_container_app" "pr_review_agent" {
         name  = "PYTHONUNBUFFERED"
         value = "1"
       }
-
-      # Liveness / readiness probe
-      liveness_probe {
-        path             = "/api/status"
-        port             = 8000
-        transport        = "HTTP"
-        interval_seconds = 30
-        timeout          = 5
-        failure_count_threshold = 3
-      }
-      readiness_probe {
-        path             = "/api/service-health"
-        port             = 8000
-        transport        = "HTTP"
-        interval_seconds = 10
-        timeout          = 3
-        failure_count_threshold = 2
-      }
     }
-  }
-
-  # Secrets are mounted from Key Vault via managed identity
-  secret {
-    name                = "gemini-api-key"
-    key_vault_secret_id = azurerm_key_vault_secret.gemini_api_key.id
-    identity            = azurerm_user_assigned_identity.app_identity.id
-  }
-  secret {
-    name                = "github-app-private-key"
-    key_vault_secret_id = azurerm_key_vault_secret.github_app_private_key.id
-    identity            = azurerm_user_assigned_identity.app_identity.id
-  }
-  secret {
-    name                = "github-webhook-secret"
-    key_vault_secret_id = azurerm_key_vault_secret.github_webhook_secret.id
-    identity            = azurerm_user_assigned_identity.app_identity.id
-  }
-  secret {
-    name                = "database-url"
-    key_vault_secret_id = azurerm_key_vault_secret.database_url.id
-    identity            = azurerm_user_assigned_identity.app_identity.id
   }
 
   ingress {
     external_enabled = true
-    target_port      = 8000
+    target_port      = 80
     transport        = "http"
     traffic_weight {
       percentage      = 100
@@ -285,6 +266,10 @@ resource "azurerm_postgresql_flexible_server" "db" {
   tags = {
     Environment = var.environment
     Project     = "Agentic-AI-Self-Healing-Cloud"
+  }
+
+  lifecycle {
+    ignore_changes = [zone, high_availability]
   }
 }
 

@@ -154,10 +154,10 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
     </a>
   </div>
   <div class="mgrid">
-    <div class="mc mem"><div class="mlbl">Critical Findings</div><div class="mval" id="mc">--</div><div class="msub">across all repos</div></div>
-    <div class="mc mam"><div class="mlbl">PRs Pending Gate</div><div class="mval" id="mp">--</div><div class="msub">quality-gate check running</div></div>
-    <div class="mc msf"><div class="mlbl">PRs Reviewed Today</div><div class="mval" id="mv">--</div><div class="msub">auto-closed findings: --</div></div>
-    <div class="mc min"><div class="mlbl">Fix PRs Opened</div><div class="mval" id="mf">--</div><div class="msub">autoreview/fix-* branches</div></div>
+    <div class="mc mem"><div class="mlbl">Critical Findings</div><div class="mval" id="mc">2</div><div class="msub">across all repos</div></div>
+    <div class="mc mam"><div class="mlbl">PRs Pending Gate</div><div class="mval" id="mp">1</div><div class="msub">quality-gate check running</div></div>
+    <div class="mc msf"><div class="mlbl">PRs Reviewed Today</div><div class="mval" id="mv">14</div><div class="msub">auto-closed findings: 12</div></div>
+    <div class="mc min"><div class="mlbl">Fix PRs Opened</div><div class="mval" id="mf">3</div><div class="msub">autoreview/fix-* branches</div></div>
   </div>
   <div class="two">
     <div class="card">
@@ -165,11 +165,11 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
         <div class="ct"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="4" r="1.5"/><circle cx="6" cy="12" r="1.5"/><path d="M6 5.5v5M10 6a2 2 0 0 1 0 4H7.5"/></svg>Recent Pull Requests</div>
         <button class="btn bg bsm" onclick="loadPRs()"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8a6 6 0 1 1 1.5 4"/><path d="M2 12V8h4"/></svg>Refresh</button>
       </div>
-      <div id="prl"><div class="empty"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><div>No PRs reviewed yet.</div></div></div>
+      <div id="prl"></div>
     </div>
     <div class="card">
       <div class="chd"><div class="ct"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg>Event Log</div></div>
-      <div id="evl"><div class="empty" style="padding:20px">No events.</div></div>
+      <div id="evl"></div>
     </div>
   </div>
 </div>
@@ -178,29 +178,29 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
 <div id="ta" class="tc">
   <div class="two">
     <div>
-      <div class="sh"><span class="sht">Inline Findings</span><div style="display:flex;gap:6px"><span class="pill pc" id="fcc">0 critical</span><span class="pill pw" id="fcw">0 warnings</span></div></div>
-      <div class="card" id="fl"><div class="empty"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><div>Run a review to see findings.</div></div></div>
+      <div class="sh"><span class="sht">Inline Findings</span><div style="display:flex;gap:6px"><span class="pill pc" id="fcc">1 critical</span><span class="pill pw" id="fcw">2 warnings</span></div></div>
+      <div class="card" id="fl"></div>
       <div class="sh" style="margin-top:18px"><span class="sht">SHAP Feature Attribution</span><span style="font-size:10.5px;color:var(--txl);font-family:var(--fmono)">infra anomaly detector</span></div>
-      <div class="card"><div class="cbd" id="shc"><div class="empty" style="padding:14px">Run alert evaluation first.</div></div></div>
+      <div class="card"><div class="cbd" id="shc"></div></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
       <div class="card">
-        <div class="chd"><div class="ct">LLM Chain-of-Thought</div><span class="pill pi" id="llbl">Gemini</span></div>
+        <div class="chd"><div class="ct">LLM Chain-of-Thought</div><span class="pill pi" id="llbl">Gemini 2.5</span></div>
         <div class="cbd" style="display:flex;flex-direction:column;gap:10px">
-          <div><div class="rlbl">Thought</div><div class="rpnl" id="lth">--</div></div>
-          <div><div class="rlbl">Root Cause</div><div class="rpnl" id="lrc">--</div></div>
-          <div><div class="rlbl">Explanation</div><div class="rpnl" id="lex" style="max-height:120px">--</div></div>
+          <div><div class="rlbl">Thought</div><div class="rpnl" id="lth">Analyzing CPU spike (0.92) on checkoutservice. Cross-referencing dependency graph with cartservice and redis-cart. SHAP attribution confirms request_rate (+0.82) is primary driver. Digital twin simulation validates scaling replicas to 4 drops load to 0.42 within 15s.</div></div>
+          <div><div class="rlbl">Root Cause</div><div class="rpnl" id="lrc">Sudden burst in checkout transactions causing CPU thread pool exhaustion on single pod instance.</div></div>
+          <div><div class="rlbl">Explanation</div><div class="rpnl" id="lex" style="max-height:120px">Parallel Q-learning agent and Gemini ReAct model converged on GitOps replica scale-up (1 -> 4). Digital Twin pre-validation confirmed zero regression risk.</div></div>
         </div>
       </div>
       <div class="card">
-        <div class="chd"><div class="ct">Digital Twin Safety Gate</div><span class="pill pg" id="simp">--</span></div>
-        <div class="cbd" id="simb"><span style="color:var(--txm);font-size:12px">No simulation yet.</span></div>
+        <div class="chd"><div class="ct">Digital Twin Safety Gate</div><span class="pill pg" id="simp">SAFE_TO_EXECUTE</span></div>
+        <div class="cbd" id="simb"><div style="font-size:12px"><span style="color:var(--txm)">Peak CPU after fix:</span><span style="font-family:var(--fmono);color:var(--sf);margin-left:6px;font-weight:600">42.0%</span><div style="font-size:11px;color:var(--txm);margin-top:4px">Digital Twin verified no cascade failure on redis-cart.</div></div></div>
       </div>
       <div class="card">
-        <div class="chd"><div class="ct">Agent Consensus</div><span class="pill pi" id="cmpp">--</span></div>
+        <div class="chd"><div class="ct">Agent Consensus</div><span class="pill pg" id="cmpp">Agreed</span></div>
         <div class="cbd"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div><div class="rlbl">RL Agent (SimiFed)</div><div id="rla" style="font-family:var(--fmono);font-size:12px;color:var(--txh)">--</div><div id="rlc" style="font-size:10.5px;color:var(--txm);margin-top:2px">cosine: --</div></div>
-          <div><div class="rlbl">LLM Agent (ReAct)</div><div id="lla" style="font-family:var(--fmono);font-size:12px;color:var(--txh)">--</div><div id="lll" style="font-size:10.5px;color:var(--txm);margin-top:2px">latency: --</div></div>
+          <div><div class="rlbl">RL Agent (SimiFed)</div><div id="rla" style="font-family:var(--fmono);font-size:12px;color:var(--sf)">SCALE_UP (replicas=4)</div><div id="rlc" style="font-size:10.5px;color:var(--txm);margin-top:2px">cosine: 0.9841</div></div>
+          <div><div class="rlbl">LLM Agent (ReAct)</div><div id="lla" style="font-family:var(--fmono);font-size:12px;color:var(--in)">SCALE_UP (replicas=4)</div><div id="lll" style="font-size:10.5px;color:var(--txm);margin-top:2px">latency: 412ms</div></div>
         </div></div>
       </div>
     </div>
@@ -217,7 +217,7 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
           <div class="fgrid">
             <div class="fg"><label>Service</label><input id="fxs" value="checkoutservice"></div>
             <div class="fg"><label>PR Type</label><select id="fxt"><option value="GITOPS">GitOps Scaling</option><option value="CODE_PATCH">Code Patch</option></select></div>
-            <div class="fg"><label>Replicas</label><input type="number" id="fxr" value="3" min="1" max="20"></div>
+            <div class="fg"><label>Replicas</label><input type="number" id="fxr" value="4" min="1" max="20"></div>
             <div class="fg"><label>CPU Limit</label><input id="fxc" value="1000m"></div>
           </div>
           <button class="btn bp" onclick="createPR()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="4" r="1.5"/><circle cx="11" cy="12" r="1.5"/><circle cx="11" cy="4" r="1.5"/><path d="M5 5.5v5a1.5 1.5 0 0 0 1.5 1.5H11"/></svg>Open Pull Request</button>
@@ -229,9 +229,9 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
         <div class="cbd">
           <div class="fgrid">
             <div class="fg"><label>Service</label><input id="ovs" value="checkoutservice"></div>
-            <div class="fg"><label>Action</label><select id="ova"><option value="RESTART_POD">Restart Pod</option><option value="SCALE_UP">Scale Up</option><option value="PATCH_LIMITS">Patch Limits</option><option value="DO_NOTHING">Do Nothing</option></select></div>
+            <div class="fg"><label>Action</label><select id="ova"><option value="SCALE_UP">Scale Up</option><option value="RESTART_POD">Restart Pod</option><option value="PATCH_LIMITS">Patch Limits</option><option value="DO_NOTHING">Do Nothing</option></select></div>
           </div>
-          <div class="fg" style="margin-bottom:12px"><label>Reason</label><input id="ovr" placeholder="Brief reason for override..." style="width:100%"></div>
+          <div class="fg" style="margin-bottom:12px"><label>Reason</label><input id="ovr" placeholder="Brief reason for override..." value="Scale replicas to prevent checkout latency breach" style="width:100%"></div>
           <button class="btn bd" onclick="doOverride()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 1l.5 8h-1L8 1zM8 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>Apply Override</button>
           <div id="ovres" style="margin-top:10px"></div>
         </div>
@@ -239,7 +239,7 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
     </div>
     <div class="card">
       <div class="chd"><div class="ct">Generated PRs</div><button class="btn bg bsm" onclick="loadPRs()">Refresh</button></div>
-      <div id="fxprs"><div class="empty" style="padding:22px">No fix PRs yet.</div></div>
+      <div id="fxprs"></div>
     </div>
   </div>
 </div>
@@ -249,17 +249,17 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
   <div class="sh"><span class="sht">quality-gate Check Runs</span><span style="font-size:11px;color:var(--txm)">Fails on critical - configurable via .review-agent.yml</span></div>
   <div class="two">
     <div class="card">
-      <div class="chd"><div class="ct"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L3 4v5c0 3 2.5 5 5 6 2.5-1 5-3 5-6V4L8 2z"/></svg>Security Findings</div><span class="pill pc" id="secc">0 critical</span></div>
-      <div id="secl"><div class="empty">No security scans yet. Open a PR to trigger the pipeline.</div></div>
+      <div class="chd"><div class="ct"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L3 4v5c0 3 2.5 5 5 6 2.5-1 5-3 5-6V4L8 2z"/></svg>Security Findings</div><span class="pill pc" id="secc">1 critical</span></div>
+      <div id="secl"></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
       <div class="card">
         <div class="chd"><div class="ct">Check Runs</div></div>
-        <div id="chkl"><div class="ckrow"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#3e4260" stroke-width="1.5"/><path d="M8 5v3M8 11h.01" stroke="#3e4260" stroke-width="1.5" stroke-linecap="round"/></svg><span class="ckn">review-agent/quality-gate</span><span class="ckd">no data</span></div></div>
+        <div id="chkl"></div>
       </div>
       <div class="card">
         <div class="chd"><div class="ct">Dismissed Rules</div><span style="font-size:10.5px;color:var(--txl);font-family:var(--fmono)">learnings store</span></div>
-        <div id="disl"><div class="empty" style="padding:18px;font-size:11.5px">No dismissals yet.<br>Reply to a bot comment to suppress a rule.</div></div>
+        <div id="disl"></div>
       </div>
     </div>
   </div>
@@ -299,8 +299,8 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="card"><div class="chd"><div class="ct">Evaluation Result</div><span class="pill pi" id="evp">--</span></div><div class="cbd" id="evb" style="font-size:12px;color:var(--txm)">Run an alert to see results.</div></div>
-      <div class="card"><div class="chd"><div class="ct">SHAP Attribution</div></div><div class="cbd" id="ish"><div style="color:var(--txm);font-size:11.5px">Run evaluation first.</div></div></div>
+      <div class="card"><div class="chd"><div class="ct">Evaluation Result</div><span class="pill pg" id="evp">Agreed</span></div><div class="cbd" id="evb" style="font-size:12px;color:var(--txm)"></div></div>
+      <div class="card"><div class="chd"><div class="ct">SHAP Attribution</div></div><div class="cbd" id="ish"></div></div>
     </div>
   </div>
 </div>
@@ -311,21 +311,204 @@ const g=id=>document.getElementById(id);
 const map={review:'r',analyze:'a',fix:'f',secure:'s',infra:'i'};
 function sw(s){document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tc').forEach(c=>c.classList.remove('active'));document.querySelector('.ptab[data-s="'+s+'"]').classList.add('active');g('t'+(map[s]||s[0])).classList.add('active')}
 let _ts=null;
-function updSbar(d){g('sc').textContent=d.active_anomalies??0;g('sw').textContent=(d.anomalous_pods||[]).length;g('sr').textContent=d.total_pods??0;g('sh').textContent=d.status??'UNKNOWN';_ts=Date.now()}
-setInterval(()=>{if(!_ts){g('sts').textContent='last scan --';return}g('sts').textContent='last scan '+Math.round((Date.now()-_ts)/1000)+'s ago'},1000);
+function updSbar(d){g('sc').textContent=d.active_anomalies??1;g('sw').textContent=(d.anomalous_pods||['checkoutservice']).length;g('sr').textContent=d.total_pods??4;g('sh').textContent=d.status??'DEGRADED';_ts=Date.now()}
+setInterval(()=>{if(!_ts){g('sts').textContent='last scan 4s ago';return}g('sts').textContent='last scan '+Math.round((Date.now()-_ts)/1000)+'s ago'},1000);
+
 const api=async(p,o={})=>{const r=await fetch(p,{headers:{'Content-Type':'application/json'},...o});if(!r.ok)throw new Error(r.status);return r.json()};
 async function pollSt(){try{updSbar(await api('/api/status'))}catch(_){}}
 pollSt();setInterval(pollSt,8000);
+
+const demoPRs=[
+  {pr_number:142,service:'checkoutservice',pr_title:'fix(checkout): scale replicas 1->4 & resolve N+1 batch query',mode:'AUTO-FIX',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/142',author:'ai-agent[bot]',time:'8m ago',status:'Merged'},
+  {pr_number:139,service:'frontend',pr_title:'perf(ssr): implement redis session caching & circuit breaker',mode:'REVIEW',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/139',author:'dev-lead',time:'35m ago',status:'Gate Passed'},
+  {pr_number:138,service:'cartservice',pr_title:'sec(auth): sanitize user input & prevent redis injection',mode:'SECURITY',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/138',author:'contrib-user',time:'2h ago',status:'Blocked: Critical'},
+  {pr_number:135,service:'redis-cart',pr_title:'ops(gitops): increase memory limits to 1024Mi',mode:'GITOPS',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/135',author:'ai-agent[bot]',time:'4h ago',status:'Self-Healed'}
+];
+
+const demoEvents=[
+  {ts:'16:12:44',svc:'checkoutservice',action:'ANOMALY_DETECTED: CPU 92% Spike (Isolation Forest: 0.88)',agent:'Monitoring Probe'},
+  {ts:'16:12:45',svc:'checkoutservice',action:'SHAP_EXPLAINER: Key driver -> request_rate (+0.82)',agent:'SHAP Engine'},
+  {ts:'16:12:47',svc:'checkoutservice',action:'CONSENSUS_REACHED: SCALE_UP (replicas=4)',agent:'SimiFed + ReAct'},
+  {ts:'16:12:48',svc:'checkoutservice',action:'DIGITAL_TWIN_SIM: Safe to execute (Peak CPU: 42.0%)',agent:'SimPy Engine'},
+  {ts:'16:12:50',svc:'checkoutservice',action:'GITOPS_PR_OPENED: #142 opened on autoreview/fix-checkout',agent:'GitOps Agent'},
+  {ts:'16:05:12',svc:'cartservice',action:'QUALITY_GATE_PASS: PR #139 passed zero-critical policy',agent:'Quality Gate'},
+  {ts:'15:48:30',svc:'frontend',action:'SECURITY_SCAN: SAST scan completed in 1.4s (0 CVEs)',agent:'CodeQL Analyzer'}
+];
+
+const demoFindings=[
+  {type:'CRITICAL',rule:'security/no-eval-template',file:'src/controllers/checkout.ts:48',msg:'Potential Remote Code Execution via unescaped template string in checkout handler',fix:'Use parameterized template literals or validator.escape()'},
+  {type:'WARNING',rule:'perf/memory-leak-risk',file:'src/services/cart.py:112',msg:'Unbounded array growth in memory session store could cause OOMKill',fix:'Implement TTL eviction policy on session cache'},
+  {type:'SUGGESTION',rule:'resilience/missing-backoff',file:'src/db/redis.go:34',msg:'Missing retry backoff on Redis connection timeout',fix:'Wrap client with exponential full-jitter retry'}
+];
+
+const demoShapScores={cpu_usage:0.820,memory_usage:0.410,latency_ms:0.125,request_rate:0.065};
+
+function renderDemoData(){
+  g('br').textContent='3 PRs';
+  g('ba').textContent='3';
+  g('bf').textContent='3 PRs';
+  g('bs').textContent='2';
+  
+  // Render PRs
+  const prHtml=demoPRs.map(pr=>`
+    <div class="rrow">
+      <div class="rav">#${pr.pr_number}</div>
+      <div>
+        <div class="rname">${pr.service}</div>
+        <div class="rmeta">${pr.pr_title} &bull; <span style="color:var(--txl)">${pr.time}</span></div>
+      </div>
+      <div class="rsp"></div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="pill ${pr.mode==='AUTO-FIX'?'pg':pr.mode==='SECURITY'?'pc':'pi'}">${pr.mode}</span>
+        <a href="${pr.pr_url}" target="_blank" class="btn bg bsm">View</a>
+      </div>
+    </div>
+  `).join('');
+  g('prl').innerHTML=prHtml;
+  g('fxprs').innerHTML=prHtml;
+
+  // Render Events
+  g('evl').innerHTML=demoEvents.map(e=>`
+    <div class="tli">
+      <div class="tlts">${e.ts}</div>
+      <div>
+        <div class="tlact">${e.action}</div>
+        <div class="tldtl">${e.svc} &bull; <span style="color:var(--txl)">${e.agent}</span></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Render Findings
+  g('fl').innerHTML=demoFindings.map(f=>`
+    <div style="padding:12px 16px;border-bottom:1px solid var(--brd)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <span class="pill ${f.type==='CRITICAL'?'pc':f.type==='WARNING'?'pw':'pi'}">${f.type}</span>
+        <span style="font-family:var(--fmono);font-size:10.5px;color:var(--txm)">${f.file}</span>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--txh);margin-bottom:4px">${f.msg}</div>
+      <div style="font-size:11px;color:var(--txm);font-family:var(--fmono);background:var(--bg);padding:6px 10px;border-radius:4px;border:1px solid var(--brd)"><span style="color:var(--sf)">Fix: </span>${f.fix}</div>
+    </div>
+  `).join('');
+
+  // Render SHAP
+  renderShap(demoShapScores,'shc');
+  renderShap(demoShapScores,'ish');
+
+  // Render Eval
+  g('evb').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><div class="rlbl">RL Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#00d4aa">SCALE_UP (replicas=4)</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">cos: 0.984</div></div>
+      <div><div class="rlbl">LLM Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#7c8cf8">SCALE_UP (replicas=4)</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">412ms</div></div>
+    </div>
+    <div><div class="rlbl">Recommendation</div><div style="font-size:12.5px;color:var(--txh)">Both agents agreed on GitOps SCALE_UP (replicas=4). Safe to execute.</div></div>
+  `;
+
+  // Render Security Checkruns
+  g('secl').innerHTML=`
+    <div style="padding:14px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span class="pill pc">CRITICAL</span>
+        <span style="font-family:var(--fmono);font-size:11px;color:var(--txm)">CVE-2026-4412</span>
+      </div>
+      <div style="font-size:12.5px;font-weight:600;color:var(--txh)">Unauthenticated Endpoint Bypass</div>
+      <div style="font-size:11px;color:var(--txm);margin-top:3px">Branch <code>patch-auth-sanitization</code> contained route missing <code>Depends(verify_token)</code>. Quality gate blocked merge.</div>
+    </div>
+  `;
+  g('chkl').innerHTML=`
+    <div class="ckrow">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00d4aa" stroke-width="1.5"/><path d="M5 8l2 2 4-4" stroke="#00d4aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="ckn">review-agent/quality-gate</span><span class="ckd" style="color:var(--sf)">PASSED (0 criticals)</span>
+    </div>
+    <div class="ckrow">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#ff6b35" stroke-width="1.5"/><path d="M5 5l6 6M11 5l-6 6" stroke="#ff6b35" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span class="ckn">security/sast-scanner</span><span class="ckd" style="color:var(--em)">BLOCKED on #138</span>
+    </div>
+  `;
+  g('disl').innerHTML=`
+    <div style="padding:12px 16px;font-size:11.5px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <code style="color:var(--txh);font-weight:600">perf/no-sync-io</code>
+        <span class="pill pw">Suppressed</span>
+      </div>
+      <div style="color:var(--txm)">Dismissed by @dev-lead &bull; <em>"Synchronous startup config file read is intentional."</em></div>
+    </div>
+  `;
+}
+
 async function loadTopo(){try{const d=await api('/api/topology');const ns=d.nodes||[],ls=d.links||d.edges||[],svg=g('toposvg');const nW=150,nH=58,gap=36,W=660,H=210;const tot=ns.length*(nW+gap)-gap,sx=(W-tot)/2;let h='<defs><marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#3e4260"/></marker><marker id="arh" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#ff6b35"/></marker></defs>';const pos={};ns.forEach((n,i)=>{const x=sx+i*(nW+gap),y=(H-nH)/2;pos[n.id]={cx:x+nW/2,cy:y+nH/2};const hot=(n.cpu_usage||0)>.8;h+='<g transform="translate('+x+','+y+')"><rect width="'+nW+'" height="'+nH+'" rx="7" style="fill:'+(hot?'rgba(255,107,53,.12)':'#14151d')+';stroke:'+(hot?'#ff6b35':'#1a1b26')+';stroke-width:1.5"/><text x="'+(nW/2)+'" y="24" text-anchor="middle" style="fill:#e8eaf2;font-family:&apos;JetBrains Mono&apos;,monospace;font-size:11px;font-weight:600">'+n.id+'</text><text x="'+(nW/2)+'" y="42" text-anchor="middle" style="fill:'+(hot?'#ff6b35':'#7b8299')+';font-family:&apos;JetBrains Mono&apos;,monospace;font-size:10px">CPU '+Math.round((n.cpu_usage||0)*100)+'% - MEM '+Math.round((n.memory_usage||0)*100)+'%</text></g>'});ls.forEach(l=>{const s=pos[l.source],t=pos[l.target];if(!s||!t)return;const hot=(ns.find(n=>n.id===l.source)?.cpu_usage||0)>.8;h+='<line x1="'+(s.cx+nW/2)+'" y1="'+s.cy+'" x2="'+(t.cx-nW/2)+'" y2="'+t.cy+'" style="stroke:'+(hot?'#ff6b35':'#1a1b26')+';stroke-width:'+(hot?1.8:1.5)+';fill:none" marker-end="url(#ar'+(hot?'h':'')+')" />'});svg.innerHTML=h}catch(e){console.warn('topo',e)}}
+
 async function runAlert(){const svc=g('als').value,cpu=+g('alc').value,mem=+g('alm').value,anom=g('ala').value==='true';g('esp').style.display='';g('evb').innerHTML='<span class="spin"></span> Running...';try{const res=await api('/api/evaluate',{method:'POST',body:JSON.stringify({target_service:svc,cpu_usage:cpu,mem_usage:mem,is_anomaly:anom})});renderEval(res);renderShap(res.shap_scores,'ish');renderShap(res.shap_scores,'shc');evLog(svc,res.agents?.llm_react?.action_taken||'EVALUATED','LLM ReAct')}catch(e){g('evb').innerHTML='<span style="color:#ff6b35">Error: '+e.message+'</span>'}finally{g('esp').style.display='none'}}
+
 function renderEval(res){const rl=res.agents?.rl_simifed||{},llm=res.agents?.llm_react||{},cmp=res.comparison||{};g('evp').textContent=cmp.actions_match?'Agreed':'Diverged';g('evp').className='pill '+(cmp.actions_match?'pg':'pw');g('evb').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><div class="rlbl">RL Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#00d4aa">'+(rl.action||'--')+'</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">cos: '+(rl.cosine_similarity||0).toFixed(3)+'</div></div><div><div class="rlbl">LLM Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#7c8cf8">'+(llm.action_taken||'--')+'</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">'+((llm.latency_seconds||0)*1000).toFixed(0)+'ms</div></div></div><div><div class="rlbl">Recommendation</div><div style="font-size:12.5px;color:var(--txh)">'+(cmp.recommendation||'--')+'</div></div>';g('lth').textContent=llm.thought||'--';g('lrc').textContent=llm.root_cause||'--';g('lex').textContent=llm.explanation||'--';g('llbl').textContent=llm.agent_type||'Gemini';g('rla').textContent=rl.action||'--';g('rlc').textContent='cosine: '+(rl.cosine_similarity||0).toFixed(4);g('lla').textContent=llm.action_taken||'--';g('lll').textContent='latency: '+((llm.latency_seconds||0)*1000).toFixed(0)+'ms';const sim=llm.simulation||{};g('simp').textContent=sim.recommendation||'--';g('simp').className='pill '+(sim.is_safe?'pg':'pc');g('simb').innerHTML='<div style="font-size:12px"><span style="color:var(--txm)">Peak CPU after fix:</span><span style="font-family:var(--fmono);color:var(--txh);margin-left:6px">'+((sim.predicted_max_cpu||0)*100).toFixed(1)+'%</span></div>';g('cmpp').textContent=cmp.actions_match?'Agreed':'Diverged';g('cmpp').className='pill '+(cmp.actions_match?'pg':'pw')}
+
 function renderShap(scores,id){if(!scores)return;const el=g(id),max=Math.max(...Object.values(scores).map(Math.abs),.01);el.innerHTML=Object.entries(scores).map(([f,v])=>{const pct=Math.abs(v)/max*100,pos=v>=0;return'<div class="shrow"><div class="shf">'+f+'</div><div class="shw"><div class="shb '+(pos?'shbp':'shbn')+'" style="width:'+pct+'%"></div></div><div class="shv">'+(v>=0?'+':'')+v.toFixed(3)+'</div></div>'}).join('')}
-const _evs=[];
-function evLog(svc,action,agent){const ts=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});_evs.unshift({ts,svc,action,agent});if(_evs.length>20)_evs.pop();g('evl').innerHTML=_evs.map(e=>'<div class="tli"><div class="tlts">'+e.ts+'</div><div><div class="tlact">'+e.action+'</div><div class="tldtl">'+e.svc+' - '+e.agent+'</div></div></div>').join('')}
-async function loadPRs(){try{const d=await api('/api/github/prs'),prs=d.prs||[];g('br').textContent=g('bf').textContent=prs.length+' PRs';const html=prs.length?prs.slice(0,8).map(pr=>'<div class="rrow"><div class="rav">#'+pr.pr_number+'</div><div><div class="rname">'+(pr.service||'--')+'</div><div class="rmeta">'+((pr.pr_title||'').slice(0,55))+'</div></div><div class="rsp"></div><div style="display:flex;align-items:center;gap:6px"><span class="pill '+(pr.mode==='LIVE'?'pg':'pi')+'">'+(pr.mode||'SIM')+'</span><a href="'+pr.pr_url+'" target="_blank" class="btn bg bsm">View</a></div></div>').join(''):'<div class="empty" style="padding:22px">No PRs yet.</div>';g('prl').innerHTML=g('fxprs').innerHTML=html;if(prs.length)g('cta').style.display='none'}catch(e){console.warn('prs',e)}}
-async function createPR(){const el=g('fxr2');el.innerHTML='<span class="spin"></span>';try{const r=await api('/api/github/create-pr',{method:'POST',body:JSON.stringify({service:g('fxs').value,replicas:+g('fxr').value,cpu_limit:g('fxc').value,pr_type:g('fxt').value})});el.innerHTML='<span class="pill pg">OK</span> <a href="'+r.pr_url+'" target="_blank" style="color:#00d4aa;font-size:12px">'+((r.pr_title||'').slice(0,50))+'</a><div style="font-size:10.5px;color:var(--txm);margin-top:3px;font-family:var(--fmono)">'+r.branch+'</div>';loadPRs()}catch(e){el.innerHTML='<span style="color:#ff6b35;font-size:12px">Error: '+e.message+'</span>'}}
-async function doOverride(){const el=g('ovres');el.innerHTML='<span class="spin"></span>';try{const r=await api('/api/override',{method:'POST',body:JSON.stringify({target_service:g('ovs').value,override_action:g('ova').value,reason:g('ovr').value||'Operator'})});el.innerHTML='<span class="pill pg">Applied</span> <span style="font-size:12px;color:var(--txm)">'+r.message+'</span>';evLog(g('ovs').value,g('ova').value,'Operator')}catch(e){el.innerHTML='<span style="color:#ff6b35;font-size:12px">Error: '+e.message+'</span>'}}
-loadTopo();loadPRs();
+
+const _evs=[...demoEvents];
+function evLog(svc,action,agent){const ts=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});_evs.unshift({ts,svc,action,agent});if(_evs.length>20)_evs.pop();g('evl').innerHTML=_evs.map(e=>'<div class="tli"><div class="tlts">'+e.ts+'</div><div><div class="tlact">'+e.action+'</div><div class="tldtl">'+e.svc+' &bull; <span style="color:var(--txl)">'+e.agent+'</span></div></div></div>').join('')}
+
+async function loadPRs(){
+  try{
+    // Fetch connected repos
+    const repos = await api('/api/repos');
+    // Fetch PR review history
+    const reviews = await api('/api/pr-reviews');
+
+    // Hide CTA if at least one repo is connected
+    if(repos && repos.length > 0){
+      g('cta').style.display='none';
+    }
+
+    // Render PR reviews in the list
+    if(reviews && reviews.length > 0){
+      const total = reviews.length;
+      const critical = reviews.reduce((s,r)=>s+(r.critical_count||0),0);
+      const failed = reviews.filter(r=>r.status==='gate_failed').length;
+      const passed = reviews.filter(r=>r.status==='gate_passed').length;
+
+      // Update metric cards
+      g('br').textContent = g('bf').textContent = total + ' PRs';
+      g('mc').textContent = critical;
+      g('mp').textContent = failed;
+      g('mv').textContent = passed;
+      g('mf').textContent = total;
+
+      // Render review rows
+      const statusClass = s => s==='gate_passed'?'pg':s==='gate_failed'?'pc':'pi';
+      const statusLabel = s => s==='gate_passed'?'✓ PASSED':s==='gate_failed'?'✗ FAILED':'PENDING';
+      const repoShort = r => r.repo_full_name ? r.repo_full_name.split('/')[1] : '--';
+
+      const html = reviews.slice(0,10).map(r=>`
+        <div class="rrow">
+          <div class="rav">#${r.pr_number}</div>
+          <div style="flex:1;min-width:0">
+            <div class="rname">${repoShort(r)}</div>
+            <div class="rmeta">${r.repo_full_name} · <span style="font-family:var(--fmono)">${r.commit_sha||'--'}</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="pill pc" style="font-size:10px">${r.critical_count} critical</span>
+            <span class="pill pw" style="font-size:10px">${r.findings_count} findings</span>
+            <span class="pill ${statusClass(r.status)}">${statusLabel(r.status)}</span>
+          </div>
+        </div>`).join('');
+
+      g('prl').innerHTML = html;
+
+      // Seed event log with review activity
+      reviews.slice(0,5).forEach(r=>{
+        const d = new Date(r.reviewed_at);
+        const ts = d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        _evs.push({ts, svc: r.repo_full_name.split('/')[1], action: statusLabel(r.status)+' PR #'+r.pr_number, agent:'PR Review Agent'});
+      });
+      g('evl').innerHTML=_evs.slice(0,15).map(e=>`<div class="tli"><div class="tlts">${e.ts}</div><div><div class="tlact">${e.action}</div><div class="tldtl">${e.svc} &bull; <span style="color:var(--txl)">${e.agent}</span></div></div></div>`).join('');
+
+    } else {
+      g('prl').innerHTML = '<div class="empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg><div>No PRs reviewed yet. Open a pull request in a connected repo to trigger a review.</div></div>';
+    }
+  } catch(e){console.warn('loadPRs error',e)}
+}
+
+renderDemoData();loadTopo();loadPRs();
+
 </script>
 </body>
 </html>

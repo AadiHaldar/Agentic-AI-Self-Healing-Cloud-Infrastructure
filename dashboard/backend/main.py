@@ -60,6 +60,77 @@ topology.add_dependency("checkoutservice", "cartservice")
 topology.add_dependency("cartservice", "redis-cart")
 
 
+# ── Auto-seed demo data on startup ───────────────────────────────────────────
+@app.on_event("startup")
+def seed_demo_on_startup():
+    """Seed AadiHaldar's real repos + PR review history into SQLite on every boot."""
+    try:
+        from pr_review_agent.db import (
+            _conn, init_db, upsert_installation, add_installation_repo,
+            set_app_config, get_app_config,
+        )
+
+        # Must initialise tables before any writes
+        init_db()
+
+        # 1. App config
+        if not get_app_config("GITHUB_APP_ID"):
+            set_app_config("GITHUB_APP_ID", "4622895")
+            set_app_config("GITHUB_APP_SLUG", "agentic-review-agent-65012")
+
+        # 2. Real installation + repos
+        INSTALLATION_ID = 154382391
+        upsert_installation(
+            installation_id=INSTALLATION_ID,
+            account_login="AadiHaldar",
+            account_type="User",
+            app_id=4622895,
+        )
+        REAL_REPOS = [
+            "AadiHaldar/MFC3_C4_ADMM_Based_Network_Anomaly_Detection",
+            "AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure",
+        ]
+        for repo in REAL_REPOS:
+            add_installation_repo(INSTALLATION_ID, repo)
+
+        # 3. PR review history (skip if already seeded)
+        with _conn() as con:
+            existing = con.execute(
+                "SELECT COUNT(*) FROM review_log WHERE repo_full_name LIKE 'AadiHaldar/%'"
+            ).fetchone()[0]
+            if existing == 0:
+                demo_reviews = [
+                    ("AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure",
+                     1, "a04fef7b", 3, 1, "gate_passed", "2026-08-17 10:22:39"),
+                    ("AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure",
+                     2, "d1c8fa22", 7, 2, "gate_failed", "2026-08-17 09:14:05"),
+                    ("AadiHaldar/MFC3_C4_ADMM_Based_Network_Anomaly_Detection",
+                     1, "b3e9120c", 2, 0, "gate_passed", "2026-08-16 18:45:11"),
+                    ("AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure",
+                     3, "f7a2091d", 5, 1, "gate_failed", "2026-08-16 14:33:22"),
+                    ("AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure",
+                     4, "c9b3412e", 1, 0, "gate_passed", "2026-08-15 21:10:47"),
+                    ("AadiHaldar/MFC3_C4_ADMM_Based_Network_Anomaly_Detection",
+                     2, "e5d1293a", 4, 1, "gate_failed", "2026-08-15 11:22:08"),
+                    ("AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure",
+                     5, "77fa3b1c", 0, 0, "gate_passed", "2026-08-14 16:05:31"),
+                ]
+                con.executemany(
+                    "INSERT INTO review_log "
+                    "(repo_full_name, pr_number, commit_sha, findings_count, critical_count, status, reviewed_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    demo_reviews
+                )
+                logger.info("[startup] Seeded %d demo PR reviews into SQLite", len(demo_reviews))
+            else:
+                logger.info("[startup] Demo data already present (%d rows), skipping seed.", existing)
+
+        logger.info("[startup] AadiHaldar repos seeded successfully: %s", REAL_REPOS)
+    except Exception as seed_err:
+        import traceback
+        logger.error("[startup] Demo seed FAILED: %s\n%s", seed_err, traceback.format_exc())
+
+
 class AlertRequest(BaseModel):
     target_service: str
     cpu_usage: float
@@ -218,13 +289,17 @@ def manual_override(request: OverrideRequest):
         "reason": request.reason
     }
 
-# Mount modern Vite frontend if built, otherwise fallback to legacy frontend
+# Primary dashboard UI: mounts dashboard/frontend unless a full Vite bundle is built
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend"))
 vite_dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend-vite/dist"))
-legacy_frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend"))
 
-if os.path.exists(vite_dist_path):
+if (
+    os.path.exists(vite_dist_path)
+    and os.path.exists(os.path.join(vite_dist_path, "index.html"))
+    and os.path.getsize(os.path.join(vite_dist_path, "index.html")) > 100
+):
     app.mount("/", StaticFiles(directory=vite_dist_path, html=True), name="frontend_vite")
     logger.info("[main] Mounted modern React/Vite dashboard from %s", vite_dist_path)
-elif os.path.exists(legacy_frontend_path):
-    app.mount("/", StaticFiles(directory=legacy_frontend_path, html=True), name="frontend")
-    logger.info("[main] Mounted legacy frontend from %s", legacy_frontend_path)
+elif os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+    logger.info("[main] Mounted frontend dashboard from %s", frontend_path)
