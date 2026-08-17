@@ -141,7 +141,7 @@ Return the COMPLETE updated file content. No markdown fences, no explanation —
     try:
         from google import genai
         response = gemini_client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-3.6-flash",
             contents=prompt,
         )
         text = response.text.strip()
@@ -275,7 +275,7 @@ Answer concisely and helpfully. If asking about a specific file or function, ref
     try:
         from google import genai
         response = gemini_client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-3.6-flash",
             contents=prompt,
         )
         return response.text.strip()
@@ -337,7 +337,7 @@ def handle_comment(
         pass
 
     # Route command
-    if cmd in ("generate", "docstring", "docstrings"):
+    if cmd in ("generate", "docstring", "docstrings", "/add-docstrings", "add-docstrings", "/docstrings", "/docstring", "/generate-docstrings"):
         reply = _handle_generate_docstrings(repo_full_name, pr_number, token, gemini_client)
         action = "generate_docstrings"
     elif cmd == "dismiss":
