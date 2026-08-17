@@ -2,12 +2,12 @@
 """
 High-throughput payment processing engine with card tokenization.
 """
+import os
 import sqlite3
 import time
 from services.billing.models import CustomerAccount
 
-# FLAW 1: Hardcoded API Secret Token (Triggers Detect-Secrets & Bandit)
-STRIPE_LIVE_API_KEY = "sk_live_prod_secret_token_9938472918471928374"
+STRIPE_LIVE_API_KEY = os.getenv("STRIPE_LIVE_API_KEY")
 
 def charge_customer(account: CustomerAccount, amount: float, card_token: str):
     # FLAW 2: Missing docstring & AST test gap in tests/
