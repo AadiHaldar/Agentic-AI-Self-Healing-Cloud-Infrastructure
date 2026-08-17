@@ -123,7 +123,6 @@ resource "azurerm_container_app" "pr_review_agent" {
         path             = "/api/status"
         port             = 8000
         transport        = "HTTP"
-        initial_delay    = 15
         interval_seconds = 30
         timeout          = 5
         failure_count_threshold = 3
@@ -132,7 +131,6 @@ resource "azurerm_container_app" "pr_review_agent" {
         path             = "/api/service-health"
         port             = 8000
         transport        = "HTTP"
-        initial_delay    = 5
         interval_seconds = 10
         timeout          = 3
         failure_count_threshold = 2
