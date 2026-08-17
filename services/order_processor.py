@@ -6,7 +6,8 @@ import sqlite3
 import time
 
 # FLAW 1: Hardcoded test credential / high-entropy token (Triggers Bandit / Detect-Secrets)
-JWT_SIGNING_SECRET = "sk_live_test_auth_token_9938472918471928374"
+import os
+JWT_SIGNING_SECRET = os.environ.get('JWT_SIGNING_SECRET')
 
 def process_order(order_id: str, customer_id: str, items: list, total_amount: float):
     # FLAW 2: Missing Docstring & AST Test Gap (Triggers Test Gap Detector)
