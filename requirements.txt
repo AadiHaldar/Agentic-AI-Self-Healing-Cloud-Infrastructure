@@ -22,6 +22,12 @@ PyYAML>=6.0.1
 # Gemini 2.0 Flash (new SDK)
 google-genai>=0.7.0
 
+# Retry / resilience
+tenacity>=8.2.0
+
+# PostgreSQL async driver (for DATABASE_URL migration — currently scaffolded)
+asyncpg>=0.29.0
+
 # Optional static analysis tools (install separately as needed):
 #   pip install ruff bandit detect-secrets pip-audit
 # ESLint is invoked via npx (no pip install needed)

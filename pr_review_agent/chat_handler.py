@@ -29,6 +29,42 @@ _GH_HEADERS_BASE = {
     "X-GitHub-Api-Version": "2022-11-28",
 }
 
+# Maximum user-controlled text embedded in any LLM prompt.
+_MAX_USER_INPUT_CHARS = 400
+
+# Patterns that are telltale prompt-injection attempts.
+_INJECTION_PATTERNS = [
+    re.compile(r"ignore\s+(all\s+)?previous\s+(instructions?|prompts?)", re.IGNORECASE),
+    re.compile(r"system\s*:\s*", re.IGNORECASE),
+    re.compile(r"<\s*/?\s*(system|user|assistant)\s*>", re.IGNORECASE),
+    re.compile(r"\[\s*(INST|SYS)\s*\]", re.IGNORECASE),
+    re.compile(r"\\n\\n(Human|Assistant):", re.IGNORECASE),
+    re.compile(r"jailbreak", re.IGNORECASE),
+]
+
+
+def _sanitize_user_input(text: str) -> str:
+    """
+    Sanitize user-supplied text before embedding it in an LLM prompt.
+
+    Steps:
+    1. Strip null bytes.
+    2. Detect and redact known prompt-injection patterns.
+    3. Hard-cap length to _MAX_USER_INPUT_CHARS.
+    """
+    # 1. Strip null bytes
+    text = text.replace("\x00", "")
+
+    # 2. Redact injection patterns
+    for pattern in _INJECTION_PATTERNS:
+        text = pattern.sub("[REDACTED]", text)
+
+    # 3. Cap length
+    if len(text) > _MAX_USER_INPUT_CHARS:
+        text = text[:_MAX_USER_INPUT_CHARS] + "...[truncated]"
+
+    return text
+
 
 def _gh_headers(token: str) -> Dict[str, str]:
     return {**_GH_HEADERS_BASE, "Authorization": f"Bearer {token}"}
@@ -232,7 +268,7 @@ Changed files:
 Recent comment thread:
 {thread_text or 'No prior comments'}
 
-User question: {question}
+User question: {_sanitize_user_input(question)}
 
 Answer concisely and helpfully. If asking about a specific file or function, refer to the actual diff content. Keep response under 400 words."""
 

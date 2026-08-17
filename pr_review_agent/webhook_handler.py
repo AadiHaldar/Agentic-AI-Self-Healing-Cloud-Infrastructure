@@ -39,7 +39,11 @@ from pr_review_agent.db import (
     delete_installation,
     get_all_review_log,
     get_review_log,
+    is_delivery_seen,
+    record_delivery,
 )
+from pr_review_agent import metrics as _metrics
+from pr_review_agent.ratelimit import check_rate_limit
 
 logger = logging.getLogger(__name__)
 
@@ -123,15 +127,18 @@ def _run_pipeline_background(repo_full_name: str, pr_number: int, commit_sha: st
             "[webhook_handler] No token for %s — skipping pipeline for PR #%s",
             repo_full_name, pr_number
         )
+        _metrics.inc("pipeline_failed")
         return
     try:
         from pr_review_agent.pipeline import run_full_pipeline
         result = run_full_pipeline(repo_full_name, pr_number, commit_sha, token)
+        _metrics.inc("pipeline_ok")
         logger.info(
             "[webhook_handler] Pipeline finished for %s PR #%s: %s",
             repo_full_name, pr_number, result.get("quality_gate")
         )
     except Exception as e:
+        _metrics.inc("pipeline_failed")
         logger.error(
             "[webhook_handler] Pipeline error for %s PR #%s: %s",
             repo_full_name, pr_number, e, exc_info=True
@@ -147,10 +154,20 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks) ->
     """
     Receive and process GitHub webhook events.
     Verifies HMAC-SHA256 signature before processing.
+    Idempotent: duplicate X-GitHub-Delivery UUIDs are silently ignored.
     """
     payload_bytes = await request.body()
     sig_header = request.headers.get("X-Hub-Signature-256")
     event_type = request.headers.get("X-GitHub-Event", "unknown")
+    delivery_id = request.headers.get("X-GitHub-Delivery", "")
+
+    _metrics.inc("webhooks_received")
+
+    # ── Idempotency check ────────────────────────────────────────────────────
+    if delivery_id and is_delivery_seen(delivery_id):
+        _metrics.inc("webhooks_deduplicated")
+        logger.debug("[webhook_handler] Duplicate delivery %s ignored", delivery_id)
+        return JSONResponse({"status": "ignored", "reason": "duplicate_delivery"})
 
     # Load webhook secret from DB (persisted at app-callback time)
     webhook_secret = get_app_config("GITHUB_WEBHOOK_SECRET") or os.getenv("GITHUB_WEBHOOK_SECRET")
@@ -164,7 +181,11 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks) ->
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON payload")
 
-    logger.info("[webhook_handler] Received event: %s", event_type)
+    logger.info("[webhook_handler] Received event: %s delivery=%s", event_type, delivery_id)
+
+    # Record delivery AFTER successful HMAC verification
+    if delivery_id:
+        record_delivery(delivery_id, event_type)
 
     # ── pull_request ──────────────────────────────────────────────────────────
     if event_type == "pull_request":
@@ -174,7 +195,18 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks) ->
             pr_number = payload.get("pull_request", {}).get("number")
             commit_sha = payload.get("pull_request", {}).get("head", {}).get("sha", "")
             if repo and pr_number and commit_sha:
+                # ── Per-installation rate limit check ─────────────────────────────
+                installation_id = payload.get("installation", {}).get("id", 0)
+                if installation_id and not check_rate_limit(
+                    installation_id, window_secs=60, max_calls=5
+                ):
+                    _metrics.inc("webhooks_rate_limited")
+                    return JSONResponse(
+                        {"status": "rate_limited", "retry_after": 60},
+                        status_code=429,
+                    )
                 background_tasks.add_task(_run_pipeline_background, repo, pr_number, commit_sha)
+                _metrics.inc("pipeline_enqueued")
                 return JSONResponse({"status": "accepted", "action": "pipeline_queued", "pr": pr_number})
         return JSONResponse({"status": "ignored", "action": action})
 
@@ -196,6 +228,7 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks) ->
                 background_tasks.add_task(
                     handle_comment, repo, pr_number, comment_body, commenter, token
                 )
+                _metrics.inc("chat_enqueued")
         return JSONResponse({"status": "accepted", "action": "chat_handler_queued"})
 
     # ── installation ──────────────────────────────────────────────────────────
@@ -710,3 +743,41 @@ async def list_repos() -> JSONResponse:
         return JSONResponse([dict(r) for r in rows])
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Observability endpoint
+# ──────────────────────────────────────────────────────────────────────────────
+
+@router.get("/api/service-health")
+async def service_health() -> JSONResponse:
+    """
+    Return a snapshot of in-process health metrics.
+
+    Response shape:
+    {
+      "status": "ok",
+      "uptime_seconds": 1234.5,
+      "counters": {
+        "webhooks_received": 42,
+        "webhooks_deduplicated": 1,
+        "webhooks_rate_limited": 0,
+        "pipeline_enqueued": 38,
+        "pipeline_ok": 36,
+        "pipeline_failed": 2,
+        "chat_enqueued": 4,
+        "chat_ok": 4,
+        "chat_failed": 0
+      },
+      "pipeline_success_rate": 0.9474,
+      "chat_success_rate": 1.0
+    }
+    """
+    snap = _metrics.snapshot()
+    return JSONResponse({
+        "status": "ok",
+        "uptime_seconds": snap.pop("uptime_seconds"),
+        "pipeline_success_rate": snap.pop("pipeline_success_rate"),
+        "chat_success_rate": snap.pop("chat_success_rate"),
+        "counters": snap,
+    })

@@ -85,6 +85,19 @@ def init_db() -> None:
                 note            TEXT,
                 created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            -- Idempotency table: tracks X-GitHub-Delivery UUIDs to prevent
+            -- duplicate pipeline runs when GitHub retries a webhook delivery.
+            CREATE TABLE IF NOT EXISTS webhook_deliveries (
+                delivery_id  TEXT PRIMARY KEY,
+                event_type   TEXT,
+                received_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            -- Auto-purge old delivery records after 7 days to prevent unbounded growth.
+            -- Runs as part of the init_db call; SQLite does not support scheduled jobs.
+            DELETE FROM webhook_deliveries
+            WHERE received_at < datetime('now', '-7 days');
         """)
     logger.info("[db] Tables initialised at %s", DB_PATH)
 
@@ -248,6 +261,31 @@ def get_dismissals(repo_full_name: str) -> List[Dict[str, Any]]:
 def remove_dismissal(dismissal_id: int) -> None:
     with _conn() as con:
         con.execute("DELETE FROM dismissals WHERE id=?", (dismissal_id,))
+
+
+# ── webhook_deliveries ───────────────────────────────────────────────────────
+
+def is_delivery_seen(delivery_id: str) -> bool:
+    """
+    Return True if this X-GitHub-Delivery UUID was already processed.
+    Used for idempotency — GitHub retries deliveries with the same UUID.
+    """
+    with _conn() as con:
+        row = con.execute(
+            "SELECT 1 FROM webhook_deliveries WHERE delivery_id=?", (delivery_id,)
+        ).fetchone()
+    return row is not None
+
+
+def record_delivery(delivery_id: str, event_type: str = "") -> None:
+    """
+    Record a processed delivery UUID. INSERT OR IGNORE to be concurrent-safe.
+    """
+    with _conn() as con:
+        con.execute(
+            "INSERT OR IGNORE INTO webhook_deliveries(delivery_id, event_type) VALUES(?,?)",
+            (delivery_id, event_type),
+        )
 
 
 # ── bootstrap ────────────────────────────────────────────────────────────────

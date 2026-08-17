@@ -1,0 +1,179 @@
+name: Deploy to Azure Container Apps
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "pr_review_agent/**"
+      - "dashboard/**"
+      - "agentic_engine/**"
+      - "digital_twin/**"
+      - "detection/**"
+      - "requirements.txt"
+      - "Dockerfile"
+      - "infrastructure/terraform/azure/**"
+  workflow_dispatch:  # allow manual deploys
+
+permissions:
+  contents: read
+  id-token: write   # OIDC — no long-lived Azure credentials in GitHub secrets
+
+env:
+  # These match the Terraform variable defaults; override in repo Settings → Variables
+  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || 'rg-agentic-cloud-prod' }}
+  ACR_NAME:             ${{ vars.ACR_NAME || 'acragenticai2026' }}
+  CONTAINER_APP_NAME:   ${{ vars.CONTAINER_APP_NAME || 'pr-review-agent' }}
+  IMAGE_TAG:            ${{ github.sha }}
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 1: Build & push Docker image to ACR
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-and-push:
+    name: Build & Push Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_ref: ${{ steps.push.outputs.image_ref }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure OIDC Login
+        uses: azure/login@v2
+        with:
+          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to Azure Container Registry
+        run: az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # Skip Vite frontend build in CI (Phase 5 deferred)
+          build-args: |
+            SKIP_FRONTEND=true
+          tags: |
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+      - name: Output image reference
+        run: |
+          echo "image_ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}" >> "$GITHUB_OUTPUT"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 2: Terraform plan + apply (infrastructure updates only when TF files change)
+  # ─────────────────────────────────────────────────────────────────────────────
+  terraform:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    # Only run Terraform when infrastructure files changed
+    if: |
+      contains(github.event.head_commit.modified, 'infrastructure/terraform/azure/') ||
+      github.event_name == 'workflow_dispatch'
+
+    defaults:
+      run:
+        working-directory: infrastructure/terraform/azure
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure OIDC Login
+        uses: azure/login@v2
+        with:
+          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.8"
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ env.AZURE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ vars.TF_STATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=pr-review-agent.tfstate"
+        env:
+          ARM_CLIENT_ID:       ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID:       ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_USE_OIDC:        true
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -out=tfplan \
+            -var="gemini_api_key=${{ secrets.GEMINI_API_KEY }}" \
+            -var="github_app_private_key=${{ secrets.GITHUB_APP_PRIVATE_KEY }}" \
+            -var="github_webhook_secret=${{ secrets.GITHUB_WEBHOOK_SECRET }}" \
+            -var="postgres_password=${{ secrets.POSTGRES_PASSWORD }}"
+        env:
+          ARM_CLIENT_ID:       ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID:       ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_USE_OIDC:        true
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+        env:
+          ARM_CLIENT_ID:       ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID:       ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_USE_OIDC:        true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 3: Update Container App to the new image revision
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy New Revision
+    runs-on: ubuntu-latest
+    needs: [build-and-push, terraform]
+    # Run even if Terraform job was skipped (image-only deploy)
+    if: always() && needs.build-and-push.result == 'success'
+
+    steps:
+      - name: Azure OIDC Login
+        uses: azure/login@v2
+        with:
+          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Update Container App revision
+        run: |
+          az containerapp update \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}
+
+      - name: Verify deployment health
+        run: |
+          echo "Waiting 30s for new revision to start..."
+          sleep 30
+          FQDN=$(az containerapp show \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --query "properties.latestRevisionFqdn" -o tsv)
+          echo "Container App FQDN: https://$FQDN"
+          curl -f "https://$FQDN/api/service-health" || (echo "Health check failed!" && exit 1)
+          echo "✅ Deployment healthy"
