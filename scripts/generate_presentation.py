@@ -215,22 +215,99 @@ def create_presentation(output_path="Agentic_AI_Self_Healing_Cloud_Presentation.
     # ── SLIDE 4: Literature Survey Matrix ─────────────────────────────────────
     s4 = prs.slides.add_slide(blank_layout)
     apply_background(s4, BG_LIGHT)
-    add_header(s4, "Comparative Literature Survey: Reference Papers 1 to 9", "Literature Review")
+    add_header(s4, "Comparative Literature Survey Matrix (All 10 Papers)", "Literature Review")
 
-    table_card = add_card(s4, Inches(0.8), Inches(1.4), Inches(11.7), Inches(5.4),
-                          title="Synthesis of 9 Peer-Reviewed Reference Works Across Cloud Domains",
-                          body="",
-                          items=[
-                              "Paper 1 (Saxena & Singh, IEEE TII 2026): Multi-Factor Trust-Driven Secure Communication for Cloud Digital Twins -> Established trust vectors.",
-                              "Paper 2 (Zhang et al., IEEE IoTJ 2024): Adaptive Device-Edge Collaboration in AIoT -> Informed our edge-cloud telemetry streaming.",
-                              "Paper 3 (Saxena et al., IEEE TNSM 2023): FT-ERM Elastic Resource Management -> Neural failure estimation for elastic VM migration.",
-                              "Paper 4 (Saxena & Singh, IEEE TCC 2023): RRFT Resource-Aware Fault Tolerance -> Significance ranking to prioritize failover during contention.",
-                              "Paper 5 (JAISE 2026): Multi-Expert Consensus Auto-Scaling -> Guided our parallel multi-agent decision arbitration architecture.",
-                              "Paper 6 (Cluster Computing 2026): Hybrid Multi-Objective Service Placement -> Optimization framework for latency vs availability.",
-                              "Paper 7 (FGCS 2026): SQUIRO Quantum-Classical Scheduling on Kubernetes -> Security-aware placement preventing co-tenant attacks.",
-                              "Paper 8 (IEEE Access 2026): Cold-Start Model Delivery in K8s -> OCI distribution integrity checks for rapid container spinning.",
-                              "Paper 9 (IJPEDS 2026): Consensus In Asynchrony -> Mathematical proofs for distributed Byzantine and fail-stop consensus."
-                          ])
+    # Native 4-column table
+    rows = 11
+    cols = 4
+    left = Inches(0.8)
+    top = Inches(1.3)
+    width = Inches(11.73)
+    height = Inches(5.7)
+
+    table_shape = s4.shapes.add_table(rows, cols, left, top, width, height)
+    table = table_shape.table
+
+    # Column widths
+    table.columns[0].width = Inches(2.4)
+    table.columns[1].width = Inches(3.2)
+    table.columns[2].width = Inches(2.8)
+    table.columns[3].width = Inches(3.33)
+
+    headers = ["Paper Name & Citation", "Summary of the Paper", "What We Took from Paper", "Our Novelty & Innovation"]
+    for col_idx, h in enumerate(headers):
+        cell = table.cell(0, col_idx)
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = RGBColor(30, 41, 59)
+        p = cell.text_frame.paragraphs[0]
+        p.text = h
+        p.font.bold = True
+        p.font.size = Pt(9.5)
+        p.font.color.rgb = RGBColor(255, 255, 255)
+        p.font.name = "Calibri"
+
+    matrix_data = [
+        ("0. Base: SF-DTM\n(Saxena & Singh, IEEE TII 2025)",
+         "SimiFed (Cosine-similarity federated LSTM), FSP sequence analytics (NFSP vs SFSP), and MVP majority voting for VM allocation.",
+         "• Cosine similarity formula for incident vector matching.\n• Digital twin state synchronizer (TDTdb).\n• Formal availability/MTTR metrics.",
+         "• KernelSHAP XAI for root-cause attribution.\n• SimPy 0.01s pre-execution simulation gate.\n• Parallel Gemini ReAct LLM + Shift-Left PR review."),
+        ("1. Multi-Factor Trust DT\n(Saxena & Singh, IEEE TII 2026)",
+         "MT-SeCom framework evaluating temporal, contextual, and federated trust vectors for secure DT communications.",
+         "• Multi-factor trust evaluation across distributed telemetry nodes.\n• Cryptographic standards for multi-tenant control.",
+         "• Constant-time HMAC-SHA256 webhook signatures, RS256 JWT tokens, and Azure Workload Identity zero-secret access."),
+        ("2. Device-Edge Collaboration\n(Zhang et al., IEEE IoTJ 2024)",
+         "Digital twin-assisted DNN inference partitioning between edge and cloud to balance latency, bandwidth, and cost.",
+         "• Two-tier architecture separating local edge telemetry collection from centralized cloud reasoning.",
+         "• Dual Decision Engine: Sub-ms local RL reflex (0.001s) paired with cloud Gemini ReAct LLM (2.4s) and consensus arbiter."),
+        ("3. FT-ERM Elastic Management\n(Saxena et al., IEEE TNSM 2023)",
+         "Neural failure estimation predicting VM crash probabilities to trigger proactive elastic VM live migration.",
+         "• Proactive elasticity principles and mathematical formulation of service availability A = MTBF/(MTBF+MTTR).",
+         "• Container-native Kubernetes actuation (scale, restart, patch) pre-validated in SimPy discrete-event simulation."),
+        ("4. RRFT Resource Allocation\n(Saxena & Singh, IEEE TCC 2023)",
+         "Significance ranking of virtual machines based on task dependencies to prioritize failover during contention.",
+         "• Directed dependency graph ranking to model microservice criticality in multi-tier applications.",
+         "• Dynamic NetworkX DAG mirroring real-time gRPC microservice call chains in Google Online Boutique for topological reasoning."),
+        ("5. Multi-Expert Consensus\n(JAISE 2026)",
+         "Consensus mechanism arbitrating between multiple heuristic and ML-based autoscaling algorithms in serverless.",
+         "• Multi-expert voting architecture to reconcile disparate, asynchronous decision streams.",
+         "• Reconciles sub-millisecond Q-learning with Gemini ReAct LLM, using a 0.01s SimPy simulation gate as definitive tie-breaker."),
+        ("6. Hybrid Evolutionary Placement\n(Cluster Computing, Springer 2026)",
+         "Multi-objective genetic algorithms with genetic traceability balancing latency, energy, and availability in cloud-edge.",
+         "• Multi-objective optimization constraints balancing execution cost, recovery latency, and SLA compliance.",
+         "• Instantaneous 0.001s Cosine vector retrieval and 0.01s SimPy queue simulation, replacing slow multi-minute genetic loops."),
+        ("7. SQUIRO Security Scheduling\n(FGCS, Elsevier 2026)",
+         "Security-aware pod scheduling in Kubernetes to prevent side-channel and co-tenancy attacks in hybrid workloads.",
+         "• Kubernetes admission control principles and pod security context isolation.",
+         "• Shift-Left Security: Embedded AST security (Bandit), secret scanning (Detect-Secrets), and CVE audits into PR Quality Gates."),
+        ("8. Cold-Start Model Delivery\n(IEEE Access 2026)",
+         "OCI image distribution integrity checks and container cold-start minimization in Kubernetes inference clusters.",
+         "• OCI image packaging best practices and container registry distribution optimization.",
+         "• Multi-stage Docker build separating Vite frontend from Python runtime, integrated with Azure ACR and AKS AcrPull."),
+        ("9. Consensus In Asynchrony\n(IJPEDS, Taylor & Francis 2026)",
+         "Formal mathematical proofs and invariants for distributed consensus in asynchronous networks with message delays.",
+         "• Formal asynchronous state transition safety bounds and idempotent operation models.",
+         "• Idempotent non-blocking webhook queue with state locks, preventing conflicting parallel self-healing actions from flapping."),
+    ]
+
+    for row_idx, data_row in enumerate(matrix_data, start=1):
+        bg_col = RGBColor(255, 255, 255) if row_idx % 2 == 1 else RGBColor(248, 250, 252)
+        for col_idx, text in enumerate(data_row):
+            cell = table.cell(row_idx, col_idx)
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = bg_col
+            cell.text_frame.margin_left = Inches(0.06)
+            cell.text_frame.margin_right = Inches(0.06)
+            cell.text_frame.margin_top = Inches(0.04)
+            cell.text_frame.margin_bottom = Inches(0.04)
+            p = cell.text_frame.paragraphs[0]
+            p.text = text
+            p.font.size = Pt(7.5)
+            p.font.name = "Calibri"
+            p.font.color.rgb = TEXT_DARK
+            if col_idx == 0:
+                p.font.bold = True
+                p.font.color.rgb = ACCENT_BROWN
+
 
     # ── SLIDE 5: What We Implemented vs What We Enhanced ──────────────────────
     s5 = prs.slides.add_slide(blank_layout)
@@ -664,8 +741,14 @@ def create_presentation(output_path="Agentic_AI_Self_Healing_Cloud_Presentation.
                  "Thank You! Questions & Discussion."
              ])
 
-    prs.save(output_path)
-    print(f"[+] Successfully generated 21-slide presentation at: {output_path}")
+    try:
+        prs.save(output_path)
+        print(f"[+] Successfully generated 21-slide presentation at: {output_path}")
+    except PermissionError:
+        alt_path = "Agentic_AI_Self_Healing_Cloud_Presentation_v2.pptx"
+        prs.save(alt_path)
+        print(f"[+] Primary file was locked in PowerPoint. Saved updated presentation to: {alt_path}")
+
 
 if __name__ == "__main__":
     create_presentation()
