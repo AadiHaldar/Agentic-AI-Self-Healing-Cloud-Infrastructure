@@ -1,7 +1,7 @@
 variable "resource_group_name" {
   type        = string
-  description = "Name of the Azure Resource Group."
-  default     = "rg-agentic-cloud-prod"
+  description = "Name of the Azure Resource Group for the application."
+  default     = "rg-agentic-app-prod"
 }
 
 variable "location" {
