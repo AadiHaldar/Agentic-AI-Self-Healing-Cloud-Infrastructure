@@ -14,7 +14,7 @@
 
 ---
 
-## 📑 Table of Contents
+##  Table of Contents
 
 - [Executive Overview](#-executive-overview)
 - [System Architecture](#-system-architecture)
@@ -42,7 +42,7 @@
 
 ---
 
-## 💡 Executive Overview
+##  Executive Overview
 
 Modern cloud engineering ecosystems suffer from two disconnected vulnerabilities:
 1. **Developer Velocity & Security Drift:** Code reviews take days; memory leaks, dependency CVEs, missing unit tests, and secret tokens slip past manual reviews into production branches.
@@ -66,7 +66,7 @@ This platform bridges software development and cloud operations through a unifie
 
 ---
 
-## 🏛️ System Architecture
+##  System Architecture
 
 ```mermaid
 graph TB
@@ -132,7 +132,7 @@ graph TB
 
 ---
 
-## 📚 Research Foundations: Base Paper & Reference Literature
+##  Research Foundations: Base Paper & Reference Literature
 
 Our platform is grounded in leading research from distributed systems, cloud computing, federated learning, and explainable artificial intelligence.
 
@@ -217,7 +217,7 @@ While the base paper established foundational theoretical models for VM allocati
 
 ---
 
-## 🔍 Product A — PR Review Agent
+##  Product A — PR Review Agent
 
 The PR Review Agent (`pr_review_agent/`) automatically inspects pull requests, detects vulnerabilities and lint errors, generates visual call graphs, and posts actionable inline suggestions directly to GitHub.
 
@@ -278,7 +278,7 @@ llm_confidence_threshold: 0.70
 
 ---
 
-## ⚡ Product B — Infrastructure Self-Healing Engine
+##  Product B — Infrastructure Self-Healing Engine
 
 ### Digital Twin Simulation Gate
 
@@ -328,7 +328,7 @@ Instead of raw numbers, every anomaly alert produces **SHAP Feature Attribution 
 
 ---
 
-## 🖥️ Modern React + Vite Control Plane
+##  Modern React + Vite Control Plane
 
 The frontend in `dashboard/frontend-vite/` provides a dark-themed single-pane-of-glass operator console built with React 18, TypeScript, and Vite:
 
@@ -344,7 +344,7 @@ The frontend in `dashboard/frontend-vite/` provides a dark-themed single-pane-of
 
 ---
 
-## ☁️ Microsoft Azure Cloud Deployment
+## Microsoft Azure Cloud Deployment
 
 The platform includes production-ready Terraform Infrastructure as Code (IaC) and Kubernetes manifests to deploy the entire stack onto **Microsoft Azure**:
 
@@ -390,7 +390,7 @@ For complete step-by-step instructions, see [`docs/azure_deployment_guide.md`](f
 
 ---
 
-## 🔌 API & Webhook Reference
+## API & Webhook Reference
 
 | Method | Endpoint | Description |
 |:---|:---|:---|
@@ -408,7 +408,7 @@ For complete step-by-step instructions, see [`docs/azure_deployment_guide.md`](f
 
 ---
 
-## 🚀 Getting Started Locally
+## Getting Started Locally
 
 ### 1. Prerequisites
 - Python 3.10+
@@ -455,7 +455,7 @@ Open `https://<your-ngrok-subdomain>.ngrok-free.app/install` in your browser, cl
 
 ---
 
-## 🧪 Running the Test Suite
+##  Running the Test Suite
 
 The test suite covers unit, integration, and security verification across all subsystems:
 
@@ -472,7 +472,7 @@ $env:PYTHONPATH = "."; python tests/e2e_evaluation.py
 
 ---
 
-## 📊 Implementation Status Matrix
+##  Implementation Status Matrix
 
 | Subsystem / Feature | Academic Basis / Standard | Status | Verification |
 |:---|:---|:---:|:---|
