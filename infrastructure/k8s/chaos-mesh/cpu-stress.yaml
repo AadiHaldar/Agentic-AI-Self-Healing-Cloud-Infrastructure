@@ -1,0 +1,22 @@
+# ==============================================================================
+# Chaos Mesh Experiment: CPU Stress Injection on CheckoutService
+# Simulates resource congestion to test Digital Twin detection & RL/LLM healing
+# ==============================================================================
+
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: checkout-cpu-stress
+  namespace: default
+spec:
+  mode: one
+  selector:
+    namespaces:
+      - default
+    labelSelectors:
+      app: checkoutservice
+  stressors:
+    cpu:
+      workers: 2
+      load: 90
+  duration: "5m"

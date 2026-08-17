@@ -1,0 +1,123 @@
+# ==============================================================================
+# Kubernetes Manifests: Agentic AI Self-Healing & PR Review Platform on AKS
+# ==============================================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agentic-ai
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agentic-db-pvc
+  namespace: agentic-ai
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentic-ai-platform
+  namespace: agentic-ai
+  labels:
+    app: agentic-ai-platform
+    tier: control-plane
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agentic-ai-platform
+  template:
+    metadata:
+      labels:
+        app: agentic-ai-platform
+    spec:
+      containers:
+        - name: platform
+          image: acragenticai2026.azurecr.io/agentic-ai-platform:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: agentic-secrets
+                  key: GEMINI_API_KEY
+                  optional: true
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: agentic-secrets
+                  key: GITHUB_TOKEN
+                  optional: true
+            - name: GITHUB_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: agentic-secrets
+                  key: GITHUB_APP_ID
+                  optional: true
+            - name: GITHUB_APP_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: agentic-secrets
+                  key: GITHUB_APP_PRIVATE_KEY
+                  optional: true
+            - name: GITHUB_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: agentic-secrets
+                  key: GITHUB_WEBHOOK_SECRET
+                  optional: true
+            - name: PR_REVIEW_AGENT_DB
+              value: "/app/data/pr_review_agent.db"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1536Mi"
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/data
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: agentic-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentic-ai-service
+  namespace: agentic-ai
+  labels:
+    app: agentic-ai-platform
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app: agentic-ai-platform
