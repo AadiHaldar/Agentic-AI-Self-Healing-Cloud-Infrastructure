@@ -218,7 +218,13 @@ def manual_override(request: OverrideRequest):
         "reason": request.reason
     }
 
-# Mount static frontend if available
-frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend"))
-if os.path.exists(frontend_path):
-    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+# Mount modern Vite frontend if built, otherwise fallback to legacy frontend
+vite_dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend-vite/dist"))
+legacy_frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend"))
+
+if os.path.exists(vite_dist_path):
+    app.mount("/", StaticFiles(directory=vite_dist_path, html=True), name="frontend_vite")
+    logger.info("[main] Mounted modern React/Vite dashboard from %s", vite_dist_path)
+elif os.path.exists(legacy_frontend_path):
+    app.mount("/", StaticFiles(directory=legacy_frontend_path, html=True), name="frontend")
+    logger.info("[main] Mounted legacy frontend from %s", legacy_frontend_path)

@@ -29,7 +29,9 @@ data/
 
 # Node
 node_modules/
+**/node_modules/
 dist/
+**/dist/
 npm-debug.log*
 
 # Terraform
