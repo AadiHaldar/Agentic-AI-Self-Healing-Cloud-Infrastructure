@@ -191,6 +191,23 @@ def evaluate_alert(request: AlertRequest):
     result = orchestrator.process_alert(context)
     result["shap_summary"] = formatted_shap_str
     result["shap_scores"] = shap_dict
+
+    # 4. Live Kubernetes Actuation (if connected to live cluster)
+    if request.is_anomaly:
+        try:
+            chosen_action = result.get("agents", {}).get("llm_react", {}).get("action_taken", "SCALE_UP")
+            if "SCALE" in chosen_action.upper():
+                k8s_res = k8s_tools.scale_deployment(request.target_service, replicas=4, namespace="default")
+            elif "RESTART" in chosen_action.upper():
+                k8s_res = k8s_tools.restart_pod(request.target_service, namespace="default")
+            else:
+                k8s_res = {"status": "skipped", "message": "Action marked DO_NOTHING"}
+            result["k8s_live_actuation"] = k8s_res
+            logger.info(f"[main] Live K8s Actuation Executed: {k8s_res}")
+        except Exception as k8s_err:
+            logger.debug(f"[main] Live K8s Actuation bypassed: {k8s_err}")
+            result["k8s_live_actuation"] = {"status": "bypassed", "reason": str(k8s_err)}
+
     return result
 
 from agentic_engine.tools.github_tools import github_manager
@@ -289,17 +306,9 @@ def manual_override(request: OverrideRequest):
         "reason": request.reason
     }
 
-# Primary dashboard UI: mounts dashboard/frontend unless a full Vite bundle is built
+# Primary dashboard UI: mounts dashboard/frontend (single-page interactive app)
 frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend"))
-vite_dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend-vite/dist"))
 
-if (
-    os.path.exists(vite_dist_path)
-    and os.path.exists(os.path.join(vite_dist_path, "index.html"))
-    and os.path.getsize(os.path.join(vite_dist_path, "index.html")) > 100
-):
-    app.mount("/", StaticFiles(directory=vite_dist_path, html=True), name="frontend_vite")
-    logger.info("[main] Mounted modern React/Vite dashboard from %s", vite_dist_path)
-elif os.path.exists(frontend_path):
+if os.path.exists(frontend_path):
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
     logger.info("[main] Mounted frontend dashboard from %s", frontend_path)

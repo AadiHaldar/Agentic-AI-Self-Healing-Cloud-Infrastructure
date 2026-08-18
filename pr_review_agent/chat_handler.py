@@ -15,6 +15,7 @@ import ast
 import base64
 import json
 import logging
+import os
 import re
 import urllib.request
 import urllib.error
@@ -321,9 +322,10 @@ def handle_comment(
     if gemini_client is None:
         try:
             from google import genai
-            gemini_client = genai.Client()
-        except Exception:
-            pass
+            api_key = os.getenv("GEMINI_API_KEY")
+            gemini_client = genai.Client(api_key=api_key) if api_key else genai.Client()
+        except Exception as e:
+            logger.warning("[chat_handler] Could not init Gemini client: %s", e)
 
     cmd, args = _extract_command(comment_body)
 
