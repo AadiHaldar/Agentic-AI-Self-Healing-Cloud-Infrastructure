@@ -108,7 +108,46 @@ Discrete-event simulation for pre-deployment validation has been applied in manu
 \section{System Architecture}
 % ============================================================
 
-AgentHeal consists of two synchronized engines operating on a shared event bus.
+AgentHeal consists of two synchronized engines operating on a shared event bus, as illustrated in Figure~\ref{fig:arch}.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  block/.style={rectangle, draw, text width=2.9cm, text centered, rounded corners, minimum height=0.75cm, font=\footnotesize},
+  arrow/.style={->, thick, >=stealth},
+  lbl/.style={font=\footnotesize\bfseries}
+]
+% ── Product A (left column) ──────────────────────────────────
+\node[block, fill=orange!18] (pr)    {GitHub Pull Request};
+\node[block, below=0.38cm of pr]   (sast)  {SAST + Secret Scan + AST};
+\node[block, below=0.38cm of sast] (llma)  {Gemini ReAct Audit};
+\node[block, below=0.38cm of llma] (gate)  {Quality Gate (Check Run)};
+
+% ── Product B (right column) ─────────────────────────────────
+\node[block, fill=green!15, right=1.4cm of pr]    (tel)   {K8s Telemetry ($\vec{X}_t$)};
+\node[block, below=0.38cm of tel]  (if_)   {Isolation Forest (2.26 ms)};
+\node[block, below=0.38cm of if_]  (shap)  {KernelSHAP Attribution};
+\node[block, below=0.38cm of shap, fill=purple!15] (cons) {SimiFed RL + Gemini ReAct};
+\node[block, below=0.38cm of cons] (simp)  {SimPy $M/M/c$ Safety Gate};
+\node[block, below=0.38cm of simp] (k8s)   {kubectl Actuation};
+
+% ── Arrows ───────────────────────────────────────────────────
+\draw[arrow] (pr)   -- (sast);
+\draw[arrow] (sast) -- (llma);
+\draw[arrow] (llma) -- (gate);
+\draw[arrow] (tel)  -- (if_);
+\draw[arrow] (if_)  -- (shap);
+\draw[arrow] (shap) -- (cons);
+\draw[arrow] (cons) -- (simp);
+\draw[arrow] (simp) -- (k8s);
+
+% ── Column labels ─────────────────────────────────────────────
+\node[lbl, above=0.05cm of pr,  xshift=-0.2cm] {\footnotesize Shift-Left Engine};
+\node[lbl, above=0.05cm of tel, xshift=0.2cm]  {\footnotesize Shift-Right Engine};
+\end{tikzpicture}
+\caption{AgentHeal dual-engine architecture. \textit{Left}: Shift-Left PR audit pipeline (GitHub App $\rightarrow$ SAST $\rightarrow$ LLM $\rightarrow$ Quality Gate). \textit{Right}: Shift-Right runtime self-healing pipeline (Telemetry $\rightarrow$ Isolation Forest $\rightarrow$ KernelSHAP $\rightarrow$ RL+LLM Consensus $\rightarrow$ SimPy Safety Gate $\rightarrow$ Kubernetes Actuation).}
+\label{fig:arch}
+\end{figure}
 
 \subsection{Shift-Left Engine: PR Intelligence}
 
