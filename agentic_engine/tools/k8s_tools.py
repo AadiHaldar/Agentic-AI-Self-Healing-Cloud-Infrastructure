@@ -93,22 +93,15 @@ class K8sRemediationTools:
             return {"status": "error", "message": str(e)}
 
     def patch_resource_limits(self, deployment_name: str, cpu_limit: str = "500m", memory_limit: str = "512Mi", namespace: str = None) -> Dict[str, Any]:
-        """Patch CPU/Memory limits for a deployment (shell=False, no string interpolation into shell)."""
+        """Patch CPU/Memory limits for a deployment."""
         ns = namespace or self.default_namespace
         _validate_k8s_name(deployment_name)
         _validate_k8s_name(ns)
-        patch_obj = {
-            "spec": {"template": {"spec": {"containers": [{
-                "name": deployment_name,
-                "resources": {"limits": {"cpu": cpu_limit, "memory": memory_limit}}
-            }]}}}
-        }
-        patch_json_str = json.dumps(patch_obj)
-        logger.info(f"Executing: kubectl patch deployment {deployment_name} -n {ns} --type=merge -p <json>")
+        logger.info(f"Executing: kubectl set resources deployment {deployment_name} --limits=cpu={cpu_limit},memory={memory_limit} -n {ns}")
         try:
             res = subprocess.run(
-                ["kubectl", "patch", "deployment", deployment_name, "-n", ns,
-                 "--type=merge", f"-p={patch_json_str}"],
+                ["kubectl", "set", "resources", f"deployment/{deployment_name}",
+                 f"--limits=cpu={cpu_limit},memory={memory_limit}", "-n", ns],
                 shell=False, capture_output=True, text=True
             )
             if res.returncode == 0:

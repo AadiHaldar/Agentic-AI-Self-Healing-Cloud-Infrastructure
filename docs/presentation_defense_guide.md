@@ -90,7 +90,7 @@ graph LR
 | **4. Async I/O Performance** | Ruff (`perf/no-sync-io`) | 🟡 **WARNING** | 1 Blocking Synchronous Call (`requests.get`) |
 | **5. Exception Safety Check** | Ruff (`BLE001`) | 🟡 **WARNING** | 1 Broad `except Exception: pass` |
 | **6. Microservice Call-Graph** | AST Import Walker | 🟢 **PASS** | Generated Interactive Mermaid Diagram |
-| **7. Quality Gate Policy** | Check Run API | 🔴 **BLOCKED** | Merge blocked pending critical remediations |
+| **7. Quality Gate Policy** | Check Run API | 🔴 **BLOCKED (Red X)** | Merge blocked pending critical remediations |
 
 ---
 
@@ -119,37 +119,44 @@ graph LR
 
 Product B is our runtime self-healing engine monitoring the **Google Online Boutique microservice architecture** (`frontend` $\rightarrow$ `checkoutservice` $\rightarrow$ `cartservice` $\rightarrow$ `redis-cart`).
 
-### 🔍 Technical Features & Terminology:
-
-#### 1. Isolation Forest Anomaly Detection ($\text{MTTD} = 2.34\text{ ms}$):
-* Unsupervised ML model isolating anomalous telemetry in 4D metric space:
-  $$\vec{X} = [\text{CPU Usage}, \text{RAM Usage}, \text{Latency (ms)}, \text{Request Rate (req/s)}]$$
-* Deviations from baseline centroid ($[25\%, 40\%, 45\text{ms}, 120\text{req/s}]$) trigger detection in **$2.34\text{ ms}$**.
-
-#### 2. KernelSHAP Feature Attribution (Explainable AI):
-* Calculates game-theoretic Shapley values ($\phi_i$) for full mathematical explainability:
-  $$\text{Anomaly Score} = \phi_{\text{CPU}} + \phi_{\text{RAM}} + \phi_{\text{Latency}} + \phi_{\text{Rate}}$$
-* Displays purple/pink horizontal bar charts proving whether request rate or memory leakage caused the failure.
-
-#### 3. SimiFed Reinforcement Learning Agent ($\text{Reflex} = 3.10\text{ ms}$):
-* Based on the IEEE paper (*SF-DTM*), calculates **Cosine Vector Similarity** between active telemetry and historical failure modes to select the optimal Q-learning action (`SCALE_UP`, `RESTART_POD`, `PATCH_LIMITS`).
-
-#### 4. SimPy Discrete-Event Queue Engine ($0.01\text{s}$ Safety Gate):
-* Simulates an **$M/M/c$ queuing system** in $0.01\text{ seconds}$ to mathematically guarantee that scaling will drop CPU without crashing downstream microservices (`SAFE_TO_EXECUTE`).
-
-#### 5. Real Physical Kubernetes Actuation (`k8s_tools.py`):
-* Executes real `kubectl scale` and `kubectl delete pod` commands directly on the physical Kubernetes cluster (`boutique-cluster`).
-
 ---
 
-## 💥 4 Live Demo Failure Scenarios (`demo_multi_defect_chaos.py`)
+### 💻 EXACT TERMINAL COMMAND TO RUN PRODUCT B LIVE DEMO:
 
-Run this in your PowerShell terminal during the presentation:
+Inside your project directory in PowerShell, run:
 ```powershell
 python scripts/demo_multi_defect_chaos.py
 ```
 
-### The 4 Scenarios Demonstrated:
+---
+
+### 🔍 Technical Features & Terminology:
+
+#### 1. Telemetry Heartbeat & Polling Frequency:
+* **Polling Rate:** Streams telemetry every **`5.0 seconds`** via `StateSynchronizer` ([`digital_twin/state_synchronizer.py`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/digital_twin/state_synchronizer.py)).
+* **4D Metric Vector Ingested:**
+  $$\vec{X}_t = \big[\text{CPU Usage } (0.0\text{--}1.0),\; \text{RAM Usage } (0.0\text{--}1.0),\; \text{Latency } (\text{ms}),\; \text{Request Rate } (\text{req/s})\big]$$
+
+#### 2. Isolation Forest Anomaly Detection ($\text{MTTD} = 2.20\text{ ms}$):
+* Unsupervised ML model isolating anomalous telemetry in 4D metric space. Deviations from baseline centroid ($[25\%, 40\%, 45\text{ms}, 120\text{req/s}]$) trigger detection in **$2.20\text{ ms}$**.
+
+#### 3. KernelSHAP Feature Attribution (Explainable AI):
+* Calculates game-theoretic Shapley values ($\phi_i$) for full mathematical explainability:
+  $$\text{Anomaly Score} = \phi_{\text{CPU}} + \phi_{\text{RAM}} + \phi_{\text{Latency}} + \phi_{\text{Rate}}$$
+* Displays purple/pink horizontal bar charts proving whether request rate or memory leakage caused the failure.
+
+#### 4. SimiFed Reinforcement Learning Agent ($\text{Reflex} = 3.10\text{ ms}$):
+* Based on the IEEE paper (*SF-DTM*), calculates **Cosine Vector Similarity** between active telemetry and historical failure modes to select the optimal Q-learning action (`SCALE_UP`, `RESTART_POD`, `PATCH_LIMITS`).
+
+#### 5. SimPy Discrete-Event Queue Engine ($0.01\text{s}$ Safety Gate):
+* Simulates an **$M/M/c$ queuing system** in $0.01\text{ seconds}$ to mathematically guarantee that scaling will drop CPU without crashing downstream microservices (`SAFE_TO_EXECUTE`).
+
+#### 6. Real Physical Kubernetes Actuation (`k8s_tools.py`):
+* Executes real `kubectl scale`, `kubectl delete pod`, and `kubectl set resources` commands directly on the physical Kubernetes cluster (`boutique-cluster`).
+
+---
+
+## 💥 4 Live Demo Failure Scenarios (`demo_multi_defect_chaos.py`)
 
 | Scenario | Service | Injected Defect / Symptom | AI Diagnosis & Attribution | Autonomous Action Taken |
 |---|---|---|---|---|
@@ -157,6 +164,15 @@ python scripts/demo_multi_defect_chaos.py
 | **Defect 2** | `cartservice` | **Thread Deadlock / Zombie:** 100% CPU lock with zero throughput | Isolation Forest (5000ms timeout anomaly) | **Autonomously force-restarts frozen pod**; K8s recreates fresh pod in 3s |
 | **Defect 3** | `redis-cart` | **Progressive Memory Leak:** RAM reaches 94% with OOMKill risk | KernelSHAP (`memory_usage +0.88`) | **Autonomously patches Kubernetes RAM ceiling** (512Mi $\rightarrow$ 1024Mi) |
 | **Defect 4** | `billing_gateway` | **Shift-Left Vulnerability:** Hardcoded Stripe Key + SQL Injection | Bandit (B608) + Detect-Secrets + AST Test Gap | **Quality Gate blocks merge** + generates 1-click patch in PR #7 |
+
+---
+
+## ☁️ Cloud vs. Localhost Distinction (Why We Support Both)
+
+| Environment | Where It Runs | Purpose in Project |
+|---|---|---|
+| **Microsoft Azure (Cloud)** | `https://pr-review-agent.wonderfulflower-41d6d2a5.eastasia.azurecontainerapps.io` | **Production Web App:** Hosted on Azure Container Apps in `rg-agentic-app-prod`, accessible globally 24/7 for live evaluator review. |
+| **Certified Kubernetes (Local Engine)** | `http://localhost:8000` / `boutique-cluster` (Docker) | **Zero-Cost Physical Cluster:** Runs real Kubernetes pods on your laptop with zero cloud billing ($0/mo vs $70/mo AKS) and no risk of college Wi-Fi disconnects during live demo! |
 
 ---
 
@@ -183,7 +199,7 @@ python scripts/demo_multi_defect_chaos.py
    > *• **Bandit & Detect-Secrets** caught the SQL injection vulnerability and leaked Stripe keys.*  
    > *• **AST Test Gap Detector** flagged that `calculate_tiered_discount` had zero unit tests.*  
    > *• **AST Import Walker** rendered this interactive Mermaid architecture call graph showing how `billing_gateway` calls `order_validator` and `payment_client`.*  
-   > *• **Quality Gate Check Run** blocked the PR from merging."*
+   > *• **Quality Gate Check Run** marked the build as Failed (Red X) and blocked the PR from merging."*
 3. **Show Conversational `@review-bot`:**
    > *"Developers can interact directly on the PR. Notice here where the developer asked `@review-bot explain the SQL injection risk`, and the bot provided an in-depth security analysis and parameterized patch."*
 
@@ -192,7 +208,7 @@ python scripts/demo_multi_defect_chaos.py
 ### 🟢 Act III: Product B Live Demo — Live Kubernetes Actuation (2 Minutes)
 1. **Show the UI Dashboard (`http://localhost:8000` or Azure):**
    > *"Now let's look at Product B: our **Digital Twin Control Plane**. We are monitoring the **Google Online Boutique microservices** (`frontend` ➔ `checkoutservice` ➔ `cartservice` ➔ `redis-cart`)."*
-2. **Trigger the Multi-Defect Suite:**
+2. **Trigger the Multi-Defect Suite in Terminal:**
    Run:
    ```powershell
    python scripts/demo_multi_defect_chaos.py
