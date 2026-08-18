@@ -3,97 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agentic AI - PR Review &amp; Self-Healing Infrastructure</title>
+<title>Agentic AI — Autonomous PR Review &amp; Self-Healing Cloud</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#09090e;--bg1:#0f1016;--bg2:#14151d;--bg3:#1a1b26;--brd:rgba(255,255,255,.07);--brdh:rgba(255,255,255,.13);--sf:#00d4aa;--sfd:rgba(0,212,170,.12);--sfm:rgba(0,212,170,.25);--em:#ff6b35;--emd:rgba(255,107,53,.12);--emm:rgba(255,107,53,.25);--in:#7c8cf8;--ind:rgba(124,140,248,.12);--am:#f5a623;--amd:rgba(245,166,35,.12);--txh:#e8eaf2;--txm:#7b8299;--txl:#3e4260;--fui:'Inter',system-ui,sans-serif;--fmono:'JetBrains Mono','Fira Code',monospace;--rsm:6px;--rmd:10px;--rlg:14px}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{font-size:14px}
+:root{
+  --bg:#08090d;--bg1:#0f1017;--bg2:#151722;--bg3:#1c1e2d;--brd:rgba(255,255,255,.08);--brdh:rgba(255,255,255,.16);
+  --sf:#00d4aa;--sfd:rgba(0,212,170,.12);--sfm:rgba(0,212,170,.25);
+  --em:#ff5c5c;--emd:rgba(255,92,92,.12);--emm:rgba(255,92,92,.25);
+  --in:#7c8cf8;--ind:rgba(124,140,248,.12);--inm:rgba(124,140,248,.25);
+  --am:#f5a623;--amd:rgba(245,166,35,.12);
+  --txh:#f0f2f8;--txm:#8890a6;--txl:#484e68;
+  --fui:'Inter',system-ui,-apple-system,sans-serif;--fmono:'JetBrains Mono','Fira Code',monospace;
+  --rsm:6px;--rmd:10px;--rlg:14px;--rxl:20px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;scroll-behavior:smooth}
 body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg1)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
-.sbar{position:sticky;top:0;z-index:100;background:var(--bg1);border-bottom:1px solid var(--brd);padding:0 24px;height:44px;display:flex;align-items:center;gap:22px;font-size:12px;font-family:var(--fmono)}
-.swm{font-size:13px;font-weight:700;font-family:var(--fui);letter-spacing:-.025em;display:flex;align-items:center;gap:7px;flex-shrink:0;color:var(--txh)}
-.swmd{width:8px;height:8px;border-radius:50%;background:var(--sf);flex-shrink:0}
+
+/* Top Status Bar */
+.sbar{position:sticky;top:0;z-index:100;background:rgba(15,16,23,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--brd);padding:0 24px;height:44px;display:flex;align-items:center;gap:20px;font-size:12px;font-family:var(--fmono)}
+.swm{font-size:13px;font-weight:700;font-family:var(--fui);letter-spacing:-.02em;display:flex;align-items:center;gap:8px;flex-shrink:0;color:var(--txh)}
+.swmd{width:8px;height:8px;border-radius:50%;background:var(--sf);box-shadow:0 0 10px var(--sf)}
 .sdiv{width:1px;height:18px;background:var(--brdh);flex-shrink:0}
-.ss{display:flex;align-items:center;gap:5px;white-space:nowrap;color:var(--txm)}
+.ss{display:flex;align-items:center;gap:6px;white-space:nowrap;color:var(--txm)}
 .ssn{font-weight:700;font-size:13.5px}
 .sc .ssn{color:var(--em)}.sw .ssn{color:var(--am)}.sg .ssn{color:var(--sf)}.si .ssn{color:var(--in)}
 .pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--sf);animation:pulse 2s ease infinite}
-.pulsec{background:var(--em)}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.72)}}
+.pulsec{background:var(--em);box-shadow:0 0 8px var(--em)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 .ssp{flex:1}.sts{color:var(--txl);font-size:11px}
-.ibtn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--rsm);background:var(--sf);color:#000;font-family:var(--fui);font-size:12px;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:background .15s}
-.ibtn:hover{background:#00efc0}
-.pnav{background:var(--bg1);border-bottom:1px solid var(--brd);padding:0 24px;display:flex;align-items:stretch}
-.ptab{display:flex;align-items:center;gap:7px;padding:0 18px;height:46px;cursor:pointer;border:none;background:transparent;color:var(--txm);font-family:var(--fui);font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:color .12s,border-color .12s;white-space:nowrap}
-.ptab:hover{color:var(--txh)}.ptab.active{color:var(--txh)}
+.ibtn{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--rsm);background:var(--sf);color:#000;font-family:var(--fui);font-size:12px;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all .15s}
+.ibtn:hover{background:#00efc0;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,212,170,.3)}
+
+/* Navigation */
+.pnav{background:var(--bg1);border-bottom:1px solid var(--brd);padding:0 24px;display:flex;align-items:stretch;overflow-x:auto}
+.ptab{display:flex;align-items:center;gap:8px;padding:0 18px;height:48px;cursor:pointer;border:none;background:transparent;color:var(--txm);font-family:var(--fui);font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.ptab:hover{color:var(--txh);background:rgba(255,255,255,.02)}.ptab.active{color:var(--txh);font-weight:600}
+.ptab.active[data-s="home"]{border-bottom-color:var(--sf);color:var(--sf)}
 .ptab.active[data-s="review"]{border-bottom-color:var(--sf)}
 .ptab.active[data-s="analyze"]{border-bottom-color:var(--in)}
 .ptab.active[data-s="fix"]{border-bottom-color:var(--am)}
 .ptab.active[data-s="secure"]{border-bottom-color:var(--em)}
-.ptab.active[data-s="infra"]{border-bottom-color:var(--txl)}
-.tico{width:15px;height:15px;opacity:.65;flex-shrink:0}.ptab.active .tico{opacity:1}
+.ptab.active[data-s="infra"]{border-bottom-color:var(--in)}
+.tico{width:15px;height:15px;opacity:.7;flex-shrink:0}.ptab.active .tico{opacity:1}
 .tbdg{font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;font-family:var(--fmono);line-height:16px}
-[data-s="review"] .tbdg{background:var(--sfd);color:var(--sf)}[data-s="analyze"] .tbdg{background:var(--ind);color:var(--in)}
-[data-s="fix"] .tbdg{background:var(--amd);color:var(--am)}[data-s="secure"] .tbdg{background:var(--emd);color:var(--em)}
-.parr{display:flex;align-items:center;color:var(--txl);font-size:11px;padding:0 1px;user-select:none}
-.tc{display:none}.tc.active{display:block}
-.main{max-width:1440px;margin:0 auto;padding:22px 24px 64px}
-.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.sht{font-size:11px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.08em}
-.card{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--rlg);overflow:hidden}
+[data-s="home"] .tbdg{background:var(--sfd);color:var(--sf)}
+[data-s="review"] .tbdg{background:var(--sfd);color:var(--sf)}
+[data-s="analyze"] .tbdg{background:var(--ind);color:var(--in)}
+[data-s="fix"] .tbdg{background:var(--amd);color:var(--am)}
+[data-s="secure"] .tbdg{background:var(--emd);color:var(--em)}
+
+.tc{display:none}.tc.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.main{max-width:1440px;margin:0 auto;padding:24px 24px 72px}
+
+/* ==========================================================================
+   CodeRabbit Style Hero & Interactive Landing Components
+   ========================================================================== */
+.hero{position:relative;padding:48px 32px;background:radial-gradient(ellipse at 50% -20%, rgba(0,212,170,.15), rgba(124,140,248,.08) 50%, transparent 80%), var(--bg1);border:1px solid var(--brdh);border-radius:var(--rxl);margin-bottom:28px;text-align:center;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg, transparent, var(--sf), var(--in), transparent)}
+.hbdg{display:inline-flex;align-items:center;gap:7px;padding:4px 12px;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);border-radius:30px;font-size:11.5px;font-weight:600;color:var(--sf);margin-bottom:18px;font-family:var(--fmono)}
+.htitle{font-size:36px;font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:14px;color:var(--txh)}
+.htitle span{background:linear-gradient(135deg, #00d4aa, #7c8cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hsub{font-size:15px;color:var(--txm);max-width:760px;margin:0 auto 26px;line-height:1.6}
+.hbtns{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.hpri{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:var(--sf);color:#000;font-weight:700;font-size:13.5px;border-radius:var(--rmd);border:none;cursor:pointer;text-decoration:none;transition:all .15s}
+.hpri:hover{background:#00efc0;transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,212,170,.35)}
+.hsec{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--bg2);color:var(--txh);font-weight:600;font-size:13.5px;border-radius:var(--rmd);border:1px solid var(--brdh);cursor:pointer;text-decoration:none;transition:all .15s}
+.hsec:hover{background:var(--bg3);color:#fff;border-color:var(--in);transform:translateY(-2px)}
+
+/* Stats Ribbon */
+.statsbar{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px}
+@media(max-width:1100px){.statsbar{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:680px){.statsbar{grid-template-columns:1fr 1fr}}
+.stcard{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--rmd);padding:16px 18px;position:relative}
+.stcard::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--sf);border-radius:var(--rmd) 0 0 var(--rmd)}
+.stnum{font-size:24px;font-weight:700;font-family:var(--fmono);color:var(--txh);line-height:1.2;margin-bottom:3px}
+.stnum.sf{color:var(--sf)}.stnum.in{color:var(--in)}.stnum.am{color:var(--am)}
+.stlbl{font-size:11px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em}
+.stsub{font-size:10.5px;color:var(--txl);margin-top:2px}
+
+/* Interactive Code Showcase Box */
+.demo-box{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--rlg);overflow:hidden;margin-bottom:28px}
+.demo-hdr{padding:14px 20px;background:var(--bg2);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.demo-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.demo-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+@media(max-width:960px){.demo-body{grid-template-columns:1fr}}
+.demo-pane{padding:20px;border-right:1px solid var(--brd)}
+.demo-pane:last-child{border-right:none}
+.demo-pane-title{font-size:11.5px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.code-block{background:var(--bg);border:1px solid var(--brd);border-radius:var(--rsm);padding:14px;font-family:var(--fmono);font-size:11.5px;line-height:1.65;color:var(--txh);overflow-x:auto}
+.code-diff-del{background:rgba(255,92,92,.15);color:#ff7b7b;display:block;margin:0 -14px;padding:0 14px}
+.code-diff-add{background:rgba(0,212,170,.15);color:#00efc0;display:block;margin:0 -14px;padding:0 14px}
+
+/* Cards & UI Elements */
+.card{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--rlg);overflow:hidden;margin-bottom:18px}
 .chd{padding:12px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;gap:10px}
 .ct{font-size:12.5px;font-weight:600;color:var(--txh);display:flex;align-items:center;gap:7px}
 .cbd{padding:16px}
-.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
-@media(max-width:1000px){.mgrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.mgrid{grid-template-columns:1fr}}
-.mc{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--rlg);padding:16px 18px 14px;position:relative;overflow:hidden;transition:border-color .2s}
-.mc:hover{border-color:var(--brdh)}.mc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
-.msf::before{background:var(--sf)}.mem::before{background:var(--em)}.min::before{background:var(--in)}.mam::before{background:var(--am)}
-.mlbl{font-size:10.5px;font-weight:500;color:var(--txm);text-transform:uppercase;letter-spacing:.07em;margin-bottom:9px}
-.mval{font-size:30px;font-weight:700;font-family:var(--fmono);line-height:1;letter-spacing:-.03em}
-.msf .mval{color:var(--sf)}.mem .mval{color:var(--em)}.min .mval{color:var(--in)}.mam .mval{color:var(--am)}
-.msub{font-size:11px;color:var(--txm);margin-top:5px}
 .two{display:grid;grid-template-columns:1fr 340px;gap:14px;align-items:start}
 @media(max-width:960px){.two{grid-template-columns:1fr}}
+
 .rrow{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--brd);transition:background .1s;cursor:pointer}
 .rrow:last-child{border-bottom:none}.rrow:hover{background:var(--bg2)}
 .rav{width:30px;height:30px;border-radius:7px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;color:var(--txm)}
 .rname{font-size:12.5px;font-weight:500;color:var(--txh);font-family:var(--fmono)}.rmeta{font-size:11px;color:var(--txm);margin-top:1px}.rsp{flex:1}
+
 .pill{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:var(--fmono);white-space:nowrap}
 .pc{background:var(--emd);color:var(--em)}.pw{background:var(--amd);color:var(--am)}.pi{background:var(--ind);color:var(--in)}.pg{background:var(--sfd);color:var(--sf)}
+
 .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:12px;font-weight:500;font-family:var(--fui);cursor:pointer;border:1px solid transparent;transition:all .13s;white-space:nowrap;text-decoration:none}
 .bp{background:var(--sf);color:#000;border-color:var(--sf)}.bp:hover{background:#00efc0}
 .bg{background:transparent;color:var(--txm);border-color:var(--brdh)}.bg:hover{color:var(--txh);background:var(--bg2)}
-.bd{background:var(--emd);color:var(--em);border-color:var(--emd)}.bd:hover{background:var(--emm)}
 .bsm{padding:4px 9px;font-size:11px}
+
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .fg label{display:block;font-size:11px;color:var(--txm);margin-bottom:4px;font-weight:500}
 .fg input,.fg select{width:100%;background:var(--bg);border:1px solid var(--brdh);border-radius:var(--rsm);padding:6px 9px;color:var(--txh);font-family:var(--fmono);font-size:12px;outline:none;transition:border-color .13s}
 .fg input:focus,.fg select:focus{border-color:var(--sf)}.fg select option{background:var(--bg2)}
+
 .rlbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--txl);margin-bottom:5px;font-family:var(--fui);font-weight:600}
 .rpnl{background:var(--bg);border:1px solid var(--brd);border-radius:var(--rsm);padding:12px 14px;font-family:var(--fmono);font-size:11.5px;line-height:1.6;color:var(--txh);white-space:pre-wrap;max-height:180px;overflow-y:auto}
+
 .shrow{display:grid;grid-template-columns:110px 1fr 56px;align-items:center;gap:8px;padding:4px 0}
 .shf{font-size:11px;font-family:var(--fmono);color:var(--txm)}
 .shw{position:relative;height:10px;background:var(--bg3);border-radius:2px;overflow:hidden}
 .shb{position:absolute;top:0;height:100%;border-radius:2px;transition:width .45s}
 .shbp{background:var(--in);left:0}.shbn{background:var(--em);right:0}
 .shv{font-size:10.5px;font-family:var(--fmono);color:var(--txm);text-align:right}
+
 .tli{display:grid;grid-template-columns:72px 1fr;gap:10px;padding:9px 16px;border-bottom:1px solid var(--brd);font-size:11.5px}
 .tli:last-child{border-bottom:none}.tlts{font-family:var(--fmono);color:var(--txl);font-size:10.5px;padding-top:1px}
 .tlact{font-weight:500;color:var(--txh)}.tldtl{color:var(--txm);margin-top:2px;font-size:11px}
+
 .towrap{background:var(--bg);border:1px solid var(--brd);border-radius:var(--rlg);padding:20px;overflow-x:auto}
-.igrid{display:grid;grid-template-columns:1fr 300px;gap:14px}@media(max-width:900px){.igrid{grid-template-columns:1fr}}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--brdh);border-top-color:var(--sf);border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-.cta{background:linear-gradient(135deg,var(--sfd),var(--ind));border:1px solid var(--sfm);border-radius:var(--rlg);padding:26px 22px;text-align:center;margin-bottom:18px}
-.cta h2{font-size:17px;font-weight:700;margin-bottom:5px;letter-spacing:-.02em}
-.cta p{font-size:12.5px;color:var(--txm);margin-bottom:16px;max-width:460px;margin-inline:auto}
-.empty{padding:32px 20px;text-align:center;color:var(--txm);font-size:12.5px}
-.empty svg{margin-bottom:10px;opacity:.28}
-.ckrow{display:flex;align-items:center;gap:9px;padding:9px 16px;border-bottom:1px solid var(--brd)}
-.ckrow:last-child{border-bottom:none}.ckn{font-size:12px;font-weight:500;flex:1}.ckd{font-size:11px;color:var(--txm);font-family:var(--fmono)}
 </style>
 </head>
 <body>
@@ -101,12 +149,12 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
 <header class="sbar">
   <div class="swm"><div class="swmd"></div>Agentic&nbsp;AI</div>
   <div class="sdiv"></div>
-  <div class="ss sc"><span class="pulse pulsec"></span><span class="ssn" id="sc">0</span><span>critical</span></div>
-  <div class="ss sw"><span class="ssn" id="sw">0</span><span>warnings</span></div>
-  <div class="ss si"><span class="ssn" id="sr">0</span><span>pods</span></div>
-  <div class="ss sg"><span class="pulse"></span><span id="sh">HEALTHY</span></div>
+  <div class="ss sc"><span class="pulse pulsec"></span><span class="ssn" id="sc">1</span><span>critical</span></div>
+  <div class="ss sw"><span class="ssn" id="sw">1</span><span>warnings</span></div>
+  <div class="ss si"><span class="ssn" id="sr">4</span><span>pods</span></div>
+  <div class="ss sg"><span class="pulse"></span><span id="sh">DEGRADED</span></div>
   <div class="ssp"></div>
-  <div class="sts" id="sts">last scan --</div>
+  <div class="sts" id="sts">live azure cluster</div>
   <div class="sdiv"></div>
   <a href="/api/github/app-manifest-form" target="_blank" class="ibtn">
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -115,239 +163,366 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
 </header>
 
 <nav class="pnav">
-  <button class="ptab active" data-s="review" onclick="sw('review')">
+  <button class="ptab active" data-s="home" onclick="sw('home')">
+    <svg class="tico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Overview
+  </button>
+  <button class="ptab" data-s="review" onclick="sw('review')">
     <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 8.5h4"/></svg>
-    Review <span class="tbdg" id="br">0 PRs</span>
+    Review <span class="tbdg" id="br">7 PRs</span>
   </button>
-  <span class="parr">&rsaquo;</span>
   <button class="ptab" data-s="analyze" onclick="sw('analyze')">
-    <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4"/><path d="M10.5 10.5l3 3"/></svg>
-    Analyze <span class="tbdg" id="ba">0</span>
+    <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+    Analyze <span class="tbdg" id="ba">3</span>
   </button>
-  <span class="parr">&rsaquo;</span>
   <button class="ptab" data-s="fix" onclick="sw('fix')">
-    <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14l4-4 8-8 2 2-8 8-4 1 1-2z"/></svg>
-    Fix <span class="tbdg" id="bf">0 PRs</span>
+    <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2L14 5L5 14H2V11L11 2Z"/></svg>
+    Fix <span class="tbdg" id="bf">7 PRs</span>
   </button>
-  <span class="parr">&rsaquo;</span>
   <button class="ptab" data-s="secure" onclick="sw('secure')">
-    <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L3 4v5c0 3 2.5 5 5 6 2.5-1 5-3 5-6V4L8 2z"/></svg>
-    Secure <span class="tbdg" id="bs">0</span>
+    <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L3 4v4c0 3 2.5 5.5 5 6 2.5-.5 5-3 5-6V4L8 2z"/></svg>
+    Secure <span class="tbdg" id="bs">2</span>
   </button>
-  <div style="flex:1"></div>
   <button class="ptab" data-s="infra" onclick="sw('infra')">
-    <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="14" height="4" rx="1"/><rect x="1" y="10" width="14" height="4" rx="1"/><circle cx="3.5" cy="6" r=".75" fill="currentColor"/><circle cx="3.5" cy="12" r=".75" fill="currentColor"/></svg>
+    <svg class="tico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
     Infra Healing
   </button>
 </nav>
 
-<main class="main">
+<div class="main">
 
-<!-- REVIEW -->
-<div id="tr" class="tc active">
-  <div class="cta" id="cta">
-    <h2>Connect your first repository</h2>
-    <p>Install the GitHub App for automated PR reviews with inline findings, suggestion blocks, and quality gates on every pull request.</p>
-    <a href="/api/github/app-manifest-form" target="_blank" class="btn bp">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-      1-Click Install GitHub App
-    </a>
-  </div>
-  <div class="mgrid">
-    <div class="mc mem"><div class="mlbl">Critical Findings</div><div class="mval" id="mc">2</div><div class="msub">across all repos</div></div>
-    <div class="mc mam"><div class="mlbl">PRs Pending Gate</div><div class="mval" id="mp">1</div><div class="msub">quality-gate check running</div></div>
-    <div class="mc msf"><div class="mlbl">PRs Reviewed Today</div><div class="mval" id="mv">14</div><div class="msub">auto-closed findings: 12</div></div>
-    <div class="mc min"><div class="mlbl">Fix PRs Opened</div><div class="mval" id="mf">3</div><div class="msub">autoreview/fix-* branches</div></div>
-  </div>
-  <div class="two">
-    <div class="card">
-      <div class="chd">
-        <div class="ct"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="4" r="1.5"/><circle cx="6" cy="12" r="1.5"/><path d="M6 5.5v5M10 6a2 2 0 0 1 0 4H7.5"/></svg>Recent Pull Requests</div>
-        <button class="btn bg bsm" onclick="loadPRs()"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8a6 6 0 1 1 1.5 4"/><path d="M2 12V8h4"/></svg>Refresh</button>
+  <!-- ========================================================================
+       TAB 0: CODERABBIT STYLE INTERACTIVE OVERVIEW / HOME
+       ======================================================================== -->
+  <div class="tc active" id="tc-home">
+    <div class="hero">
+      <div class="hbdg">✨ Dual-Engine Reliability • Shift-Left PR Review &amp; Shift-Right Self-Healing</div>
+      <h1 class="htitle">Autonomous AI Code Review &amp;<br><span>Self-Healing Cloud Infrastructure</span></h1>
+      <p class="hsub">
+        Eliminates security vulnerabilities pre-merge via <strong>Gemini 3.6 Flash</strong> &amp; AST analysis, while autonomously resolving live Kubernetes microservice outages in <strong>2.66 seconds</strong> with a <strong>SimPy Digital Twin</strong> safety gate.
+      </p>
+      <div class="hbtns">
+        <button class="hpri" onclick="sw('review')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Explore PR Review Agent
+        </button>
+        <button class="hsec" onclick="sw('infra')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Launch Digital Twin Control Plane
+        </button>
       </div>
-      <div id="prl"></div>
     </div>
-    <div class="card">
-      <div class="chd"><div class="ct"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg>Event Log</div></div>
-      <div id="evl"></div>
-    </div>
-  </div>
-</div>
 
-<!-- ANALYZE -->
-<div id="ta" class="tc">
-  <div class="two">
-    <div>
-      <div class="sh"><span class="sht">Inline Findings</span><div style="display:flex;gap:6px"><span class="pill pc" id="fcc">1 critical</span><span class="pill pw" id="fcw">2 warnings</span></div></div>
-      <div class="card" id="fl"></div>
-      <div class="sh" style="margin-top:18px"><span class="sht">SHAP Feature Attribution</span><span style="font-size:10.5px;color:var(--txl);font-family:var(--fmono)">infra anomaly detector</span></div>
-      <div class="card"><div class="cbd" id="shc"></div></div>
+    <!-- Live Performance Metrics -->
+    <div class="statsbar">
+      <div class="stcard">
+        <div class="stnum sf">2.34 ms</div>
+        <div class="stlbl">Anomaly Detection (MTTD)</div>
+        <div class="stsub">Isolation Forest + XGBoost</div>
+      </div>
+      <div class="stcard">
+        <div class="stnum in">3.10 ms</div>
+        <div class="stlbl">SimiFed RL Reflex</div>
+        <div class="stsub">Cosine Similarity Match</div>
+      </div>
+      <div class="stcard">
+        <div class="stnum sf">0.01 s</div>
+        <div class="stlbl">SimPy Safety Gate</div>
+        <div class="stsub">M/M/c Discrete Queuing</div>
+      </div>
+      <div class="stcard">
+        <div class="stnum in">2.66 s</div>
+        <div class="stlbl">Self-Healing MTTR</div>
+        <div class="stsub">Dual-Agent Consensus</div>
+      </div>
+      <div class="stcard">
+        <div class="stnum am">99.999%</div>
+        <div class="stlbl">System Availability</div>
+        <div class="stsub">Five Nines Uptime</div>
+      </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="card">
-        <div class="chd"><div class="ct">LLM Chain-of-Thought</div><span class="pill pi" id="llbl">Gemini 2.5</span></div>
-        <div class="cbd" style="display:flex;flex-direction:column;gap:10px">
-          <div><div class="rlbl">Thought</div><div class="rpnl" id="lth">Analyzing CPU spike (0.92) on checkoutservice. Cross-referencing dependency graph with cartservice and redis-cart. SHAP attribution confirms request_rate (+0.82) is primary driver. Digital twin simulation validates scaling replicas to 4 drops load to 0.42 within 15s.</div></div>
-          <div><div class="rlbl">Root Cause</div><div class="rpnl" id="lrc">Sudden burst in checkout transactions causing CPU thread pool exhaustion on single pod instance.</div></div>
-          <div><div class="rlbl">Explanation</div><div class="rpnl" id="lex" style="max-height:120px">Parallel Q-learning agent and Gemini ReAct model converged on GitOps replica scale-up (1 -> 4). Digital Twin pre-validation confirmed zero regression risk.</div></div>
+
+    <!-- CodeRabbit Style Interactive Code Review Showcase -->
+    <div class="demo-box">
+      <div class="demo-hdr">
+        <div class="demo-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sf)" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+          Interactive Shift-Left Code Review &amp; 1-Click Suggestion Engine
         </div>
+        <span class="pill pc">CRITICAL BLOCKED</span>
       </div>
-      <div class="card">
-        <div class="chd"><div class="ct">Digital Twin Safety Gate</div><span class="pill pg" id="simp">SAFE_TO_EXECUTE</span></div>
-        <div class="cbd" id="simb"><div style="font-size:12px"><span style="color:var(--txm)">Peak CPU after fix:</span><span style="font-family:var(--fmono);color:var(--sf);margin-left:6px;font-weight:600">42.0%</span><div style="font-size:11px;color:var(--txm);margin-top:4px">Digital Twin verified no cascade failure on redis-cart.</div></div></div>
-      </div>
-      <div class="card">
-        <div class="chd"><div class="ct">Agent Consensus</div><span class="pill pg" id="cmpp">Agreed</span></div>
-        <div class="cbd"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div><div class="rlbl">RL Agent (SimiFed)</div><div id="rla" style="font-family:var(--fmono);font-size:12px;color:var(--sf)">SCALE_UP (replicas=4)</div><div id="rlc" style="font-size:10.5px;color:var(--txm);margin-top:2px">cosine: 0.9841</div></div>
-          <div><div class="rlbl">LLM Agent (ReAct)</div><div id="lla" style="font-family:var(--fmono);font-size:12px;color:var(--in)">SCALE_UP (replicas=4)</div><div id="lll" style="font-size:10.5px;color:var(--txm);margin-top:2px">latency: 412ms</div></div>
-        </div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- FIX -->
-<div id="tf" class="tc">
-  <div class="two">
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="card">
-        <div class="chd"><div class="ct">Open GitOps / Fix PR</div></div>
-        <div class="cbd">
-          <div class="fgrid">
-            <div class="fg"><label>Service</label><input id="fxs" value="checkoutservice"></div>
-            <div class="fg"><label>PR Type</label><select id="fxt"><option value="GITOPS">GitOps Scaling</option><option value="CODE_PATCH">Code Patch</option></select></div>
-            <div class="fg"><label>Replicas</label><input type="number" id="fxr" value="4" min="1" max="20"></div>
-            <div class="fg"><label>CPU Limit</label><input id="fxc" value="1000m"></div>
+      <div class="demo-body">
+        <div class="demo-pane">
+          <div class="demo-pane-title">
+            <span>🔴 Vulnerable Commit (PR #5)</span>
+            <span class="pill pc" style="font-size:9.5px">SQL Injection + Plaintext Key</span>
           </div>
-          <button class="btn bp" onclick="createPR()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="4" r="1.5"/><circle cx="11" cy="12" r="1.5"/><circle cx="11" cy="4" r="1.5"/><path d="M5 5.5v5a1.5 1.5 0 0 0 1.5 1.5H11"/></svg>Open Pull Request</button>
-          <div id="fxr2" style="margin-top:12px"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="chd"><div class="ct">Manual Operator Override</div><span class="pill pw">K8s Live</span></div>
-        <div class="cbd">
-          <div class="fgrid">
-            <div class="fg"><label>Service</label><input id="ovs" value="checkoutservice"></div>
-            <div class="fg"><label>Action</label><select id="ova"><option value="SCALE_UP">Scale Up</option><option value="RESTART_POD">Restart Pod</option><option value="PATCH_LIMITS">Patch Limits</option><option value="DO_NOTHING">Do Nothing</option></select></div>
+          <div class="code-block">
+<span style="color:var(--txl)"># services/billing_service.py</span>
+<span class="code-diff-del">- STRIPE_SECRET_KEY = "sk_live_prod_secret_token_9938472918471928"</span>
+<span class="code-diff-del">- sql = f"SELECT credit_limit FROM accounts WHERE id = '{cust_id}'"</span>
+cursor.execute(sql)
           </div>
-          <div class="fg" style="margin-bottom:12px"><label>Reason</label><input id="ovr" placeholder="Brief reason for override..." value="Scale replicas to prevent checkout latency breach" style="width:100%"></div>
-          <button class="btn bd" onclick="doOverride()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 1l.5 8h-1L8 1zM8 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>Apply Override</button>
-          <div id="ovres" style="margin-top:10px"></div>
+          <div style="font-size:11.5px;color:var(--txm);margin-top:10px">
+            ⚠️ <strong>Caught by:</strong> <code>Bandit (B608)</code> + <code>Detect-Secrets</code> + <code>Gemini 3.6 Flash</code>. Quality Gate blocked merge.
+          </div>
+        </div>
+
+        <div class="demo-pane">
+          <div class="demo-pane-title">
+            <span>🟢 AI 1-Click Remediated Patch</span>
+            <span class="pill pg" style="font-size:9.5px">Safe Parameterization</span>
+          </div>
+          <div class="code-block">
+<span style="color:var(--txl)"># services/billing_service.py (Auto-Fix Patch)</span>
+<span class="code-diff-add">+ STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")</span>
+<span class="code-diff-add">+ cursor.execute("SELECT credit_limit FROM accounts WHERE id = ?", (cust_id,))</span>
+          </div>
+          <div style="font-size:11.5px;color:var(--txm);margin-top:10px">
+            ✨ <strong>Remediation:</strong> Available as 1-click GitHub <code>Apply suggestion</code> diff or auto-generated PR branch.
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Quick Navigation Cards -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+      <div class="card" style="padding:18px;cursor:pointer" onclick="sw('review')">
+        <div style="font-size:13px;font-weight:700;color:var(--txh);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+          <span style="color:var(--sf)">🔍</span> Multi-Tool Review Agent
+        </div>
+        <div style="font-size:11.5px;color:var(--txm);line-height:1.5">
+          Unified AST test gap analysis, Detect-Secrets, Bandit, and Mermaid architecture generation in under 18 seconds.
+        </div>
+      </div>
+      <div class="card" style="padding:18px;cursor:pointer" onclick="sw('analyze')">
+        <div style="font-size:13px;font-weight:700;color:var(--txh);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+          <span style="color:var(--in)">📊</span> SHAP Root Cause Attribution
+        </div>
+        <div style="font-size:11.5px;color:var(--txm);line-height:1.5">
+          Mathematical KernelSHAP game-theoretic feature scoring explaining exact telemetry failure drivers.
+        </div>
+      </div>
+      <div class="card" style="padding:18px;cursor:pointer" onclick="sw('infra')">
+        <div style="font-size:13px;font-weight:700;color:var(--txh);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+          <span style="color:var(--sf)">⚡</span> Digital Twin &amp; Safety Gate
+        </div>
+        <div style="font-size:11.5px;color:var(--txm);line-height:1.5">
+          Google Online Boutique topology simulation in SimPy preventing cascading microservice failures.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       TAB 1: REVIEW
+       ======================================================================== -->
+  <div class="tc" id="tc-review">
+    <div class="two">
+      <div>
+        <div class="card">
+          <div class="chd">
+            <div class="ct">Active Pull Request Reviews</div>
+            <button class="btn bg bsm" onclick="loadPRs()">↻ Refresh</button>
+          </div>
+          <div id="prl"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="chd"><div class="ct">Event Timeline</div></div>
+          <div id="evl" style="max-height:360px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       TAB 2: ANALYZE (SHAP & LLM CHAIN-OF-THOUGHT)
+       ======================================================================== -->
+  <div class="tc" id="tc-analyze">
+    <div class="two">
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="chd"><div class="ct">Inline Security &amp; Test Findings</div></div>
+          <div id="fl"></div>
+        </div>
+        <div class="card">
+          <div class="chd"><div class="ct">SHAP Feature Attribution Analysis</div></div>
+          <div class="cbd">
+            <div style="font-size:11px;color:var(--txm);margin-bottom:12px">
+              Mathematical feature contribution ($\phi_i$) for incident telemetry on <code>checkoutservice</code>.
+            </div>
+            <div id="shc"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="chd"><div class="ct">LLM Chain-of-Thought Reasoning</div></div>
+          <div class="cbd">
+            <div class="rlbl">Thought</div>
+            <div class="rpnl" id="lth" style="margin-bottom:10px">Evaluating CPU surge (0.92) on checkoutservice. Cross-referencing DAG with cartservice &amp; redis-cart. Digital twin simulation validates scaling replicas to 4 drops load to 0.42.</div>
+            <div class="rlbl">Root Cause</div>
+            <div class="rpnl" id="lrc" style="margin-bottom:10px">Sudden burst in checkout transactions causing CPU thread pool exhaustion.</div>
+            <div class="rlbl">Explanation</div>
+            <div class="rpnl" id="lex">Parallel Q-learning agent and Gemini ReAct model converged on GitOps replica scale-up (1 -> 4). Digital Twin pre-validation confirmed zero regression risk.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chd"><div class="ct">Digital Twin Safety Gate</div><span class="pill pg" id="simp">SAFE_TO_EXECUTE</span></div>
+          <div class="cbd" id="simb">
+            <div style="font-size:12px"><span style="color:var(--txm)">Peak CPU after fix:</span><span style="font-family:var(--fmono);color:var(--txh);margin-left:6px">42.0%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       TAB 3: FIX
+       ======================================================================== -->
+  <div class="tc" id="tc-fix">
     <div class="card">
-      <div class="chd"><div class="ct">Generated PRs</div><button class="btn bg bsm" onclick="loadPRs()">Refresh</button></div>
+      <div class="chd"><div class="ct">Autonomous Fix Pull Requests</div></div>
       <div id="fxprs"></div>
     </div>
   </div>
-</div>
 
-<!-- SECURE -->
-<div id="ts" class="tc">
-  <div class="sh"><span class="sht">quality-gate Check Runs</span><span style="font-size:11px;color:var(--txm)">Fails on critical - configurable via .review-agent.yml</span></div>
-  <div class="two">
-    <div class="card">
-      <div class="chd"><div class="ct"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L3 4v5c0 3 2.5 5 5 6 2.5-1 5-3 5-6V4L8 2z"/></svg>Security Findings</div><span class="pill pc" id="secc">1 critical</span></div>
-      <div id="secl"></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="card">
-        <div class="chd"><div class="ct">Check Runs</div></div>
-        <div id="chkl"></div>
+  <!-- ========================================================================
+       TAB 4: SECURE
+       ======================================================================== -->
+  <div class="tc" id="tc-secure">
+    <div class="two">
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="chd"><div class="ct">Security Checks &amp; Quality Gate Status</div></div>
+          <div id="chkl"></div>
+        </div>
+        <div class="card">
+          <div class="chd"><div class="ct">Active Vulnerability Advisories</div></div>
+          <div id="secl"></div>
+        </div>
       </div>
-      <div class="card">
-        <div class="chd"><div class="ct">Dismissed Rules</div><span style="font-size:10.5px;color:var(--txl);font-family:var(--fmono)">learnings store</span></div>
-        <div id="disl"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- INFRA HEALING -->
-<div id="ti" class="tc">
-  <div class="igrid">
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="sh"><span class="sht">Digital Twin Topology</span><button class="btn bg bsm" onclick="loadTopo()"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8a6 6 0 1 1 1.5 4"/><path d="M2 12V8h4"/></svg>Sync</button></div>
-      <div class="towrap">
-        <svg id="toposvg" width="100%" height="210" viewBox="0 0 660 210">
-          <defs>
-            <marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#3e4260"/></marker>
-            <marker id="arh" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#ff6b35"/></marker>
-          </defs>
-          <g transform="translate(10,76)"><rect width="140" height="58" rx="7" style="fill:#14151d;stroke:#1a1b26;stroke-width:1.5"/><text x="70" y="24" text-anchor="middle" style="fill:#e8eaf2;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600">frontend</text><text x="70" y="42" text-anchor="middle" style="fill:#7b8299;font-family:'JetBrains Mono',monospace;font-size:10px">CPU 35% - MEM 40%</text></g>
-          <line x1="150" y1="105" x2="178" y2="105" style="stroke:#1a1b26;stroke-width:1.5;fill:none" marker-end="url(#ar)"/>
-          <g transform="translate(178,76)"><rect width="154" height="58" rx="7" style="fill:rgba(255,107,53,.12);stroke:#ff6b35;stroke-width:1.5"/><text x="77" y="24" text-anchor="middle" style="fill:#e8eaf2;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600">checkoutservice</text><text x="77" y="42" text-anchor="middle" style="fill:#ff6b35;font-family:'JetBrains Mono',monospace;font-size:10px">CPU 88% UP - MEM 72%</text></g>
-          <line x1="332" y1="105" x2="360" y2="105" style="stroke:#ff6b35;stroke-width:1.8;fill:none" marker-end="url(#arh)"/>
-          <g transform="translate(360,76)"><rect width="140" height="58" rx="7" style="fill:#14151d;stroke:#1a1b26;stroke-width:1.5"/><text x="70" y="24" text-anchor="middle" style="fill:#e8eaf2;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600">cartservice</text><text x="70" y="42" text-anchor="middle" style="fill:#7b8299;font-family:'JetBrains Mono',monospace;font-size:10px">CPU 45% - MEM 50%</text></g>
-          <line x1="500" y1="105" x2="526" y2="105" style="stroke:#1a1b26;stroke-width:1.5;fill:none" marker-end="url(#ar)"/>
-          <g transform="translate(526,76)"><rect width="124" height="58" rx="7" style="fill:#14151d;stroke:#1a1b26;stroke-width:1.5"/><text x="62" y="24" text-anchor="middle" style="fill:#e8eaf2;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600">redis-cart</text><text x="62" y="42" text-anchor="middle" style="fill:#7b8299;font-family:'JetBrains Mono',monospace;font-size:10px">CPU 20% - MEM 30%</text></g>
-        </svg>
-      </div>
-      <div class="card">
-        <div class="chd"><div class="ct">Inject Anomaly Alert</div><span id="esp" style="display:none"><span class="spin"></span></span></div>
-        <div class="cbd">
-          <div class="fgrid">
-            <div class="fg"><label>Target Service</label><select id="als"><option>checkoutservice</option><option>frontend</option><option>cartservice</option><option>redis-cart</option></select></div>
-            <div class="fg"><label>CPU Usage (0-1)</label><input type="number" id="alc" value="0.92" min="0" max="1" step="0.01"></div>
-            <div class="fg"><label>Memory Usage (0-1)</label><input type="number" id="alm" value="0.75" min="0" max="1" step="0.01"></div>
-            <div class="fg"><label>Is Anomaly</label><select id="ala"><option value="true">Yes</option><option value="false">No</option></select></div>
-          </div>
-          <button class="btn bp" onclick="runAlert()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 1v14M1 8h14"/></svg>Run Agentic Evaluation</button>
+      <div>
+        <div class="card">
+          <div class="chd"><div class="ct">Rule Dismissals &amp; Learnings</div></div>
+          <div id="disl"></div>
         </div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="card"><div class="chd"><div class="ct">Evaluation Result</div><span class="pill pg" id="evp">Agreed</span></div><div class="cbd" id="evb" style="font-size:12px;color:var(--txm)"></div></div>
-      <div class="card"><div class="chd"><div class="ct">SHAP Attribution</div></div><div class="cbd" id="ish"></div></div>
+  </div>
+
+  <!-- ========================================================================
+       TAB 5: INFRA HEALING (DIGITAL TWIN TOPOLOGY & SIMULATOR)
+       ======================================================================== -->
+  <div class="tc" id="tc-infra">
+    <div class="card" style="margin-bottom:18px">
+      <div class="chd">
+        <div class="ct">Digital Twin Topology Graph (Google Online Boutique)</div>
+        <button class="btn bg bsm" onclick="loadTopo()">↻ Sync Live Topology</button>
+      </div>
+      <div class="towrap">
+        <svg id="toposvg" width="100%" height="210" style="min-width:660px;display:block;margin:0 auto"></svg>
+      </div>
+    </div>
+
+    <div class="two">
+      <div>
+        <div class="card">
+          <div class="chd"><div class="ct">Inject Anomaly Alert (Chaos Engineering Sandbox)</div></div>
+          <div class="cbd">
+            <div class="fgrid">
+              <div class="fg">
+                <label>Target Service</label>
+                <select id="als">
+                  <option value="checkoutservice">checkoutservice</option>
+                  <option value="frontend">frontend</option>
+                  <option value="cartservice">cartservice</option>
+                  <option value="redis-cart">redis-cart</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label>CPU Usage (0.0 - 1.0)</label>
+                <input type="number" id="alc" value="0.95" step="0.05" min="0" max="1">
+              </div>
+              <div class="fg">
+                <label>Memory Usage (0.0 - 1.0)</label>
+                <input type="number" id="alm" value="0.85" step="0.05" min="0" max="1">
+              </div>
+              <div class="fg">
+                <label>Simulate Anomaly</label>
+                <select id="ala">
+                  <option value="true">Yes (Trigger Remediation)</option>
+                  <option value="false">No (Healthy)</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn bp" style="width:100%;justify-content:center" onclick="runAlert()">
+              <span id="esp" class="spin" style="display:none"></span>
+              + Run Agentic Evaluation &amp; Safety Gate
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="chd"><div class="ct">Evaluation Result</div><span class="pill pg" id="evp">Agreed</span></div>
+          <div class="cbd" id="evb"></div>
+        </div>
+        <div class="card">
+          <div class="chd"><div class="ct">Live SHAP Attribution</div></div>
+          <div class="cbd" id="ish"></div>
+        </div>
+      </div>
     </div>
   </div>
+
 </div>
 
-</main>
 <script>
 const g=id=>document.getElementById(id);
-const map={review:'r',analyze:'a',fix:'f',secure:'s',infra:'i'};
-function sw(s){document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tc').forEach(c=>c.classList.remove('active'));document.querySelector('.ptab[data-s="'+s+'"]').classList.add('active');g('t'+(map[s]||s[0])).classList.add('active')}
-let _ts=null;
-function updSbar(d){g('sc').textContent=d.active_anomalies??1;g('sw').textContent=(d.anomalous_pods||['checkoutservice']).length;g('sr').textContent=d.total_pods??4;g('sh').textContent=d.status??'DEGRADED';_ts=Date.now()}
-setInterval(()=>{if(!_ts){g('sts').textContent='last scan 4s ago';return}g('sts').textContent='last scan '+Math.round((Date.now()-_ts)/1000)+'s ago'},1000);
+async function api(path,opts={}){
+  try{
+    const r=await fetch(path,{headers:{'Content-Type':'application/json'},...opts});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return await r.json();
+  }catch(e){console.warn('API error '+path,e);throw e}
+}
 
-const api=async(p,o={})=>{const r=await fetch(p,{headers:{'Content-Type':'application/json'},...o});if(!r.ok)throw new Error(r.status);return r.json()};
-async function pollSt(){try{updSbar(await api('/api/status'))}catch(_){}}
-pollSt();setInterval(pollSt,8000);
+function sw(name){
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.toggle('active',b.dataset.s===name));
+  document.querySelectorAll('.tc').forEach(c=>c.classList.toggle('active',c.id==='tc-'+name));
+}
 
 const demoPRs=[
-  {pr_number:142,service:'checkoutservice',pr_title:'fix(checkout): scale replicas 1->4 & resolve N+1 batch query',mode:'AUTO-FIX',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/142',author:'ai-agent[bot]',time:'8m ago',status:'Merged'},
-  {pr_number:139,service:'frontend',pr_title:'perf(ssr): implement redis session caching & circuit breaker',mode:'REVIEW',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/139',author:'dev-lead',time:'35m ago',status:'Gate Passed'},
-  {pr_number:138,service:'cartservice',pr_title:'sec(auth): sanitize user input & prevent redis injection',mode:'SECURITY',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/138',author:'contrib-user',time:'2h ago',status:'Blocked: Critical'},
-  {pr_number:135,service:'redis-cart',pr_title:'ops(gitops): increase memory limits to 1024Mi',mode:'GITOPS',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/135',author:'ai-agent[bot]',time:'4h ago',status:'Self-Healed'}
+  {pr_number:5,service:'billing-service',pr_title:'feat(billing): implement customer billing processor',mode:'CRITICAL',time:'just now',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/5'},
+  {pr_number:6,service:'billing-service',pr_title:'[auto-fix] llm/hardcoded-secret from PR #5',mode:'AUTO-FIX',time:'2m ago',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/6'},
+  {pr_number:3,service:'billing-engine',pr_title:'feat(billing): enterprise billing engine & payment microservice',mode:'CRITICAL',time:'1h ago',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/3'},
+  {pr_number:4,service:'billing-engine',pr_title:'[auto-fix] llm/hardcoded-secret from PR #3',mode:'AUTO-FIX',time:'1h ago',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/4'},
+  {pr_number:1,service:'docs-engine',pr_title:'[Agentic AI] Add Auto-Generated System Architecture',mode:'SECURITY',time:'2d ago',pr_url:'https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/1'}
 ];
 
 const demoEvents=[
-  {ts:'16:12:44',svc:'checkoutservice',action:'ANOMALY_DETECTED: CPU 92% Spike (Isolation Forest: 0.88)',agent:'Monitoring Probe'},
-  {ts:'16:12:45',svc:'checkoutservice',action:'SHAP_EXPLAINER: Key driver -> request_rate (+0.82)',agent:'SHAP Engine'},
-  {ts:'16:12:47',svc:'checkoutservice',action:'CONSENSUS_REACHED: SCALE_UP (replicas=4)',agent:'SimiFed + ReAct'},
-  {ts:'16:12:48',svc:'checkoutservice',action:'DIGITAL_TWIN_SIM: Safe to execute (Peak CPU: 42.0%)',agent:'SimPy Engine'},
-  {ts:'16:12:50',svc:'checkoutservice',action:'GITOPS_PR_OPENED: #142 opened on autoreview/fix-checkout',agent:'GitOps Agent'},
-  {ts:'16:05:12',svc:'cartservice',action:'QUALITY_GATE_PASS: PR #139 passed zero-critical policy',agent:'Quality Gate'},
-  {ts:'15:48:30',svc:'frontend',action:'SECURITY_SCAN: SAST scan completed in 1.4s (0 CVEs)',agent:'CodeQL Analyzer'}
+  {ts:'10:05:12',svc:'checkoutservice',action:'SAFE_TO_EXECUTE SCALE_UP (1 -> 4 pods)',agent:'Dual-Agent Consensus'},
+  {ts:'10:04:45',svc:'checkoutservice',action:'Anomaly Detected (CPU 92%)',agent:'Isolation Forest'},
+  {ts:'09:42:15',svc:'billing-service',action:'Quality Gate Blocked PR #5',agent:'PR Review Agent'}
 ];
 
 const demoFindings=[
-  {type:'CRITICAL',rule:'security/no-eval-template',file:'src/controllers/checkout.ts:48',msg:'Potential Remote Code Execution via unescaped template string in checkout handler',fix:'Use parameterized template literals or validator.escape()'},
-  {type:'WARNING',rule:'perf/memory-leak-risk',file:'src/services/cart.py:112',msg:'Unbounded array growth in memory session store could cause OOMKill',fix:'Implement TTL eviction policy on session cache'},
-  {type:'SUGGESTION',rule:'resilience/missing-backoff',file:'src/db/redis.go:34',msg:'Missing retry backoff on Redis connection timeout',fix:'Wrap client with exponential full-jitter retry'}
+  {type:'CRITICAL',file:'services/billing_service.py:5',msg:'Hardcoded Stripe API Secret Token detected in source code',fix:'Use os.environ.get("STRIPE_SECRET_KEY")'},
+  {type:'CRITICAL',file:'services/billing_service.py:14',msg:'SQL Injection risk via raw f-string formatting in SQL query',fix:'Use parameterized prepared statements: execute(query, (cust_id,))'},
+  {type:'WARNING',file:'services/billing_service.py:8',msg:'Missing docstring and AST test gap detected for process_customer_billing',fix:'Add Google-style docstrings and unit test suite'}
 ];
 
-const demoShapScores={cpu_usage:0.820,memory_usage:0.410,latency_ms:0.125,request_rate:0.065};
+const demoShapScores={cpu_usage:-0.820,memory_usage:-0.410,latency_ms:-0.688,request_rate:-0.142};
 
 function renderDemoData(){
-  g('br').textContent='3 PRs';
-  g('ba').textContent='3';
-  g('bf').textContent='3 PRs';
-  g('bs').textContent='2';
+  g('sc').textContent='1';
+  g('sw').textContent='1';
+  g('sr').textContent='4';
+  g('sh').textContent='DEGRADED';
   
   // Render PRs
   const prHtml=demoPRs.map(pr=>`
@@ -359,8 +534,8 @@ function renderDemoData(){
       </div>
       <div class="rsp"></div>
       <div style="display:flex;align-items:center;gap:6px">
-        <span class="pill ${pr.mode==='AUTO-FIX'?'pg':pr.mode==='SECURITY'?'pc':'pi'}">${pr.mode}</span>
-        <a href="${pr.pr_url}" target="_blank" class="btn bg bsm">View</a>
+        <span class="pill ${pr.mode==='AUTO-FIX'?'pg':pr.mode==='CRITICAL'?'pc':'pi'}">${pr.mode}</span>
+        <a href="${pr.pr_url}" target="_blank" class="btn bg bsm">View on GitHub</a>
       </div>
     </div>
   `).join('');
@@ -397,10 +572,10 @@ function renderDemoData(){
   // Render Eval
   g('evb').innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <div><div class="rlbl">RL Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#00d4aa">SCALE_UP (replicas=4)</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">cos: 0.984</div></div>
-      <div><div class="rlbl">LLM Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#7c8cf8">SCALE_UP (replicas=4)</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">412ms</div></div>
+      <div><div class="rlbl">RL Agent (SimiFed)</div><div style="font-family:var(--fmono);font-size:12px;color:#00d4aa">RESTART_POD</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">cos: 0.982</div></div>
+      <div><div class="rlbl">LLM Agent (Gemini)</div><div style="font-family:var(--fmono);font-size:12px;color:#7c8cf8">RESTART_POD</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">495ms</div></div>
     </div>
-    <div><div class="rlbl">Recommendation</div><div style="font-size:12.5px;color:var(--txh)">Both agents agreed on GitOps SCALE_UP (replicas=4). Safe to execute.</div></div>
+    <div><div class="rlbl">Recommendation</div><div style="font-size:12.5px;color:var(--txh)">Both agents agreed on RESTART_POD. Safe to execute.</div></div>
   `;
 
   // Render Security Checkruns
@@ -408,20 +583,20 @@ function renderDemoData(){
     <div style="padding:14px 16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <span class="pill pc">CRITICAL</span>
-        <span style="font-family:var(--fmono);font-size:11px;color:var(--txm)">CVE-2026-4412</span>
+        <span style="font-family:var(--fmono);font-size:11px;color:var(--txm)">CVE-2026-SQLi</span>
       </div>
-      <div style="font-size:12.5px;font-weight:600;color:var(--txh)">Unauthenticated Endpoint Bypass</div>
-      <div style="font-size:11px;color:var(--txm);margin-top:3px">Branch <code>patch-auth-sanitization</code> contained route missing <code>Depends(verify_token)</code>. Quality gate blocked merge.</div>
+      <div style="font-size:12.5px;font-weight:600;color:var(--txh)">Raw String Interpolation in SQLite Query</div>
+      <div style="font-size:11px;color:var(--txm);margin-top:3px">Branch <code>demo/live-pr-review</code> contained unescaped customer_id interpolation. Quality gate blocked merge.</div>
     </div>
   `;
   g('chkl').innerHTML=`
-    <div class="ckrow">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00d4aa" stroke-width="1.5"/><path d="M5 8l2 2 4-4" stroke="#00d4aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span class="ckn">review-agent/quality-gate</span><span class="ckd" style="color:var(--sf)">PASSED (0 criticals)</span>
+    <div class="ckrow" style="display:flex;align-items:center;gap:9px;padding:9px 16px;border-bottom:1px solid var(--brd)">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#ff5c5c" stroke-width="1.5"/><path d="M5 5l6 6M11 5l-6 6" stroke="#ff5c5c" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span class="ckn" style="font-size:12px;font-weight:500;flex:1">review-agent/quality-gate</span><span class="ckd" style="color:var(--em);font-size:11px;font-family:var(--fmono)">FAILED (2 criticals)</span>
     </div>
-    <div class="ckrow">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#ff6b35" stroke-width="1.5"/><path d="M5 5l6 6M11 5l-6 6" stroke="#ff6b35" stroke-width="1.5" stroke-linecap="round"/></svg>
-      <span class="ckn">security/sast-scanner</span><span class="ckd" style="color:var(--em)">BLOCKED on #138</span>
+    <div class="ckrow" style="display:flex;align-items:center;gap:9px;padding:9px 16px;border-bottom:1px solid var(--brd)">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00d4aa" stroke-width="1.5"/><path d="M5 8l2 2 4-4" stroke="#00d4aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="ckn" style="font-size:12px;font-weight:500;flex:1">security/bandit-sast</span><span class="ckd" style="color:var(--sf);font-size:11px;font-family:var(--fmono)">PASSED</span>
     </div>
   `;
   g('disl').innerHTML=`
@@ -430,85 +605,94 @@ function renderDemoData(){
         <code style="color:var(--txh);font-weight:600">perf/no-sync-io</code>
         <span class="pill pw">Suppressed</span>
       </div>
-      <div style="color:var(--txm)">Dismissed by @dev-lead &bull; <em>"Synchronous startup config file read is intentional."</em></div>
+      <div style="color:var(--txm)">Dismissed via @review-bot &bull; <em>"Startup config read is intentional."</em></div>
     </div>
   `;
 }
 
-async function loadTopo(){try{const d=await api('/api/topology');const ns=d.nodes||[],ls=d.links||d.edges||[],svg=g('toposvg');const nW=150,nH=58,gap=36,W=660,H=210;const tot=ns.length*(nW+gap)-gap,sx=(W-tot)/2;let h='<defs><marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#3e4260"/></marker><marker id="arh" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#ff6b35"/></marker></defs>';const pos={};ns.forEach((n,i)=>{const x=sx+i*(nW+gap),y=(H-nH)/2;pos[n.id]={cx:x+nW/2,cy:y+nH/2};const hot=(n.cpu_usage||0)>.8;h+='<g transform="translate('+x+','+y+')"><rect width="'+nW+'" height="'+nH+'" rx="7" style="fill:'+(hot?'rgba(255,107,53,.12)':'#14151d')+';stroke:'+(hot?'#ff6b35':'#1a1b26')+';stroke-width:1.5"/><text x="'+(nW/2)+'" y="24" text-anchor="middle" style="fill:#e8eaf2;font-family:&apos;JetBrains Mono&apos;,monospace;font-size:11px;font-weight:600">'+n.id+'</text><text x="'+(nW/2)+'" y="42" text-anchor="middle" style="fill:'+(hot?'#ff6b35':'#7b8299')+';font-family:&apos;JetBrains Mono&apos;,monospace;font-size:10px">CPU '+Math.round((n.cpu_usage||0)*100)+'% - MEM '+Math.round((n.memory_usage||0)*100)+'%</text></g>'});ls.forEach(l=>{const s=pos[l.source],t=pos[l.target];if(!s||!t)return;const hot=(ns.find(n=>n.id===l.source)?.cpu_usage||0)>.8;h+='<line x1="'+(s.cx+nW/2)+'" y1="'+s.cy+'" x2="'+(t.cx-nW/2)+'" y2="'+t.cy+'" style="stroke:'+(hot?'#ff6b35':'#1a1b26')+';stroke-width:'+(hot?1.8:1.5)+';fill:none" marker-end="url(#ar'+(hot?'h':'')+')" />'});svg.innerHTML=h}catch(e){console.warn('topo',e)}}
+async function loadTopo(){
+  try{
+    const d=await api('/api/topology');
+    const ns=d.nodes||[],ls=d.links||d.edges||[],svg=g('toposvg');
+    const nW=150,nH=58,gap=36,W=660,H=210;
+    const tot=ns.length*(nW+gap)-gap,sx=(W-tot)/2;
+    let h='<defs><marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#484e68"/></marker><marker id="arh" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#ff5c5c"/></marker></defs>';
+    const pos={};
+    ns.forEach((n,i)=>{
+      const x=sx+i*(nW+gap),y=(H-nH)/2;
+      pos[n.id]={cx:x+nW/2,cy:y+nH/2};
+      const hot=(n.cpu_usage||0)>.8;
+      h+='<g transform="translate('+x+','+y+')"><rect width="'+nW+'" height="'+nH+'" rx="8" style="fill:'+(hot?'rgba(255,92,92,.12)':'#151722')+';stroke:'+(hot?'#ff5c5c':'#1c1e2d')+';stroke-width:1.5"/><text x="'+(nW/2)+'" y="24" text-anchor="middle" style="fill:#f0f2f8;font-family:&apos;JetBrains Mono&apos;,monospace;font-size:11px;font-weight:600">'+n.id+'</text><text x="'+(nW/2)+'" y="42" text-anchor="middle" style="fill:'+(hot?'#ff5c5c':'#8890a6')+';font-family:&apos;JetBrains Mono&apos;,monospace;font-size:10px">CPU '+Math.round((n.cpu_usage||0)*100)+'% - MEM '+Math.round((n.memory_usage||0)*100)+'%</text></g>';
+    });
+    ls.forEach(l=>{
+      const s=pos[l.source],t=pos[l.target];
+      if(!s||!t)return;
+      const hot=(ns.find(n=>n.id===l.source)?.cpu_usage||0)>.8;
+      h+='<line x1="'+(s.cx+nW/2)+'" y1="'+s.cy+'" x2="'+(t.cx-nW/2)+'" y2="'+t.cy+'" style="stroke:'+(hot?'#ff5c5c':'#1c1e2d')+';stroke-width:'+(hot?1.8:1.5)+';fill:none" marker-end="url(#ar'+(hot?'h':'')+')" />';
+    });
+    svg.innerHTML=h;
+  }catch(e){console.warn('topo',e)}
+}
 
-async function runAlert(){const svc=g('als').value,cpu=+g('alc').value,mem=+g('alm').value,anom=g('ala').value==='true';g('esp').style.display='';g('evb').innerHTML='<span class="spin"></span> Running...';try{const res=await api('/api/evaluate',{method:'POST',body:JSON.stringify({target_service:svc,cpu_usage:cpu,mem_usage:mem,is_anomaly:anom})});renderEval(res);renderShap(res.shap_scores,'ish');renderShap(res.shap_scores,'shc');evLog(svc,res.agents?.llm_react?.action_taken||'EVALUATED','LLM ReAct')}catch(e){g('evb').innerHTML='<span style="color:#ff6b35">Error: '+e.message+'</span>'}finally{g('esp').style.display='none'}}
+async function runAlert(){
+  const svc=g('als').value,cpu=+g('alc').value,mem=+g('alm').value,anom=g('ala').value==='true';
+  g('esp').style.display='';
+  g('evb').innerHTML='<span class="spin"></span> Running...';
+  try{
+    const res=await api('/api/evaluate',{method:'POST',body:JSON.stringify({target_service:svc,cpu_usage:cpu,mem_usage:mem,is_anomaly:anom})});
+    renderEval(res);
+    renderShap(res.shap_scores,'ish');
+    renderShap(res.shap_scores,'shc');
+    evLog(svc,res.agents?.llm_react?.action_taken||'EVALUATED','LLM ReAct');
+  }catch(e){
+    g('evb').innerHTML='<span style="color:#ff5c5c">Error: '+e.message+'</span>';
+  }finally{
+    g('esp').style.display='none';
+  }
+}
 
-function renderEval(res){const rl=res.agents?.rl_simifed||{},llm=res.agents?.llm_react||{},cmp=res.comparison||{};g('evp').textContent=cmp.actions_match?'Agreed':'Diverged';g('evp').className='pill '+(cmp.actions_match?'pg':'pw');g('evb').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><div class="rlbl">RL Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#00d4aa">'+(rl.action||'--')+'</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">cos: '+(rl.cosine_similarity||0).toFixed(3)+'</div></div><div><div class="rlbl">LLM Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#7c8cf8">'+(llm.action_taken||'--')+'</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">'+((llm.latency_seconds||0)*1000).toFixed(0)+'ms</div></div></div><div><div class="rlbl">Recommendation</div><div style="font-size:12.5px;color:var(--txh)">'+(cmp.recommendation||'--')+'</div></div>';g('lth').textContent=llm.thought||'--';g('lrc').textContent=llm.root_cause||'--';g('lex').textContent=llm.explanation||'--';g('llbl').textContent=llm.agent_type||'Gemini';g('rla').textContent=rl.action||'--';g('rlc').textContent='cosine: '+(rl.cosine_similarity||0).toFixed(4);g('lla').textContent=llm.action_taken||'--';g('lll').textContent='latency: '+((llm.latency_seconds||0)*1000).toFixed(0)+'ms';const sim=llm.simulation||{};g('simp').textContent=sim.recommendation||'--';g('simp').className='pill '+(sim.is_safe?'pg':'pc');g('simb').innerHTML='<div style="font-size:12px"><span style="color:var(--txm)">Peak CPU after fix:</span><span style="font-family:var(--fmono);color:var(--txh);margin-left:6px">'+((sim.predicted_max_cpu||0)*100).toFixed(1)+'%</span></div>';g('cmpp').textContent=cmp.actions_match?'Agreed':'Diverged';g('cmpp').className='pill '+(cmp.actions_match?'pg':'pw')}
+function renderEval(res){
+  const rl=res.agents?.rl_simifed||{},llm=res.agents?.llm_react||{},cmp=res.comparison||{};
+  g('evp').textContent=cmp.actions_match?'Agreed':'Diverged';
+  g('evp').className='pill '+(cmp.actions_match?'pg':'pw');
+  g('evb').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><div class="rlbl">RL Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#00d4aa">'+(rl.action||'--')+'</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">cos: '+(rl.cosine_similarity||0).toFixed(3)+'</div></div><div><div class="rlbl">LLM Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#7c8cf8">'+(llm.action_taken||'--')+'</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">'+((llm.latency_seconds||0)*1000).toFixed(0)+'ms</div></div></div><div><div class="rlbl">Recommendation</div><div style="font-size:12.5px;color:var(--txh)">'+(cmp.recommendation||'--')+'</div></div>';
+  g('lth').textContent=llm.thought||'--';
+  g('lrc').textContent=llm.root_cause||'--';
+  g('lex').textContent=llm.explanation||'--';
+  const sim=llm.simulation||{};
+  g('simp').textContent=sim.recommendation||'--';
+  g('simp').className='pill '+(sim.is_safe?'pg':'pc');
+  g('simb').innerHTML='<div style="font-size:12px"><span style="color:var(--txm)">Peak CPU after fix:</span><span style="font-family:var(--fmono);color:var(--txh);margin-left:6px">'+((sim.predicted_max_cpu||0)*100).toFixed(1)+'%</span></div>';
+}
 
-function renderShap(scores,id){if(!scores)return;const el=g(id),max=Math.max(...Object.values(scores).map(Math.abs),.01);el.innerHTML=Object.entries(scores).map(([f,v])=>{const pct=Math.abs(v)/max*100,pos=v>=0;return'<div class="shrow"><div class="shf">'+f+'</div><div class="shw"><div class="shb '+(pos?'shbp':'shbn')+'" style="width:'+pct+'%"></div></div><div class="shv">'+(v>=0?'+':'')+v.toFixed(3)+'</div></div>'}).join('')}
+function renderShap(scores,id){
+  if(!scores)return;
+  const el=g(id),max=Math.max(...Object.values(scores).map(Math.abs),.01);
+  el.innerHTML=Object.entries(scores).map(([f,v])=>{
+    const pct=Math.abs(v)/max*100,pos=v>=0;
+    return'<div class="shrow"><div class="shf">'+f+'</div><div class="shw"><div class="shb '+(pos?'shbp':'shbn')+'" style="width:'+pct+'%"></div></div><div class="shv">'+(v>=0?'+':'')+v.toFixed(3)+'</div></div>';
+  }).join('');
+}
 
 const _evs=[...demoEvents];
-function evLog(svc,action,agent){const ts=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});_evs.unshift({ts,svc,action,agent});if(_evs.length>20)_evs.pop();g('evl').innerHTML=_evs.map(e=>'<div class="tli"><div class="tlts">'+e.ts+'</div><div><div class="tlact">'+e.action+'</div><div class="tldtl">'+e.svc+' &bull; <span style="color:var(--txl)">'+e.agent+'</span></div></div></div>').join('')}
+function evLog(svc,action,agent){
+  const ts=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  _evs.unshift({ts,svc,action,agent});
+  if(_evs.length>20)_evs.pop();
+  g('evl').innerHTML=_evs.map(e=>'<div class="tli"><div class="tlts">'+e.ts+'</div><div><div class="tlact">'+e.action+'</div><div class="tldtl">'+e.svc+' &bull; <span style="color:var(--txl)">'+e.agent+'</span></div></div></div>').join('');
+}
 
 async function loadPRs(){
   try{
-    // Fetch connected repos
-    const repos = await api('/api/repos');
-    // Fetch PR review history
     const reviews = await api('/api/pr-reviews');
-
-    // Hide CTA if at least one repo is connected
-    if(repos && repos.length > 0){
-      g('cta').style.display='none';
-    }
-
-    // Render PR reviews in the list
     if(reviews && reviews.length > 0){
       const total = reviews.length;
-      const critical = reviews.reduce((s,r)=>s+(r.critical_count||0),0);
-      const failed = reviews.filter(r=>r.status==='gate_failed').length;
-      const passed = reviews.filter(r=>r.status==='gate_passed').length;
-
-      // Update metric cards
       g('br').textContent = g('bf').textContent = total + ' PRs';
-      g('mc').textContent = critical;
-      g('mp').textContent = failed;
-      g('mv').textContent = passed;
-      g('mf').textContent = total;
-
-      // Render review rows
-      const statusClass = s => s==='gate_passed'?'pg':s==='gate_failed'?'pc':'pi';
-      const statusLabel = s => s==='gate_passed'?'✓ PASSED':s==='gate_failed'?'✗ FAILED':'PENDING';
-      const repoShort = r => r.repo_full_name ? r.repo_full_name.split('/')[1] : '--';
-
-      const html = reviews.slice(0,10).map(r=>`
-        <div class="rrow">
-          <div class="rav">#${r.pr_number}</div>
-          <div style="flex:1;min-width:0">
-            <div class="rname">${repoShort(r)}</div>
-            <div class="rmeta">${r.repo_full_name} · <span style="font-family:var(--fmono)">${r.commit_sha||'--'}</span></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span class="pill pc" style="font-size:10px">${r.critical_count} critical</span>
-            <span class="pill pw" style="font-size:10px">${r.findings_count} findings</span>
-            <span class="pill ${statusClass(r.status)}">${statusLabel(r.status)}</span>
-          </div>
-        </div>`).join('');
-
-      g('prl').innerHTML = html;
-
-      // Seed event log with review activity
-      reviews.slice(0,5).forEach(r=>{
-        const d = new Date(r.reviewed_at);
-        const ts = d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-        _evs.push({ts, svc: r.repo_full_name.split('/')[1], action: statusLabel(r.status)+' PR #'+r.pr_number, agent:'PR Review Agent'});
-      });
-      g('evl').innerHTML=_evs.slice(0,15).map(e=>`<div class="tli"><div class="tlts">${e.ts}</div><div><div class="tlact">${e.action}</div><div class="tldtl">${e.svc} &bull; <span style="color:var(--txl)">${e.agent}</span></div></div></div>`).join('');
-
-    } else {
-      g('prl').innerHTML = '<div class="empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg><div>No PRs reviewed yet. Open a pull request in a connected repo to trigger a review.</div></div>';
     }
-  } catch(e){console.warn('loadPRs error',e)}
+  }catch(e){console.warn('loadPRs error',e)}
 }
 
 renderDemoData();loadTopo();loadPRs();
-
 </script>
 </body>
 </html>
