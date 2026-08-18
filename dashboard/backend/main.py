@@ -191,6 +191,17 @@ def evaluate_alert(request: AlertRequest):
     result = orchestrator.process_alert(context)
     result["shap_summary"] = formatted_shap_str
     result["shap_scores"] = shap_dict
+
+    # 4. Live Kubernetes Actuation
+    actuation = None
+    action_to_take = result.get("agents", {}).get("rl_simifed", {}).get("action") or result.get("agents", {}).get("llm_react", {}).get("action_taken")
+    if action_to_take == "SCALE_UP":
+        actuation = orchestrator.k8s_tools.scale_deployment(request.target_service, replicas=4)
+    elif action_to_take == "RESTART_POD":
+        actuation = orchestrator.k8s_tools.restart_pod(request.target_service)
+    elif action_to_take == "PATCH_LIMITS":
+        actuation = orchestrator.k8s_tools.patch_resource_limits(request.target_service, cpu_limit="500m", memory_limit="512Mi")
+    result["actuation"] = actuation
     return result
 
 from agentic_engine.tools.github_tools import github_manager

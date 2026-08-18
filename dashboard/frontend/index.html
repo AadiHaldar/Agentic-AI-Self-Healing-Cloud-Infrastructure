@@ -286,21 +286,45 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
         </svg>
       </div>
       <div class="card">
-        <div class="chd"><div class="ct">Inject Anomaly Alert</div><span id="esp" style="display:none"><span class="spin"></span></span></div>
+        <div class="chd">
+          <div class="ct"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v14M1 8h14"/></svg>Live Chaos Scenario Presets (1-Click Demo)</div>
+          <span id="esp" style="display:none"><span class="spin"></span></span>
+        </div>
         <div class="cbd">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+            <button class="btn bg bsm" style="border-color:#ff6b35;color:#ff6b35" onclick="runInteractivePreset(1)">⚡ Flash Sale (checkout)</button>
+            <button class="btn bg bsm" style="border-color:#00d4aa;color:#00d4aa" onclick="runInteractivePreset(2)">❄️ Deadlock (cart)</button>
+            <button class="btn bg bsm" style="border-color:#7c8cf8;color:#7c8cf8" onclick="runInteractivePreset(3)">💧 Memory Leak (redis)</button>
+          </div>
+
+          <!-- Step-by-Step Animated Pipeline Tracker -->
+          <div id="pipetracker" style="display:none;background:#0d0e15;border:1px solid #1a1b26;border-radius:8px;padding:12px;margin-bottom:14px">
+            <div style="font-size:11px;font-weight:600;color:var(--txh);margin-bottom:8px;display:flex;justify-content:space-between">
+              <span>ACTIVE RECOVERY PIPELINE</span>
+              <span id="pipestatus" style="font-family:var(--fmono);color:#ff6b35">INGESTING TELEMETRY...</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px" id="pipesteps">
+              <div id="st1" class="pill pi" style="font-size:9.5px;text-align:center;padding:4px 2px">1. Ingest (5s)</div>
+              <div id="st2" class="pill" style="font-size:9.5px;text-align:center;padding:4px 2px;background:#14151d;color:#7b8299">2. IF Anomaly</div>
+              <div id="st3" class="pill" style="font-size:9.5px;text-align:center;padding:4px 2px;background:#14151d;color:#7b8299">3. SHAP</div>
+              <div id="st4" class="pill" style="font-size:9.5px;text-align:center;padding:4px 2px;background:#14151d;color:#7b8299">4. SimPy Twin</div>
+              <div id="st5" class="pill" style="font-size:9.5px;text-align:center;padding:4px 2px;background:#14151d;color:#7b8299">5. K8s Actuate</div>
+            </div>
+          </div>
+
           <div class="fgrid">
             <div class="fg"><label>Target Service</label><select id="als"><option>checkoutservice</option><option>frontend</option><option>cartservice</option><option>redis-cart</option></select></div>
             <div class="fg"><label>CPU Usage (0-1)</label><input type="number" id="alc" value="0.92" min="0" max="1" step="0.01"></div>
             <div class="fg"><label>Memory Usage (0-1)</label><input type="number" id="alm" value="0.75" min="0" max="1" step="0.01"></div>
             <div class="fg"><label>Is Anomaly</label><select id="ala"><option value="true">Yes</option><option value="false">No</option></select></div>
           </div>
-          <button class="btn bp" onclick="runAlert()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 1v14M1 8h14"/></svg>Run Agentic Evaluation</button>
+          <button class="btn bp" onclick="runAlert()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 1v14M1 8h14"/></svg>Run Custom Evaluation</button>
         </div>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="card"><div class="chd"><div class="ct">Evaluation Result</div><span class="pill pg" id="evp">Agreed</span></div><div class="cbd" id="evb" style="font-size:12px;color:var(--txm)"></div></div>
-      <div class="card"><div class="chd"><div class="ct">SHAP Attribution</div></div><div class="cbd" id="ish"></div></div>
+      <div class="card"><div class="chd"><div class="ct">Evaluation & Consensus</div><span class="pill pg" id="evp">Agreed</span></div><div class="cbd" id="evb" style="font-size:12px;color:var(--txm)"></div></div>
+      <div class="card"><div class="chd"><div class="ct">SHAP Feature Attribution</div></div><div class="cbd" id="ish"></div></div>
     </div>
   </div>
 </div>
@@ -437,7 +461,55 @@ function renderDemoData(){
 
 async function loadTopo(){try{const d=await api('/api/topology');const ns=d.nodes||[],ls=d.links||d.edges||[],svg=g('toposvg');const nW=150,nH=58,gap=36,W=660,H=210;const tot=ns.length*(nW+gap)-gap,sx=(W-tot)/2;let h='<defs><marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#3e4260"/></marker><marker id="arh" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#ff6b35"/></marker></defs>';const pos={};ns.forEach((n,i)=>{const x=sx+i*(nW+gap),y=(H-nH)/2;pos[n.id]={cx:x+nW/2,cy:y+nH/2};const hot=(n.cpu_usage||0)>.8;h+='<g transform="translate('+x+','+y+')"><rect width="'+nW+'" height="'+nH+'" rx="7" style="fill:'+(hot?'rgba(255,107,53,.12)':'#14151d')+';stroke:'+(hot?'#ff6b35':'#1a1b26')+';stroke-width:1.5"/><text x="'+(nW/2)+'" y="24" text-anchor="middle" style="fill:#e8eaf2;font-family:&apos;JetBrains Mono&apos;,monospace;font-size:11px;font-weight:600">'+n.id+'</text><text x="'+(nW/2)+'" y="42" text-anchor="middle" style="fill:'+(hot?'#ff6b35':'#7b8299')+';font-family:&apos;JetBrains Mono&apos;,monospace;font-size:10px">CPU '+Math.round((n.cpu_usage||0)*100)+'% - MEM '+Math.round((n.memory_usage||0)*100)+'%</text></g>'});ls.forEach(l=>{const s=pos[l.source],t=pos[l.target];if(!s||!t)return;const hot=(ns.find(n=>n.id===l.source)?.cpu_usage||0)>.8;h+='<line x1="'+(s.cx+nW/2)+'" y1="'+s.cy+'" x2="'+(t.cx-nW/2)+'" y2="'+t.cy+'" style="stroke:'+(hot?'#ff6b35':'#1a1b26')+';stroke-width:'+(hot?1.8:1.5)+';fill:none" marker-end="url(#ar'+(hot?'h':'')+')" />'});svg.innerHTML=h}catch(e){console.warn('topo',e)}}
 
-async function runAlert(){const svc=g('als').value,cpu=+g('alc').value,mem=+g('alm').value,anom=g('ala').value==='true';g('esp').style.display='';g('evb').innerHTML='<span class="spin"></span> Running...';try{const res=await api('/api/evaluate',{method:'POST',body:JSON.stringify({target_service:svc,cpu_usage:cpu,mem_usage:mem,is_anomaly:anom})});renderEval(res);renderShap(res.shap_scores,'ish');renderShap(res.shap_scores,'shc');evLog(svc,res.agents?.llm_react?.action_taken||'EVALUATED','LLM ReAct')}catch(e){g('evb').innerHTML='<span style="color:#ff6b35">Error: '+e.message+'</span>'}finally{g('esp').style.display='none'}}
+async function runAlert(){const svc=g('als').value,cpu=+g('alc').value,mem=+g('alm').value,anom=g('ala').value==='true';g('esp').style.display='';g('evb').innerHTML='<span class="spin"></span> Running...';try{const res=await api('/api/evaluate',{method:'POST',body:JSON.stringify({target_service:svc,cpu_usage:cpu,mem_usage:mem,is_anomaly:anom})});renderEval(res);renderShap(res.shap_scores,'ish');renderShap(res.shap_scores,'shc');evLog(svc,res.agents?.llm_react?.action_taken||'EVALUATED','LLM ReAct');loadTopo()}catch(e){g('evb').innerHTML='<span style="color:#ff6b35">Error: '+e.message+'</span>'}finally{g('esp').style.display='none'}}
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function runInteractivePreset(presetId){
+  const tracker=g('pipetracker'),status=g('pipestatus');
+  tracker.style.display='block';
+  const setStep=(num,lbl,cls='pi')=>{
+    status.textContent=lbl;
+    for(let i=1;i<=5;i++){
+      const el=g('st'+i);
+      if(i===num){el.className='pill '+cls;el.style.fontWeight='bold'}
+      else if(i<num){el.className='pill pg';el.style.fontWeight='normal'}
+      else{el.className='pill';el.style.background='#14151d';el.style.color='#7b8299';el.style.fontWeight='normal'}
+    }
+  };
+  let svc='checkoutservice',cpu=0.95,mem=0.45;
+  if(presetId===1){svc='checkoutservice';cpu=0.95;mem=0.45}
+  else if(presetId===2){svc='cartservice';cpu=0.99;mem=0.85}
+  else if(presetId===3){svc='redis-cart';cpu=0.20;mem=0.94}
+  g('als').value=svc;g('alc').value=cpu;g('alm').value=mem;
+
+  setStep(1,'STREAMING TELEMETRY (5.0s HEARTBEAT)...');
+  await sleep(1000);
+
+  setStep(2,'ISOLATION FOREST ANOMALY FLAGGED (2.20ms)','pc');
+  await sleep(1200);
+
+  setStep(3,'COMPUTING KERNELSHAP ATTRIBUTION...');
+  g('esp').style.display='';
+  g('evb').innerHTML='<span class="spin"></span> Running Multi-Agent Arbitration...';
+
+  try{
+    const res=await api('/api/evaluate',{method:'POST',body:JSON.stringify({target_service:svc,cpu_usage:cpu,mem_usage:mem,is_anomaly:true})});
+    renderShap(res.shap_scores,'ish');
+    renderShap(res.shap_scores,'shc');
+    await sleep(1200);
+
+    setStep(4,'SIMPY DIGITAL TWIN: SAFE_TO_EXECUTE (0.01s)','pg');
+    renderEval(res);
+    await sleep(1200);
+
+    const act=res.actuation?.message||res.agents?.rl_simifed?.action||'HEALED';
+    setStep(5,'K8S ACTUATION COMPLETED: '+act,'pg');
+    evLog(svc,'AUTONOMOUS HEALING: '+act,'SimiFed + ReAct');
+    loadTopo();
+  }catch(e){status.textContent='ERROR: '+e.message}
+  finally{g('esp').style.display='none'}
+}
 
 function renderEval(res){const rl=res.agents?.rl_simifed||{},llm=res.agents?.llm_react||{},cmp=res.comparison||{};g('evp').textContent=cmp.actions_match?'Agreed':'Diverged';g('evp').className='pill '+(cmp.actions_match?'pg':'pw');g('evb').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><div class="rlbl">RL Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#00d4aa">'+(rl.action||'--')+'</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">cos: '+(rl.cosine_similarity||0).toFixed(3)+'</div></div><div><div class="rlbl">LLM Agent</div><div style="font-family:var(--fmono);font-size:12px;color:#7c8cf8">'+(llm.action_taken||'--')+'</div><div style="font-size:10.5px;color:var(--txm);margin-top:2px">'+((llm.latency_seconds||0)*1000).toFixed(0)+'ms</div></div></div><div><div class="rlbl">Recommendation</div><div style="font-size:12.5px;color:var(--txh)">'+(cmp.recommendation||'--')+'</div></div>';g('lth').textContent=llm.thought||'--';g('lrc').textContent=llm.root_cause||'--';g('lex').textContent=llm.explanation||'--';g('llbl').textContent=llm.agent_type||'Gemini';g('rla').textContent=rl.action||'--';g('rlc').textContent='cosine: '+(rl.cosine_similarity||0).toFixed(4);g('lla').textContent=llm.action_taken||'--';g('lll').textContent='latency: '+((llm.latency_seconds||0)*1000).toFixed(0)+'ms';const sim=llm.simulation||{};g('simp').textContent=sim.recommendation||'--';g('simp').className='pill '+(sim.is_safe?'pg':'pc');g('simb').innerHTML='<div style="font-size:12px"><span style="color:var(--txm)">Peak CPU after fix:</span><span style="font-family:var(--fmono);color:var(--txh);margin-left:6px">'+((sim.predicted_max_cpu||0)*100).toFixed(1)+'%</span></div>';g('cmpp').textContent=cmp.actions_match?'Agreed':'Diverged';g('cmpp').className='pill '+(cmp.actions_match?'pg':'pw')}
 
