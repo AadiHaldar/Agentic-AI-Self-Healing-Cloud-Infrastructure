@@ -1,0 +1,110 @@
+[
+  {
+    "mttd_ms": {
+      "mean": 2.18,
+      "std": 0.31
+    },
+    "rl_latency_ms": {
+      "mean": 3.1,
+      "std": 0.42
+    },
+    "simpy_s": {
+      "mean": 0.0101,
+      "std": 0.0008
+    },
+    "e2e_s": {
+      "mean": 2.661,
+      "std": 0.183
+    },
+    "detection_rate": 1.0,
+    "anomaly_score": {
+      "mean": -0.842,
+      "std": 0.031
+    },
+    "scenario_id": "S1",
+    "scenario_name": "Flash Sale Surge",
+    "n_trials": 15,
+    "rl_action_mode": "SCALE_UP"
+  },
+  {
+    "mttd_ms": {
+      "mean": 2.21,
+      "std": 0.28
+    },
+    "rl_latency_ms": {
+      "mean": 3.21,
+      "std": 0.39
+    },
+    "simpy_s": {
+      "mean": 0.0103,
+      "std": 0.0009
+    },
+    "e2e_s": {
+      "mean": 3.124,
+      "std": 0.241
+    },
+    "detection_rate": 1.0,
+    "anomaly_score": {
+      "mean": -0.912,
+      "std": 0.024
+    },
+    "scenario_id": "S2",
+    "scenario_name": "Thread Deadlock",
+    "n_trials": 15,
+    "rl_action_mode": "SCALE_UP"
+  },
+  {
+    "mttd_ms": {
+      "mean": 2.35,
+      "std": 0.44
+    },
+    "rl_latency_ms": {
+      "mean": 3.05,
+      "std": 0.51
+    },
+    "simpy_s": {
+      "mean": 0.0108,
+      "std": 0.0011
+    },
+    "e2e_s": {
+      "mean": 2.891,
+      "std": 0.197
+    },
+    "detection_rate": 0.93,
+    "anomaly_score": {
+      "mean": -0.734,
+      "std": 0.058
+    },
+    "scenario_id": "S3",
+    "scenario_name": "Memory Leak",
+    "n_trials": 15,
+    "rl_action_mode": "SCALE_UP"
+  },
+  {
+    "mttd_ms": {
+      "mean": 2.28,
+      "std": 0.37
+    },
+    "rl_latency_ms": {
+      "mean": 3.18,
+      "std": 0.46
+    },
+    "simpy_s": {
+      "mean": 0.0116,
+      "std": 0.0013
+    },
+    "e2e_s": {
+      "mean": 3.251,
+      "std": 0.298
+    },
+    "detection_rate": 1.0,
+    "anomaly_score": {
+      "mean": -0.889,
+      "std": 0.041
+    },
+    "scenario_id": "S4",
+    "scenario_name": "Cascading Overload",
+    "n_trials": 15,
+    "rl_action_mode": "SCALE_UP"
+  }
+]
