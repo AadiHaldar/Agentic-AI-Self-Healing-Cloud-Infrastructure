@@ -1,8 +1,8 @@
-﻿# services/billing_service.py
+# services/billing_service.py
+import os
 import sqlite3
 
-# CRITICAL SECURITY FLAW: Hardcoded API Secret Token
-STRIPE_SECRET_KEY = "sk_live_prod_secret_token_9938472918471928374"
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 
 def process_customer_billing(customer_id: str, amount: float, card_number: str):
     # FLAW: Missing docstring & AST test gap
