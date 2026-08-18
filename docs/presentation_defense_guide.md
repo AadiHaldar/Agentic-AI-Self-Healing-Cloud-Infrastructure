@@ -5,7 +5,7 @@
 
 ## 🏛️ Executive Architecture: The Two Synchronized Engines
 
-Our platform solves cloud reliability from both ends of the software lifecycle:
+Our platform solves cloud reliability across the entire software lifecycle:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -27,34 +27,91 @@ Our platform solves cloud reliability from both ends of the software lifecycle:
 
 Product A is an autonomous **GitHub App** that intercepts Pull Requests, running an **11-stage verification engine** in $\approx 14\text{ seconds}$.
 
-### 🔍 Technical Features & Terminology:
+---
 
-#### 1. What is an AST (Abstract Syntax Tree) & Test Gap Analysis?
-* **Plain English:** Instead of reading code as plain text, Python's `ast` module compiles code into a **mathematical hierarchical tree** representing functions, parameters, classes, and logic branches.
-* **How Our Agent Uses It:**  
-  Our `ast_test_detector.py` walks the tree (`ast.walk`), extracts every newly defined public function (e.g., `def process_customer_billing()`), and cross-references the `tests/` directory to verify whether a matching test (`test_process_customer_billing()`) exists.
-* **Why Evaluators Value This:** It catches untested production logic mathematically without relying on regex guesswork.
+### 🌟 Live Demo Reference: Pull Request #7
+👉 **Live URL:** [https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/7](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/7)
 
-#### 2. What are Linter & SAST Security Scanners?
-* **Bandit (SAST - Static Application Security Testing):**  
-  Scans Python AST for security vulnerabilities (e.g., `B608: SQL Injection via f-strings`, `B105: Hardcoded passwords`).
-* **Detect-Secrets (High-Entropy Token Scanner):**  
-  Uses Shannon entropy calculation to hunt for leaked cloud credentials, Stripe keys, AWS tokens, and private RSA keys.
-* **Ruff (Rust-Powered Static Linter):**  
-  Scans for syntax errors, dead code, unused imports, and performance anti-patterns (e.g., `perf/no-sync-io`).
+**Title:** `feat(billing): multi-tier customer billing gateway with discount validator`  
+**Modified Microservices:**
+1. `services/billing_gateway.py` (Client Gateway & Payment Layer)
+2. `services/order_validator.py` (Discount Matrix & Business Logic Layer)
+3. `services/payment_client.py` (External Tokenized API Client Layer)
 
-#### 3. Quality Gate Check Run (`review-agent/quality-gate`):
-* A GitHub App Check Run that **hard-blocks the "Merge" button** on GitHub if any `CRITICAL` vulnerability is detected.
+---
 
-#### 4. 1-Click Inline Suggestions & Autonomous Auto-Fix PRs:
-* Generates GitHub ````suggestion ```` blocks on the exact lines of code.
-* Automatically creates a git branch (`autoreview/fix-...`) and opens a complete Auto-Fix PR on GitHub.
+### 🔍 Complete Breakdown of Injected Faults in PR #7:
 
-#### 5. Conversational `@review-bot` Router:
-* Developers can interact on GitHub PR comments:
-  * `@review-bot /add-docstrings` $\rightarrow$ Generates Google-style docstrings using AST parsing.
-  * `@review-bot /dismiss <rule-id>` $\rightarrow$ Suppresses rules in persistent SQLite store.
-  * `@review-bot explain the risk` $\rightarrow$ LLM provides architectural explanations.
+| # | Fault Injected | Exact Code Location | Detection Engine | Impact & Why It Matters |
+|---|---|---|---|---|
+| **1** | **Raw SQL Injection** | `services/billing_gateway.py:17` | **Bandit (`B608`)** | User input `customer_id` is directly concatenated via f-string into SQL, enabling full DB exfiltration via `' OR 1=1 --`. |
+| **2** | **Hardcoded API Secrets** | `services/billing_gateway.py:7-8` | **Detect-Secrets** | Plaintext Stripe & AWS secret access tokens exposed in source code instead of environment variables. |
+| **3** | **AST Test Gap** | `services/order_validator.py:9` | **Python `ast` Parser** | New public function `calculate_tiered_discount()` has **0 unit tests** in `tests/`. |
+| **4** | **Blocking Sync I/O in Async** | `services/billing_gateway.py:27` | **Ruff (`perf/no-sync-io`)** | Synchronous `requests.get()` blocks the asyncio event loop, causing server-wide latency spikes. |
+| **5** | **Broad Exception Catching** | `services/order_validator.py:18` | **Ruff (`BLE001`)** | `except Exception: pass` silently swallows runtime crashes without logging or telemetry traces. |
+| **6** | **Missing Docstrings** | `services/payment_client.py:1` | **AST Docstring Engine** | Missing Google-style docstrings; triggers `@review-bot /add-docstrings` auto-generation. |
+
+---
+
+### 🏗️ Microservice Architecture Call Graph (Rendered in PR #7 via Mermaid)
+
+```mermaid
+graph LR
+    subgraph Client Gateway Layer
+        BillingGateway["services.billing_gateway"]
+    end
+
+    subgraph Validation & Business Logic
+        OrderValidator["services.order_validator"]
+        PaymentClient["services.payment_client"]
+    end
+
+    subgraph Data & Storage
+        SQLiteDB[("billing.db (SQLite)")]
+        ExternalStripe[["Stripe API Endpoint"]]
+    end
+
+    BillingGateway -->|"validate_incoming_order()"| OrderValidator
+    BillingGateway -->|"execute_charge()"| PaymentClient
+    BillingGateway -->|"Raw SQL Query (Vulnerable)"| SQLiteDB
+    BillingGateway -.->|"Sync Blocking HTTP"| ExternalStripe
+    OrderValidator -->|"sanitize_currency()"| PaymentClient
+```
+
+---
+
+### 📊 The 11-Stage Unified Audit Matrix (Posted to PR #7)
+
+| Verification Stage | Tool / Engine | Status | Issues Found |
+|---|---|---|---|
+| **1. Static Security Analysis (SAST)** | Bandit | 🔴 **FAILED** | 1 Critical (B608 SQL Injection) |
+| **2. Secret & Credential Scanning** | Detect-Secrets | 🔴 **FAILED** | 2 Secrets (Stripe & AWS API Keys) |
+| **3. AST Test Gap Analysis** | Python `ast` Parser | 🟡 **WARNING** | 1 Untested Function (`calculate_tiered_discount`) |
+| **4. Async I/O Performance** | Ruff (`perf/no-sync-io`) | 🟡 **WARNING** | 1 Blocking Synchronous Call (`requests.get`) |
+| **5. Exception Safety Check** | Ruff (`BLE001`) | 🟡 **WARNING** | 1 Broad `except Exception: pass` |
+| **6. Microservice Call-Graph** | AST Import Walker | 🟢 **PASS** | Generated Interactive Mermaid Diagram |
+| **7. Quality Gate Policy** | Check Run API | 🔴 **BLOCKED (Red X)** | Merge blocked pending critical remediations |
+
+---
+
+### 💬 Interactive `@review-bot` Conversational Chat (Live on PR #7)
+
+* **Developer Inquiry in PR Comments:**
+  > `@review-bot explain the SQL injection risk in billing_gateway.py and how attackers exploit it`
+
+* **Review-Bot Autonomous Explanation Reply:**
+  > **Vulnerability Analysis for `services/billing_gateway.py:17` (Bandit B608):**
+  > 
+  > 1. **How Attackers Exploit It:**  
+  >    In line 17, the SQL query is constructed using string interpolation:  
+  >    `query = f"SELECT id, email, balance, card_token FROM accounts WHERE customer_id = '{customer_id}'"`  
+  >    If an adversary sends `customer_id = "' OR 1=1 --"`, the executed query becomes:  
+  >    `SELECT id, email, balance, card_token FROM accounts WHERE customer_id = '' OR 1=1 --'`  
+  >    This dumps every customer's sensitive payment card token and balance in a single request.
+  > 
+  > 2. **The Parameterized Fix:**  
+  >    Database drivers separate SQL syntax from user data at the wire protocol level:  
+  >    `cursor.execute("SELECT id, email, balance, card_token FROM accounts WHERE customer_id = ?", (customer_id,))`
 
 ---
 
@@ -62,44 +119,60 @@ Product A is an autonomous **GitHub App** that intercepts Pull Requests, running
 
 Product B is our runtime self-healing engine monitoring the **Google Online Boutique microservice architecture** (`frontend` $\rightarrow$ `checkoutservice` $\rightarrow$ `cartservice` $\rightarrow$ `redis-cart`).
 
-### 🔍 Technical Features & Terminology:
-
-#### 1. Isolation Forest Anomaly Detection ($\text{MTTD} = 2.34\text{ ms}$):
-* Unsupervised ML model isolating anomalous telemetry in 4D metric space:
-  $$\vec{X} = [\text{CPU Usage}, \text{RAM Usage}, \text{Latency (ms)}, \text{Request Rate (req/s)}]$$
-* Deviations from baseline centroid ($[25\%, 40\%, 45\text{ms}, 120\text{req/s}]$) trigger detection in **$2.34\text{ ms}$**.
-
-#### 2. KernelSHAP Feature Attribution (Explainable AI):
-* Calculates game-theoretic Shapley values ($\phi_i$) for full mathematical explainability:
-  $$\text{Anomaly Score} = \phi_{\text{CPU}} + \phi_{\text{RAM}} + \phi_{\text{Latency}} + \phi_{\text{Rate}}$$
-* Displays purple/pink horizontal bar charts proving whether request rate or memory leakage caused the failure.
-
-#### 3. SimiFed Reinforcement Learning Agent ($\text{Reflex} = 3.10\text{ ms}$):
-* Based on the IEEE paper (*SF-DTM*), calculates **Cosine Vector Similarity** between active telemetry and historical failure modes to select the optimal Q-learning action (`SCALE_UP`, `RESTART_POD`, `PATCH_LIMITS`).
-
-#### 4. SimPy Discrete-Event Queue Engine ($0.01\text{s}$ Safety Gate):
-* Simulates an **$M/M/c$ queuing system** in $0.01\text{ seconds}$ to mathematically guarantee that scaling will drop CPU without crashing downstream microservices (`SAFE_TO_EXECUTE`).
-
-#### 5. Real Physical Kubernetes Actuation (`k8s_tools.py`):
-* Executes real `kubectl scale` and `kubectl delete pod` commands directly on the physical Kubernetes cluster.
-
 ---
 
-## 💥 4 Live Demo Failure Scenarios (`demo_multi_defect_chaos.py`)
+### 💻 EXACT TERMINAL COMMAND TO RUN PRODUCT B LIVE DEMO:
 
-Run this in your PowerShell terminal during the presentation:
+Inside your project directory in PowerShell, run:
 ```powershell
 python scripts/demo_multi_defect_chaos.py
 ```
 
-### The 4 Scenarios Demonstrated:
+---
+
+### 🔍 Technical Features & Terminology:
+
+#### 1. Telemetry Heartbeat & Polling Frequency:
+* **Polling Rate:** Streams telemetry every **`5.0 seconds`** via `StateSynchronizer` ([`digital_twin/state_synchronizer.py`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/digital_twin/state_synchronizer.py)).
+* **4D Metric Vector Ingested:**
+  $$\vec{X}_t = \big[\text{CPU Usage } (0.0\text{--}1.0),\; \text{RAM Usage } (0.0\text{--}1.0),\; \text{Latency } (\text{ms}),\; \text{Request Rate } (\text{req/s})\big]$$
+
+#### 2. Isolation Forest Anomaly Detection ($\text{MTTD} = 2.20\text{ ms}$):
+* Unsupervised ML model isolating anomalous telemetry in 4D metric space. Deviations from baseline centroid ($[25\%, 40\%, 45\text{ms}, 120\text{req/s}]$) trigger detection in **$2.20\text{ ms}$**.
+
+#### 3. KernelSHAP Feature Attribution (Explainable AI):
+* Calculates game-theoretic Shapley values ($\phi_i$) for full mathematical explainability:
+  $$\text{Anomaly Score} = \phi_{\text{CPU}} + \phi_{\text{RAM}} + \phi_{\text{Latency}} + \phi_{\text{Rate}}$$
+* Displays purple/pink horizontal bar charts proving whether request rate or memory leakage caused the failure.
+
+#### 4. SimiFed Reinforcement Learning Agent ($\text{Reflex} = 3.10\text{ ms}$):
+* Based on the IEEE paper (*SF-DTM*), calculates **Cosine Vector Similarity** between active telemetry and historical failure modes to select the optimal Q-learning action (`SCALE_UP`, `RESTART_POD`, `PATCH_LIMITS`).
+
+#### 5. SimPy Discrete-Event Queue Engine ($0.01\text{s}$ Safety Gate):
+* Simulates an **$M/M/c$ queuing system** in $0.01\text{ seconds}$ to mathematically guarantee that scaling will drop CPU without crashing downstream microservices (`SAFE_TO_EXECUTE`).
+
+#### 6. Real Physical Kubernetes Actuation (`k8s_tools.py`):
+* Executes real `kubectl scale`, `kubectl delete pod`, and `kubectl set resources` commands directly on the physical Kubernetes cluster (`boutique-cluster`).
+
+---
+
+## 💥 4 Live Demo Failure Scenarios (`demo_multi_defect_chaos.py`)
 
 | Scenario | Service | Injected Defect / Symptom | AI Diagnosis & Attribution | Autonomous Action Taken |
 |---|---|---|---|---|
 | **Defect 1** | `checkoutservice` | **Flash Sale Traffic Spike:** CPU 95%, Latency 450ms, Rate 500 req/s | Isolation Forest + SHAP (Rate & CPU drivers) | **Autonomously scales deployment from 1 to 4 pods** on live Kubernetes |
 | **Defect 2** | `cartservice` | **Thread Deadlock / Zombie:** 100% CPU lock with zero throughput | Isolation Forest (5000ms timeout anomaly) | **Autonomously force-restarts frozen pod**; K8s recreates fresh pod in 3s |
 | **Defect 3** | `redis-cart` | **Progressive Memory Leak:** RAM reaches 94% with OOMKill risk | KernelSHAP (`memory_usage +0.88`) | **Autonomously patches Kubernetes RAM ceiling** (512Mi $\rightarrow$ 1024Mi) |
-| **Defect 4** | `billing_service` | **Shift-Left Vulnerability:** Hardcoded Stripe Key + SQL Injection | Bandit (B608) + Detect-Secrets + AST Test Gap | **Quality Gate blocks merge** + opens Auto-Fix PR #6 on GitHub |
+| **Defect 4** | `billing_gateway` | **Shift-Left Vulnerability:** Hardcoded Stripe Key + SQL Injection | Bandit (B608) + Detect-Secrets + AST Test Gap | **Quality Gate blocks merge** + generates 1-click patch in PR #7 |
+
+---
+
+## ☁️ Cloud vs. Localhost Distinction (Why We Support Both)
+
+| Environment | Where It Runs | Purpose in Project |
+|---|---|---|
+| **Microsoft Azure (Cloud)** | `https://pr-review-agent.wonderfulflower-41d6d2a5.eastasia.azurecontainerapps.io` | **Production Web App:** Hosted on Azure Container Apps in `rg-agentic-app-prod`, accessible globally 24/7 for live evaluator review. |
+| **Certified Kubernetes (Local Engine)** | `http://localhost:8000` / `boutique-cluster` (Docker) | **Zero-Cost Physical Cluster:** Runs real Kubernetes pods on your laptop with zero cloud billing ($0/mo vs $70/mo AKS) and no risk of college Wi-Fi disconnects during live demo! |
 
 ---
 
@@ -118,24 +191,24 @@ python scripts/demo_multi_defect_chaos.py
 
 ---
 
-### 🟢 Act II: Product A Live Demo (2 Minutes)
-1. **Show PR #5 on GitHub:**
-   > *"Here is Pull Request #5 on our GitHub repository. Notice that the developer committed a raw SQL query with string interpolation and a hardcoded Stripe API secret key."*
-2. **Show the Automated Review Comment:**
-   > *"In 14 seconds, our GitHub App audited the code across 11 verification checks:*  
-   > *• **Bandit & Detect-Secrets** caught the SQL injection and Stripe key.*  
-   > *• **AST Test Gap Detector** flagged that `process_customer_billing` had no unit tests.*  
-   > *• **Quality Gate** blocked the PR from merging.*  
-   > *• The bot generated a **1-Click Suggestion Diff** and opened **Auto-Fix PR #6** to remediate the vulnerability automatically."*
+### 🟢 Act II: Product A Live Demo — PR #7 (2 Minutes)
+1. **Open [Pull Request #7 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/7):**
+   > *"Here is Pull Request #7 on our repository. In this PR, a developer pushed three new microservices for customer billing."*
+2. **Show the Automated Review Audit & Mermaid Diagram:**
+   > *"In 14 seconds, our GitHub App performed an 11-stage audit:*  
+   > *• **Bandit & Detect-Secrets** caught the SQL injection vulnerability and leaked Stripe keys.*  
+   > *• **AST Test Gap Detector** flagged that `calculate_tiered_discount` had zero unit tests.*  
+   > *• **AST Import Walker** rendered this interactive Mermaid architecture call graph showing how `billing_gateway` calls `order_validator` and `payment_client`.*  
+   > *• **Quality Gate Check Run** marked the build as Failed (Red X) and blocked the PR from merging."*
 3. **Show Conversational `@review-bot`:**
-   > *"Developers can chat directly with the bot on GitHub using `@review-bot explain the risk` or `@review-bot /add-docstrings`."*
+   > *"Developers can interact directly on the PR. Notice here where the developer asked `@review-bot explain the SQL injection risk`, and the bot provided an in-depth security analysis and parameterized patch."*
 
 ---
 
-### 🟢 Act III: Product B Live Demo (2 Minutes)
+### 🟢 Act III: Product B Live Demo — Live Kubernetes Actuation (2 Minutes)
 1. **Show the UI Dashboard (`http://localhost:8000` or Azure):**
-   > *"Now let's switch to Product B: our **Digital Twin Control Plane**. We are monitoring the **Google Online Boutique e-commerce microservices** (`frontend` ➔ `checkoutservice` ➔ `cartservice` ➔ `redis-cart`)."*
-2. **Trigger the Multi-Defect Suite:**
+   > *"Now let's look at Product B: our **Digital Twin Control Plane**. We are monitoring the **Google Online Boutique microservices** (`frontend` ➔ `checkoutservice` ➔ `cartservice` ➔ `redis-cart`)."*
+2. **Trigger the Multi-Defect Suite in Terminal:**
    Run:
    ```powershell
    python scripts/demo_multi_defect_chaos.py
@@ -143,9 +216,9 @@ python scripts/demo_multi_defect_chaos.py
 3. **Explain the 4-Stage Autonomous Recovery:**
    * **Stage 1 (Detection):** *"Isolation Forest detected the CPU surge in **2.20 ms**."*
    * **Stage 2 (Explainability):** *"KernelSHAP calculated feature contributions, showing request rate and CPU as the root cause."*
-   * **Stage 3 (Safety Gate):** *"SimPy ran a 0.01-second $M/M/c$ queuing simulation to verify that scaling to 4 pods would safely stabilize CPU at 15% without crashing redis."*
+   * **Stage 3 (Safety Gate):** *"SimPy ran a 0.01-second $M/M/c$ queuing simulation to verify that scaling to 4 pods would safely drop CPU to 15% without cascading overload."*
    * **Stage 4 (Physical Actuation):** Run `kubectl get pods`:
-     > *"Notice that Kubernetes physically spawned 3 brand new pods on our cluster in 5 seconds to absorb the load. Mean Time to Recovery: **2.66 seconds**."*
+     > *"Notice that Kubernetes physically spawned 3 brand new pods on our cluster in 5 seconds. Mean Time to Recovery: **2.66 seconds**."*
 
 ---
 
