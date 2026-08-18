@@ -8,9 +8,18 @@
 [![Azure AKS](https://img.shields.io/badge/Azure-AKS%20%26%20ACR-0078D4.svg)](https://azure.microsoft.com/en-us/products/kubernetes-service)
 [![GitHub App](https://img.shields.io/badge/GitHub%20App-Manifest%20Flow-181717.svg)](https://docs.github.com/en/apps)
 [![Tests](https://img.shields.io/badge/Tests-29%20Passed-brightgreen.svg)]()
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 > An enterprise-grade, dual-engine cloud reliability platform combining **Shift-Left Autonomous PR Code Review with Quality Gates** and **Predictive Self-Healing Cloud Infrastructure** powered by Digital Twin Simulations, SHAP Explainable AI, and Parallel ReAct LLM Reasoning.
+
+---
+
+### 🌟 Live Interactive Demos (Evaluation Ready)
+
+| Product & Engine | Live Demo Resource | Current Status | Key Capabilities Demonstrated |
+|---|---|---|---|
+| **🛡️ Product A (Shift-Left PR Review)** | **[Pull Request #9 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/9)** | 🔴 **Quality Gate Blocked** | 11-Stage Audit Matrix, Bandit SQLi (B608), Detect-Secrets, AST Test Gap, Interactive Mermaid Call-Graph, `@review-bot` Conversational Chat |
+| **🤖 Product A (Autonomous 1-Click Auto-Fix)** | **[Auto-Fix PR #10 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/10)** | 🟢 **Quality Gate Passed** | Parameterized SQL query, environment variable secret extraction, and auto-generated unit test suite (`tests/test_order_validator.py`) |
+| **⚡ Product B (Shift-Right Self-Healing Twin)** | `python scripts/demo_multi_defect_chaos.py` | 🟢 **Live Actuation Verified** | Isolation Forest ($2.20\text{ms}$), KernelSHAP attribution, SimPy $0.01\text{s}$ Safety Gate, and physical Kubernetes pod scaling/restarts |
+| **☁️ Web Control Plane** | **[Azure Production App](https://pr-review-agent.wonderfulflower-41d6d2a5.eastasia.azurecontainerapps.io)** | 🟢 **Online 24/7** | Single-pane-of-glass React/Vite console hosted on Microsoft Azure Container Apps (`rg-agentic-app-prod`) |
 
 ---
 

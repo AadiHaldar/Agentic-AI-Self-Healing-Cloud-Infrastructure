@@ -29,9 +29,9 @@ Product A is an autonomous **GitHub App** that intercepts Pull Requests, running
 
 ---
 
-### 🌟 Live Demo Reference: Pull Request #9
-👉 **Primary Vulnerable PR #9 (Blocked with Red ❌):** [https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/9](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/9)  
-👉 **Autonomous Auto-Fix PR #10 (Ready to Merge Live):** [https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/10](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/10)
+### 🌟 Live Demo Reference: Pull Request #9 & #10
+* 👉 **Primary Vulnerable PR #9 (Blocked with Red ❌):** [https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/9](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/9)
+* 👉 **Autonomous Auto-Fix PR #10 (Ready to Merge Live):** [https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/10](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/10)
 
 **Title:** `feat(billing): multi-tier customer billing gateway with discount validator`  
 **Modified Microservices:**
@@ -41,7 +41,7 @@ Product A is an autonomous **GitHub App** that intercepts Pull Requests, running
 
 ---
 
-### 🔍 Complete Breakdown of Injected Faults in PR #7:
+### 🔍 Complete Breakdown of Injected Faults in PR #9:
 
 | # | Fault Injected | Exact Code Location | Detection Engine | Impact & Why It Matters |
 |---|---|---|---|---|
@@ -54,7 +54,7 @@ Product A is an autonomous **GitHub App** that intercepts Pull Requests, running
 
 ---
 
-### 🏗️ Microservice Architecture Call Graph (Rendered in PR #7 via Mermaid)
+### 🏗️ Microservice Architecture Call Graph (Rendered in PR #9 via Mermaid)
 
 ```mermaid
 graph LR
@@ -81,7 +81,7 @@ graph LR
 
 ---
 
-### 📊 The 11-Stage Unified Audit Matrix (Posted to PR #7)
+### 📊 The 11-Stage Unified Audit Matrix (Posted to PR #9)
 
 | Verification Stage | Tool / Engine | Status | Issues Found |
 |---|---|---|---|
@@ -95,7 +95,7 @@ graph LR
 
 ---
 
-### 💬 Interactive `@review-bot` Conversational Chat (Live on PR #7)
+### 💬 Interactive `@review-bot` Conversational Chat (Live on PR #9)
 
 * **Developer Inquiry in PR Comments:**
   > `@review-bot explain the SQL injection risk in billing_gateway.py and how attackers exploit it`
@@ -164,7 +164,7 @@ python scripts/demo_multi_defect_chaos.py
 | **Defect 1** | `checkoutservice` | **Flash Sale Traffic Spike:** CPU 95%, Latency 450ms, Rate 500 req/s | Isolation Forest + SHAP (Rate & CPU drivers) | **Autonomously scales deployment from 1 to 4 pods** on live Kubernetes |
 | **Defect 2** | `cartservice` | **Thread Deadlock / Zombie:** 100% CPU lock with zero throughput | Isolation Forest (5000ms timeout anomaly) | **Autonomously force-restarts frozen pod**; K8s recreates fresh pod in 3s |
 | **Defect 3** | `redis-cart` | **Progressive Memory Leak:** RAM reaches 94% with OOMKill risk | KernelSHAP (`memory_usage +0.88`) | **Autonomously patches Kubernetes RAM ceiling** (512Mi $\rightarrow$ 1024Mi) |
-| **Defect 4** | `billing_gateway` | **Shift-Left Vulnerability:** Hardcoded Stripe Key + SQL Injection | Bandit (B608) + Detect-Secrets + AST Test Gap | **Quality Gate blocks merge** + generates 1-click patch in PR #7 |
+| **Defect 4** | `billing_gateway` | **Shift-Left Vulnerability:** Hardcoded Stripe Key + SQL Injection | Bandit (B608) + Detect-Secrets + AST Test Gap | **Quality Gate blocks merge** + generates Auto-Fix PR #10 |
 
 ---
 
@@ -192,17 +192,18 @@ python scripts/demo_multi_defect_chaos.py
 
 ---
 
-### 🟢 Act II: Product A Live Demo — PR #7 (2 Minutes)
-1. **Open [Pull Request #7 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/7):**
-   > *"Here is Pull Request #7 on our repository. In this PR, a developer pushed three new microservices for customer billing."*
+### 🟢 Act II: Product A Live Demo — PR #9 & #10 (2 Minutes)
+1. **Open [Pull Request #9 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/9):**
+   > *"Here is Pull Request #9 on our repository. In this PR, a developer pushed three new microservices for customer billing."*
 2. **Show the Automated Review Audit & Mermaid Diagram:**
    > *"In 14 seconds, our GitHub App performed an 11-stage audit:*  
    > *• **Bandit & Detect-Secrets** caught the SQL injection vulnerability and leaked Stripe keys.*  
    > *• **AST Test Gap Detector** flagged that `calculate_tiered_discount` had zero unit tests.*  
    > *• **AST Import Walker** rendered this interactive Mermaid architecture call graph showing how `billing_gateway` calls `order_validator` and `payment_client`.*  
    > *• **Quality Gate Check Run** marked the build as Failed (Red X) and blocked the PR from merging."*
-3. **Show Conversational `@review-bot`:**
-   > *"Developers can interact directly on the PR. Notice here where the developer asked `@review-bot explain the SQL injection risk`, and the bot provided an in-depth security analysis and parameterized patch."*
+3. **Show Conversational `@review-bot` & Auto-Fix PR #10:**
+   > *"Developers can interact directly on the PR. Notice here where the developer asked `@review-bot explain the SQL injection risk`, and the bot provided an in-depth security analysis and parameterized patch.*  
+   > *Simultaneously, the agent opened **[Auto-Fix PR #10](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/10)**, which contains passing tests and secure queries ready to merge with one click."*
 
 ---
 
