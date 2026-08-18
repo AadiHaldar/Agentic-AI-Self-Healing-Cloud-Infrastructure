@@ -1,11 +1,12 @@
+import os
 import sqlite3
-import requests
+import httpx
 from services.order_validator import validate_incoming_order
 from services.payment_client import PaymentClient
 
-# DEFECT 1: Leaked Stripe API Secret Key (Detect-Secrets & Bandit)
-STRIPE_SECRET_KEY = "sk_test_51Mz9XYZ9876543210ABCDEFabcdef9988776655"
-AWS_SECRET_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+# [AUTO-FIX] Loaded secrets securely from environment variables
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
+AWS_SECRET_KEY = os.environ.get("AWS_SECRET_KEY", "")
 
 class BillingGateway:
     def __init__(self, db_path: str = "billing.db"):
@@ -15,9 +16,9 @@ class BillingGateway:
     def fetch_customer_account(self, customer_id: str):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        # DEFECT 2: Raw SQL Injection via string formatting (Bandit B608)
-        query = f"SELECT id, email, balance, card_token FROM accounts WHERE customer_id = '{customer_id}'"
-        cursor.execute(query)
+        # [AUTO-FIX] Parameterized query to completely eliminate SQL injection (Bandit B608)
+        query = "SELECT id, email, balance, card_token FROM accounts WHERE customer_id = ?"
+        cursor.execute(query, (customer_id,))
         account = cursor.fetchone()
         conn.close()
         return account
@@ -26,8 +27,9 @@ class BillingGateway:
         if not validate_incoming_order(order_data):
             raise ValueError("Invalid order payload")
         
-        # DEFECT 3: Blocking Synchronous I/O in Async Function (Ruff perf/no-sync-io)
-        resp = requests.get("https://api.stripe.com/v1/healthcheck", timeout=5)
+        # [AUTO-FIX] Non-blocking async HTTP client (Ruff perf/no-sync-io)
+        async with httpx.AsyncClient() as client:
+            resp = await client.get("https://api.stripe.com/v1/healthcheck", timeout=5.0)
         
         account = self.fetch_customer_account(customer_id)
         if not account:
