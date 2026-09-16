@@ -134,6 +134,11 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
     <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L3 4v5c0 3 2.5 5 5 6 2.5-1 5-3 5-6V4L8 2z"/></svg>
     Secure <span class="tbdg" id="bs">0</span>
   </button>
+  <span class="parr">&rsaquo;</span>
+  <button class="ptab" data-s="owasp" onclick="sw('owasp')">
+    <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1L2 3.5v5c0 4 3 6.5 6 7.5 3-1 6-3.5 6-7.5v-5L8 1z"/><path d="M6 8l1.5 1.5 3-3"/></svg>
+    OWASP Top 10 <span class="tbdg" id="bowasp" style="background:rgba(168,85,247,0.15);color:#a855f7">Grade A</span>
+  </button>
   <div style="flex:1"></div>
   <button class="ptab" data-s="infra" onclick="sw('infra')">
     <svg class="tico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="14" height="4" rx="1"/><rect x="1" y="10" width="14" height="4" rx="1"/><circle cx="3.5" cy="6" r=".75" fill="currentColor"/><circle cx="3.5" cy="12" r=".75" fill="currentColor"/></svg>
@@ -329,10 +334,53 @@ body{font-family:var(--fui);background:var(--bg);color:var(--txh);min-height:100
   </div>
 </div>
 
+<!-- OWASP TOP 10 AUDIT & COMPLIANCE -->
+<div id="to" class="tc">
+  <div class="cta">
+    <h2>🛡️ OWASP Top 10 (2021/2025) Security & Compliance Engine</h2>
+    <p>Automated AST compiler inspection, vulnerability pattern matching, and Dependabot-style supply chain CVE auditing.</p>
+    <div style="display:inline-flex;gap:12px;margin-top:6px;flex-wrap:wrap;justify-content:center">
+      <span class="pill pg" style="font-size:12px;padding:6px 14px" id="ow-grade-pill">Compliance Grade: A+</span>
+      <span class="pill pb" style="font-size:12px;padding:6px 14px" id="ow-score-pill">Score: 95.0%</span>
+      <span class="pill pi" style="font-size:12px;padding:6px 14px" id="ow-violation-pill">0 Active Violations</span>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="chd">
+        <div class="ct">OWASP Top 10 Standard Categories</div>
+        <button class="btn bo" onclick="loadOWASPCompliance()" style="padding:3px 8px;font-size:11px">Refresh Audit</button>
+      </div>
+      <div class="cbd" id="owasp-table-container">
+        <div class="empty">Loading OWASP compliance standards...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="chd">
+        <div class="ct">Live Code & Dependency Security Scanner</div>
+      </div>
+      <div class="cbd">
+        <p style="font-size:11.5px;color:var(--txm);margin-bottom:10px">Paste Python source code or requirements.txt to test instant AST vulnerability detection:</p>
+        <textarea id="owasp-code-input" style="width:100%;height:140px;background:#0d0e15;border:1px solid #1a1b26;border-radius:6px;color:#a855f7;font-family:var(--fmono);font-size:11px;padding:10px;resize:vertical;outline:none" placeholder="import hashlib&#10;&#10;def get_user(uid):&#10;    query = f&quot;SELECT * FROM users WHERE id = '{uid}'&quot;&#10;    return query"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn bp" onclick="runLiveOWASPScan()" style="flex:1">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 1L2 3.5v5c0 4 3 6.5 6 7.5 3-1 6-3.5 6-7.5v-5L8 1z"/></svg>
+            Scan Code with AST Engine
+          </button>
+          <button class="btn bo" onclick="loadOWASPDemoSnippet()" style="font-size:11px">Load Demo Vulnerability</button>
+        </div>
+        <div id="owasp-scan-results" style="margin-top:14px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </main>
 <script>
 const g=id=>document.getElementById(id);
-const map={review:'r',analyze:'a',fix:'f',secure:'s',infra:'i'};
+const map={review:'r',analyze:'a',fix:'f',secure:'s',owasp:'o',infra:'i'};
 function sw(s){document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tc').forEach(c=>c.classList.remove('active'));document.querySelector('.ptab[data-s="'+s+'"]').classList.add('active');g('t'+(map[s]||s[0])).classList.add('active')}
 let _ts=null;
 function updSbar(d){g('sc').textContent=d.active_anomalies??1;g('sw').textContent=(d.anomalous_pods||['checkoutservice']).length;g('sr').textContent=d.total_pods??4;g('sh').textContent=d.status??'DEGRADED';_ts=Date.now()}
@@ -579,7 +627,117 @@ async function loadPRs(){
   } catch(e){console.warn('loadPRs error',e)}
 }
 
-renderDemoData();loadTopo();loadPRs();
+// ── OWASP Top 10 Audit Engine UI ─────────────────────────────────────────────
+const OWASP_META = {
+  "A01:2021": { name: "Broken Access Control", desc: "Missing authorization, path traversal, IDOR" },
+  "A02:2021": { name: "Cryptographic Failures", desc: "Weak hashing, hardcoded credentials" },
+  "A03:2021": { name: "Injection", desc: "SQL injection, command injection, dynamic eval()" },
+  "A04:2021": { name: "Insecure Design", desc: "Missing rate limiting, unconstrained resource use" },
+  "A05:2021": { name: "Security Misconfiguration", desc: "Debug mode enabled, permissive CORS" },
+  "A06:2021": { name: "Vulnerable & Outdated Components", desc: "Dependabot-style supply chain CVE audit" },
+  "A07:2021": { name: "Identification & Auth Failures", desc: "Hardcoded session tokens, weak secrets" },
+  "A08:2021": { name: "Software & Data Integrity", desc: "Insecure deserialization (pickle, YAML)" },
+  "A09:2021": { name: "Security Logging & Monitoring", desc: "Swallowed exceptions, unlogged errors" },
+  "A10:2021": { name: "Server-Side Request Forgery (SSRF)", desc: "Unsanitized outbound HTTP queries" }
+};
+
+async function loadOWASPCompliance(){
+  try{
+    const res = await api('/api/owasp/compliance');
+    g('bowasp').textContent = 'Grade ' + res.grade;
+    g('ow-grade-pill').textContent = 'Compliance Grade: ' + res.grade;
+    g('ow-grade-pill').className = 'pill ' + (res.grade.startsWith('A') ? 'pg' : res.grade === 'B' ? 'pw' : 'pc');
+    g('ow-score-pill').textContent = 'Score: ' + res.compliance_score + '%';
+    g('ow-violation-pill').textContent = res.total_violations + ' Active Violations';
+
+    let html = '<div style="display:flex;flex-direction:column;gap:6px">';
+    for(const [catId, meta] of Object.entries(OWASP_META)){
+      const count = res.findings_by_category[catId] || 0;
+      const statusPill = count === 0 
+        ? '<span class="pill pg" style="font-size:10px">🟢 Compliant</span>'
+        : `<span class="pill pc" style="font-size:10px">🔴 ${count} Issue(s)</span>`;
+      
+      html += `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#0d0e15;border:1px solid #1a1b26;border-radius:6px">
+          <div>
+            <div style="font-size:11.5px;font-weight:600;color:var(--txh)"><b>${catId}</b> — ${meta.name}</div>
+            <div style="font-size:10px;color:var(--txm)">${meta.desc}</div>
+          </div>
+          <div>${statusPill}</div>
+        </div>
+      `;
+    }
+    html += '</div>';
+    g('owasp-table-container').innerHTML = html;
+  }catch(e){
+    console.warn('loadOWASPCompliance error', e);
+  }
+}
+
+async function runLiveOWASPScan(){
+  const code = g('owasp-code-input').value;
+  if(!code.trim()){
+    g('owasp-scan-results').innerHTML = '<div class="empty">Please paste code or requirements.txt first.</div>';
+    return;
+  }
+  g('owasp-scan-results').innerHTML = '<div style="font-size:11px;color:#a855f7;padding:10px">🔍 Running AST Compiler Inspection & OWASP Pattern Matching...</div>';
+  try{
+    const res = await api('/api/owasp/scan', {
+      method: 'POST',
+      body: JSON.stringify({ code })
+    });
+    const comp = res.compliance;
+    let html = `
+      <div style="background:#0a0b12;border:1px solid #1f2030;border-radius:6px;padding:10px;margin-top:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:12px;font-weight:700;color:var(--txh)">Scan Result: Grade ${comp.grade} (${comp.compliance_score}%)</span>
+          <span class="pill ${comp.total_findings === 0 ? 'pg' : 'pc'}">${comp.total_findings} Finding(s)</span>
+        </div>
+    `;
+    if(comp.findings && comp.findings.length > 0){
+      html += '<div style="display:flex;flex-direction:column;gap:6px">';
+      comp.findings.forEach(f=>{
+        html += `
+          <div style="font-size:11px;padding:6px 8px;background:#141520;border-left:3px solid #ff4757;border-radius:4px">
+            <div style="font-weight:600;color:#ff6b81">[${f.category_id}] ${f.title}</div>
+            <div style="color:var(--txm);margin-top:2px">${f.description}</div>
+            <div style="color:#a855f7;font-family:var(--fmono);font-size:10px;margin-top:3px"><b>Fix:</b> ${f.recommendation}</div>
+          </div>
+        `;
+      });
+      html += '</div>';
+    } else {
+      html += '<div style="font-size:11px;color:#2ed573;padding:4px">✓ No OWASP Top 10 vulnerabilities detected in this snippet!</div>';
+    }
+    html += '</div>';
+    g('owasp-scan-results').innerHTML = html;
+  }catch(e){
+    g('owasp-scan-results').innerHTML = '<div style="color:#ff4757;font-size:11px">Scan failed: ' + e.message + '</div>';
+  }
+}
+
+function loadOWASPDemoSnippet(){
+  g('owasp-code-input').value = `import hashlib
+import subprocess
+import pickle
+
+DEBUG = True
+STRIPE_API_KEY = "sk_test_mock_dummy_api_key_0123456789"
+
+def process_order(user_id, raw_payload, cmd):
+    # A03: SQL Injection
+    query = f"SELECT * FROM orders WHERE user_id = '{user_id}'"
+    # A02: Weak Hash
+    pwd_hash = hashlib.md5(b"password").hexdigest()
+    # A08: Insecure Deserialization
+    data = pickle.loads(raw_payload)
+    # A03: Command Injection
+    subprocess.Popen(cmd, shell=True)
+    return query, pwd_hash, data
+`;
+}
+
+renderDemoData();loadTopo();loadPRs();loadOWASPCompliance();
 
 </script>
 </body>

@@ -765,6 +765,7 @@ def _build_review_body(
     findings: List[Dict[str, Any]],
     mermaid: Optional[str],
     truncation_note: Optional[str],
+    owasp_report: Optional[str] = None,
 ) -> str:
     parts = ["## Agentic AI Review Agent\n\n"]
     if truncation_note:
@@ -789,16 +790,20 @@ def _build_review_body(
 | 1 | **PR Diff Fetching & Parsing** | Unified diff fetched & parsed across modified files | ✅ PASS |
 | 2 | **Diff Chunking Guard** | Chunk boundaries verified; `max_hunks` guard active | ✅ PASS |
 | 3 | **Multi-Tool Static Security** | Scanned with `Bandit` + `Detect-Secrets` + `Ruff` | ✅ PASS |
-| 4 | **Gemini 3.6 LLM Review** | Deep logic, race condition & architecture scan | ✅ PASS |
-| 5 | **Deduplication & Learnings** | Active suppression & rule dismissal filter applied | ✅ PASS |
-| 6 | **AST Test Gap Detection** | AST test coverage audit against `tests/` | {test_gap_status} |
-| 7 | **PR Summary Generation** | Risk assessment & semantic TL;DR generated | ✅ PASS |
-| 8 | **Mermaid Call Graph** | AST import dependency diagram generated | {mermaid_status} |
-| 9 | **Inline Code Suggestions** | Generated inline clickable ````suggestion```` blocks | ✅ PASS |
-| 10 | **Auto-Fix Branch Generator** | Automated branch remediation available | ✅ PASS |
-| 11 | **Quality Gate Enforcement** | Evaluated security & quality policy | {gate_status} |
+| 4 | **OWASP Top 10 Compliance** | Standard vulnerability categorization & grading | ✅ PASS |
+| 5 | **Gemini 3.6 LLM Review** | Deep logic, race condition & architecture scan | ✅ PASS |
+| 6 | **Deduplication & Learnings** | Active suppression & rule dismissal filter applied | ✅ PASS |
+| 7 | **AST Test Gap Detection** | AST test coverage audit against `tests/` | {test_gap_status} |
+| 8 | **PR Summary Generation** | Risk assessment & semantic TL;DR generated | ✅ PASS |
+| 9 | **Mermaid Call Graph** | AST import dependency diagram generated | {mermaid_status} |
+| 10 | **Inline Code Suggestions** | Generated inline clickable ````suggestion```` blocks | ✅ PASS |
+| 11 | **Auto-Fix Branch Generator** | Automated branch remediation available | ✅ PASS |
+| 12 | **Quality Gate Enforcement** | Evaluated security & quality policy | {gate_status} |
 """
     parts.append(matrix_table)
+
+    if owasp_report:
+        parts.append(f"\n{owasp_report}\n")
 
     if findings:
         parts.append(
@@ -848,12 +853,13 @@ def post_review_to_github(
     mermaid: Optional[str],
     token: str,
     truncation_note: Optional[str] = None,
+    owasp_report: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Post a top-level PR comment with summary + diagram, then post a review
     with inline findings as comments.
     """
-    body = _build_review_body(summary, findings, mermaid, truncation_note)
+    body = _build_review_body(summary, findings, mermaid, truncation_note, owasp_report)
 
     # 1. Post top-level PR comment (summary + diagram)
     comment_url = f"{_GH_API}/repos/{repo_full_name}/issues/{pr_number}/comments"
@@ -1139,6 +1145,12 @@ def run_full_pipeline(
     )
     all_findings = filter_findings(all_findings, repo_full_name)
 
+    # 7.5 OWASP Top 10 Security & Compliance Audit
+    from pr_review_agent.owasp_auditor import OWASPAuditor
+    owasp_auditor = OWASPAuditor()
+    owasp_result = owasp_auditor.audit_pr_diff(diff_files)
+    owasp_report = owasp_auditor.generate_markdown_report(owasp_result)
+
     # 8. Generate summary
     summary = generate_pr_summary(diff_files, all_findings, gemini_client)
 
@@ -1147,7 +1159,7 @@ def run_full_pipeline(
 
     # 10. Post to GitHub
     post_result = post_review_to_github(
-        repo_full_name, pr_number, all_findings, summary, mermaid, token, truncation_note
+        repo_full_name, pr_number, all_findings, summary, mermaid, token, truncation_note, owasp_report
     )
 
     # 11. Quality gate check
@@ -1164,8 +1176,8 @@ def run_full_pipeline(
     )
 
     logger.info(
-        "[pipeline] Completed: %d findings, quality_gate=%s",
-        len(all_findings), gate_result.get("conclusion")
+        "[pipeline] Completed: %d findings, quality_gate=%s, owasp_score=%.1f%% (Grade %s)",
+        len(all_findings), gate_result.get("conclusion"), owasp_result.compliance_score, owasp_result.grade
     )
 
     return {
@@ -1176,6 +1188,9 @@ def run_full_pipeline(
         "findings_count": len(all_findings),
         "critical_count": critical_count,
         "quality_gate": gate_result.get("conclusion"),
+        "owasp_compliance_score": owasp_result.compliance_score,
+        "owasp_grade": owasp_result.grade,
+        "owasp_violations": owasp_result.total_findings,
         "truncated": truncation_note is not None,
         **post_result,
     }

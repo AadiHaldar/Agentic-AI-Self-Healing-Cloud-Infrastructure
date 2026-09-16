@@ -300,17 +300,79 @@ def manual_override(request: OverrideRequest):
         "reason": request.reason
     }
 
-# Primary dashboard UI: mounts dashboard/frontend unless a full Vite bundle is built
+from pr_review_agent.owasp_auditor import OWASPAuditor
+
+owasp_auditor = OWASPAuditor()
+
+class OWASPScanRequest(BaseModel):
+    code: Optional[str] = None
+    filename: Optional[str] = "snippet.py"
+    requirements_txt: Optional[str] = None
+
+@app.post("/api/owasp/scan")
+def scan_owasp_code(request: OWASPScanRequest):
+    """Scan custom code or dependency manifest against OWASP Top 10 categories."""
+    findings = []
+    if request.code:
+        findings.extend(owasp_auditor.audit_python_code(request.code, request.filename or "snippet.py"))
+    if request.requirements_txt:
+        findings.extend(owasp_auditor.audit_requirements_txt(request.requirements_txt, "requirements.txt"))
+    
+    files_payload = []
+    if request.code:
+        files_payload.append({"filename": request.filename or "snippet.py", "patch": "\n".join(["+" + l for l in request.code.splitlines()])})
+    if request.requirements_txt:
+        files_payload.append({"filename": "requirements.txt", "patch": request.requirements_txt})
+    
+    result = owasp_auditor.audit_pr_diff(files_payload)
+    return {
+        "success": True,
+        "compliance": result.to_dict(),
+        "markdown_report": owasp_auditor.generate_markdown_report(result)
+    }
+
+@app.get("/api/owasp/compliance")
+def get_owasp_compliance_summary():
+    """Return aggregated OWASP Top 10 compliance score and status across audited repos."""
+    import glob
+    service_files = glob.glob("services/*.py")
+    files_payload = []
+    for sf in service_files:
+        try:
+            with open(sf, "r", encoding="utf-8") as f:
+                content = f.read()
+                files_payload.append({"filename": sf, "patch": "\n".join(["+" + l for l in content.splitlines()])})
+        except Exception:
+            pass
+            
+    if os.path.exists("requirements.txt"):
+        try:
+            with open("requirements.txt", "r", encoding="utf-8") as f:
+                files_payload.append({"filename": "requirements.txt", "patch": f.read()})
+        except Exception:
+            pass
+
+    result = owasp_auditor.audit_pr_diff(files_payload) if files_payload else OWASPAuditor().audit_pr_diff([])
+    return {
+        "compliance_score": result.compliance_score,
+        "grade": result.grade,
+        "total_violations": result.total_findings,
+        "findings_by_category": result.findings_by_category,
+        "categories_breakdown": result.to_dict(),
+        "standards_version": "OWASP Top 10 (2021/2025 Standard)",
+    }
+
+# Primary dashboard UI: mounts dashboard/frontend
 frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend"))
 vite_dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend-vite/dist"))
 
-if (
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+    logger.info("[main] Mounted frontend dashboard from %s", frontend_path)
+elif (
     os.path.exists(vite_dist_path)
     and os.path.exists(os.path.join(vite_dist_path, "index.html"))
     and os.path.getsize(os.path.join(vite_dist_path, "index.html")) > 100
 ):
     app.mount("/", StaticFiles(directory=vite_dist_path, html=True), name="frontend_vite")
     logger.info("[main] Mounted modern React/Vite dashboard from %s", vite_dist_path)
-elif os.path.exists(frontend_path):
-    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
-    logger.info("[main] Mounted frontend dashboard from %s", frontend_path)
