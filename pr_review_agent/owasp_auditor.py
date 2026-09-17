@@ -189,20 +189,76 @@ class OWASPASTVisitor(ast.NodeVisitor):
         # ── A10: Server-Side Request Forgery (SSRF) ──
         if func_name in ("get", "post", "put", "delete", "urlopen") and isinstance(node.func, ast.Attribute):
             mod_name = getattr(node.func.value, "id", "")
-            if mod_name in ("requests", "httpx", "urllib", "client"):
-                if node.args and isinstance(node.args[0], (ast.Name, ast.JoinedStr)):
+            if mod_name in ("requests", "httpx", "urllib", "client") or func_name == "urlopen":
+                if node.args and isinstance(node.args[0], (ast.Name, ast.JoinedStr, ast.Call)):
                     self.findings.append(OWASPFinding(
                         category_id="A10:2021",
                         category_name="Server-Side Request Forgery (SSRF)",
-                        severity="medium",
+                        severity="high",
                         file=self.filename,
                         line=node.lineno,
-                        title="Potential SSRF in External HTTP Request",
-                        description="Outbound HTTP request takes dynamic URL variables without apparent allowlist validation.",
-                        recommendation="Validate destination hostnames against a strict internal allowlist and disable loopback/metadata queries (e.g. 169.254.169.254).",
+                        title="Server-Side Request Forgery (SSRF) Risk",
+                        description="Outbound HTTP request sends traffic to an unvalidated dynamic URL variable without hostname allowlisting.",
+                        recommendation="Validate destination URL hostnames against a strict allowlist and block cloud metadata IPs (169.254.169.254).",
                         cwe_id="CWE-918",
                         rule_id="owasp-a10-ssrf"
                     ))
+
+        # ── A07: Identification and Authentication Failures (Unverified JWT Decode) ──
+        if func_name in ("decode", "verify_jwt") and isinstance(node.func, ast.Attribute):
+            # Check for verify=False or verify_signature=False
+            for kw in node.keywords:
+                if kw.arg in ("verify", "verify_signature") and isinstance(kw.value, ast.Constant) and kw.value.value is False:
+                    self.findings.append(OWASPFinding(
+                        category_id="A07:2021",
+                        category_name="Identification and Authentication Failures",
+                        severity="critical",
+                        file=self.filename,
+                        line=node.lineno,
+                        title="Unverified JWT Authentication (`verify=False`)",
+                        description="Decoding JWT tokens without signature verification permits forged authentication tokens and identity spoofing.",
+                        recommendation="Enforce signature validation using RS256/HS256 public keys: `jwt.decode(token, key, algorithms=['RS256'])`.",
+                        cwe_id="CWE-287",
+                        rule_id="owasp-a07-unverified-jwt"
+                    ))
+
+        # ── A01: Broken Access Control (Path Traversal via os.path.join) ──
+        if func_name == "join" and isinstance(node.func, ast.Attribute):
+            is_path_join = False
+            if isinstance(node.func.value, ast.Attribute) and getattr(node.func.value, "attr", "") == "path":
+                is_path_join = True
+            elif isinstance(node.func.value, ast.Name) and node.func.value.id in ("path", "os_path"):
+                is_path_join = True
+            
+            if is_path_join and len(node.args) >= 2:
+                if any(not isinstance(arg, ast.Constant) or not isinstance(getattr(arg, "value", None), str) for arg in node.args[1:]):
+                    self.findings.append(OWASPFinding(
+                        category_id="A01:2021",
+                        category_name="Broken Access Control",
+                        severity="high",
+                        file=self.filename,
+                        line=node.lineno,
+                        title="Path Traversal / Insecure File Access (`os.path.join`)",
+                        description="Constructing filesystem paths using untrusted variables permits unauthorized directory traversal (e.g. `../../etc/passwd`).",
+                        recommendation="Sanitize filenames using `os.path.basename()` or verify absolute path resolves inside an authorized base directory.",
+                        cwe_id="CWE-22",
+                        rule_id="owasp-a01-path-traversal"
+                    ))
+
+        # ── A04: Insecure Design (Unbounded Memory & Resource Allocation) ──
+        if func_name in ("fetch_unbounded", "load_all_records", "query_all", "fetch_unbounded_order_archive"):
+            self.findings.append(OWASPFinding(
+                category_id="A04:2021",
+                category_name="Insecure Design",
+                severity="medium",
+                file=self.filename,
+                line=node.lineno,
+                title="Unconstrained Resource Consumption / Missing Pagination",
+                description="Loading unbounded query result sets into memory without pagination limits exposes microservices to OOM denial-of-service.",
+                recommendation="Implement strict pagination limits (e.g. `LIMIT 50`) and sliding-window rate limiting.",
+                cwe_id="CWE-400",
+                rule_id="owasp-a04-insecure-design"
+            ))
 
         self.generic_visit(node)
 
@@ -288,13 +344,14 @@ class OWASPAuditor:
 
         # 3. Pattern Checks for Hardcoded Secrets (A02 / A07)
         secret_patterns = [
-            (r'(?i)(?:stripe|aws|jwt|api[_-]?key|secret|password|token)\s*=\s*["\'][A-Za-z0-9_\-]{16,}["\']', "Hardcoded Secret / API Token in Source Code", "A02:2021", "Cryptographic Failures"),
+            (r'(?i)(?:jwt[_-]?token|bearer[_-]?token|auth[_-]?token)\s*=\s*["\'][A-Za-z0-9_\-\.]{16,}["\']', "Hardcoded JWT / Authentication Token", "A07:2021", "Identification and Authentication Failures", "CWE-798", "owasp-a07-hardcoded-token"),
+            (r'(?i)(?:stripe|aws|api[_-]?key|secret|password)\s*=\s*["\'][A-Za-z0-9_\-]{16,}["\']', "Hardcoded Secret / API Token in Source Code", "A02:2021", "Cryptographic Failures", "CWE-798", "owasp-a02-hardcoded-secret"),
         ]
         for line_no, line in enumerate(code.splitlines(), start=1):
-            # Exclude comments
             if line.strip().startswith("#"):
                 continue
-            for pattern, title, cat_id, cat_name in secret_patterns:
+            for item in secret_patterns:
+                pattern, title, cat_id, cat_name, cwe, rule_id = item
                 if re.search(pattern, line):
                     findings.append(OWASPFinding(
                         category_id=cat_id,
@@ -305,28 +362,39 @@ class OWASPAuditor:
                         title=title,
                         description="Sensitive credentials committed in source code expose production systems to unauthorized access.",
                         recommendation="Store credentials in environment variables or Azure Key Vault / AWS Secrets Manager.",
-                        cwe_id="CWE-798",
-                        rule_id="owasp-a02-hardcoded-secret"
+                        cwe_id=cwe,
+                        rule_id=rule_id
                     ))
 
         # 4. Pattern Checks for Insecure Access Control & Path Traversal (A01)
-        path_traversal_pattern = r'os\.path\.join\(.*,\s*(?:user_input|path|filename|req|request)\w*\)'
+        path_traversal_pattern = r'os\.path\.join\(["\'][^"\']+["\'],\s*[a-zA-Z_]\w*\)'
         for line_no, line in enumerate(code.splitlines(), start=1):
             if re.search(path_traversal_pattern, line, re.IGNORECASE):
-                findings.append(OWASPFinding(
-                    category_id="A01:2021",
-                    category_name="Broken Access Control",
-                    severity="high",
-                    file=filename,
-                    line=line_no,
-                    title="Path Traversal / Insecure File Access",
-                    description="Constructing filesystem paths using untrusted variables permits unauthorized directory traversal (e.g. `../../etc/passwd`).",
-                    recommendation="Sanitize filenames using `os.path.basename()` or verify absolute path resolves inside an authorized base directory.",
-                    cwe_id="CWE-22",
-                    rule_id="owasp-a01-path-traversal"
-                ))
+                # Ensure it's not a constant
+                if not re.search(r'os\.path\.join\(["\'][^"\']+["\'],\s*["\'][^"\']+["\']\)', line):
+                    findings.append(OWASPFinding(
+                        category_id="A01:2021",
+                        category_name="Broken Access Control",
+                        severity="high",
+                        file=filename,
+                        line=line_no,
+                        title="Path Traversal / Insecure File Access",
+                        description="Constructing filesystem paths using untrusted variables permits unauthorized directory traversal (e.g. `../../etc/passwd`).",
+                        recommendation="Sanitize filenames using `os.path.basename()` or verify absolute path resolves inside an authorized base directory.",
+                        cwe_id="CWE-22",
+                        rule_id="owasp-a01-path-traversal"
+                    ))
 
-        return findings
+        # Deduplicate findings by (file, line, category_id)
+        seen = set()
+        deduped: List[OWASPFinding] = []
+        for f in findings:
+            key = (f.file, f.line, f.category_id)
+            if key not in seen:
+                seen.add(key)
+                deduped.append(f)
+
+        return deduped
 
     def audit_requirements_txt(self, requirements_text: str, filename: str = "requirements.txt") -> List[OWASPFinding]:
         """Dependabot-style supply chain CVE audit on dependencies (OWASP A06:2021)."""

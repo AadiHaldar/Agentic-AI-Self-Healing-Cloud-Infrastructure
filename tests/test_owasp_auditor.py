@@ -97,6 +97,55 @@ fastapi==0.115.0
     assert any("pyyaml" in f.title.lower() for f in findings)
 
 
+def test_owasp_a01_path_traversal(auditor):
+    code = '''
+import os
+
+def load_template(filename):
+    path = os.path.join("/var/templates", filename)
+    return path
+'''
+    findings = auditor.audit_python_code(code, "template.py")
+    assert any(f.category_id == "A01:2021" for f in findings)
+    assert any("Path Traversal" in f.title for f in findings)
+
+
+def test_owasp_a04_insecure_design(auditor):
+    code = '''
+def fetch_all(db):
+    return fetch_unbounded(db)
+'''
+    findings = auditor.audit_python_code(code, "query.py")
+    assert any(f.category_id == "A04:2021" for f in findings)
+    assert any("Unconstrained Resource" in f.title for f in findings)
+
+
+def test_owasp_a07_authentication_failures(auditor):
+    code = '''
+import jwt
+
+JWT_AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_secret_key_12345"
+
+def check_token(raw_token):
+    return jwt.decode(raw_token, verify=False)
+'''
+    findings = auditor.audit_python_code(code, "auth.py")
+    assert any(f.category_id == "A07:2021" for f in findings)
+    assert any("JWT" in f.title for f in findings)
+
+
+def test_owasp_a10_ssrf(auditor):
+    code = '''
+import requests
+
+def call_webhook(target_url):
+    return requests.get(target_url)
+'''
+    findings = auditor.audit_python_code(code, "webhook.py")
+    assert any(f.category_id == "A10:2021" for f in findings)
+    assert any("SSRF" in f.title for f in findings)
+
+
 def test_audit_pr_diff_compliance_score(auditor):
     files = [
         {
