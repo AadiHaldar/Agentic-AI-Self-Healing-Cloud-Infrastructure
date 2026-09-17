@@ -17,8 +17,16 @@ from pr_review_agent.pipeline import (
     generate_mermaid_diagram,
 )
 
+import subprocess
+
 REPO = "AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure"
 TOKEN = os.getenv("GITHUB_TOKEN", "")
+if not TOKEN:
+    try:
+        TOKEN = subprocess.check_output(["gh", "auth", "token"], text=True).strip()
+    except Exception:
+        pass
+
 BRANCH = "feature/v2-checkout-gateway"
 BASE_BRANCH = "main"
 
@@ -154,36 +162,28 @@ This PR implements the **V2 Checkout Gateway Microservice** with crypto payment 
     # 8. Post Conversational @review-bot Thread
     print("[*] Posting interactive @review-bot in-thread chat...")
     bot_chat_payload = {
-        "body": """**@review-bot** please explain the critical OWASP findings and how to remediate them before merging."""
+        "body": """**@review-bot** please explain the critical OWASP Top 10 findings detected across the 10 categories and provide the remediation steps before merging."""
     }
     gh_req(comment_url, data=bot_chat_payload, method="POST")
 
     bot_reply_payload = {
-        "body": f"""🤖 **@review-bot Response:**
+        "body": f"""🤖 **@review-bot Autonomous Security Analysis & Remediation Plan:**
 
-Here is the root-cause analysis for the critical violations in this PR:
+I have completed the AST and semantic compliance audit. Here is the breakdown for the detected OWASP categories:
 
-1. **[A03:2021] SQL Injection in `get_order_by_id()` (`services/checkout_gateway.py:21`)**
-   * **Risk:** Using f-string string formatting (`f"SELECT ... WHERE id = '{'{order_id}'}'"`) allows an attacker to inject arbitrary SQL statements (e.g. `order_id = "1' OR '1'='1"`), leading to complete database exfiltration.
-   * **Remediation:** Use parameterized queries:
-     ```python
-     cursor.execute("SELECT id, user_id, amount, status FROM orders WHERE id = ?", (order_id,))
-     ```
-
-2. **[A02:2021] Weak Hash & Leaked Credentials (`services/checkout_gateway.py:14, 30`)**
-   * **Risk:** `hashlib.md5()` is collision-prone and insecure for authentication signatures. Hardcoded secrets in source files risk token leakage.
-   * **Remediation:** Use `hashlib.sha256()` or `hmac.new()` and load secrets from `os.getenv("STRIPE_GATEWAY_SECRET")`.
-
-3. **[A08:2021] Insecure Deserialization in `restore_user_cart_session()` (`services/checkout_gateway.py:37`)**
-   * **Risk:** `pickle.loads()` executes arbitrary Python bytecode embedded in serialized objects, allowing Remote Code Execution (RCE).
-   * **Remediation:** Migrate cart session serialization to `json.loads()` or `protobuf`.
-
-4. **[A06:2021] Vulnerable Dependencies (`requirements.txt`)**
-   * **Risk:** `pyyaml==5.3` is vulnerable to **CVE-2020-14343** (arbitrary code execution) and `requests==2.28.0` is vulnerable to **CVE-2023-32681**.
-   * **Remediation:** Upgrade `pyyaml>=5.4.1` and `requests>=2.31.0`.
+* **[A01:2021] Broken Access Control (`services/checkout_gateway.py`):** Path traversal via `os.path.join("/var/log/invoices", template_filename)`. Pass through `os.path.basename()` to sanitize.
+* **[A02:2021] Cryptographic Failures (`services/checkout_gateway.py`):** Weak `hashlib.md5()` digest and hardcoded secret. Migrate to `hmac.new(..., hashlib.sha256)` and load secrets from environment variables.
+* **[A03:2021] Injection (`services/checkout_gateway.py`):** SQL Injection in `get_order_by_id()` via f-string and Command Injection in `subprocess.Popen(..., shell=True)`. Use parameterized DB queries and list arguments with `shell=False`.
+* **[A04:2021] Insecure Design (`services/checkout_gateway.py`):** Unbounded memory consumption in `fetch_unbounded_order_archive()`. Enforce pagination (`LIMIT 50`) and sliding-window rate limiters.
+* **[A05:2021] Security Misconfiguration (`services/checkout_gateway.py`):** Hardcoded `DEBUG = True`. Read debug settings from environment variables with a default `False`.
+* **[A06:2021] Vulnerable Components (`requirements.txt`):** Outdated `pyyaml==5.3` (CVE-2020-14343) and `requests==2.28.0` (CVE-2023-32681). Upgrade to `pyyaml>=5.4.1` and `requests>=2.31.0`.
+* **[A07:2021] Identification & Auth Failures (`services/checkout_gateway.py`):** Hardcoded `JWT_AUTH_TOKEN` and unverified JWT decode (`verify=False`). Enforce RS256 signature verification.
+* **[A08:2021] Software & Data Integrity Failures (`services/checkout_gateway.py`):** Insecure deserialization via `pickle.loads()`. Migrate cart session cache to safe JSON serialization.
+* **[A09:2021] Logging & Monitoring Failures (`services/checkout_gateway.py`):** Silently swallowed exception in `audit_transaction_metrics()`. Implement explicit telemetry error logging.
+* **[A10:2021] Server-Side Request Forgery (`services/checkout_gateway.py`):** SSRF risk via unvalidated `requests.get(target_url)`. Validate destination hostnames against an allowlist and block cloud metadata IP (`169.254.169.254`).
 
 ---
-*💡 An autonomous 1-click Auto-Fix PR can be generated with all remediations and passing unit tests.*"""
+*💡 Automated Remediation Available: All 10 issues can be resolved via PR #12.*"""
     }
     gh_req(comment_url, data=bot_reply_payload, method="POST")
     print("[+] Interactive @review-bot thread posted!")
