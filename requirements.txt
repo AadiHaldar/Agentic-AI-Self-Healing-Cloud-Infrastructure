@@ -1,33 +1,6 @@
-networkx>=3.1
-requests>=2.31.0
-simpy>=4.0.2
-torch
-scikit-learn>=1.3.1
-xgboost>=2.0.0
-shap>=0.42.1
-joblib>=1.3.2
-fastapi>=0.100.0
-uvicorn>=0.22.0
-pydantic>=2.0.0
-google-generativeai
-python-dotenv
-pandas
-
-# ── pr_review_agent dependencies ──────────────────────────────────────────────
-# GitHub App JWT authentication (RS256)
-PyJWT>=2.8.0
-cryptography>=41.0.0
-# Per-repo config YAML parsing
-PyYAML>=6.0.1
-# Gemini 2.0 Flash (new SDK)
-google-genai>=0.7.0
-
-# Retry / resilience
-tenacity>=8.2.0
-
-# PostgreSQL async driver (for DATABASE_URL migration — currently scaffolded)
-asyncpg>=0.29.0
-
-# Optional static analysis tools (install separately as needed):
-#   pip install ruff bandit detect-secrets pip-audit
-# ESLint is invoked via npx (no pip install needed)
+fastapi==0.115.0
+pydantic==2.8.2
+pyyaml==6.0.1
+requests==2.32.3
+scikit-learn==1.4.0
+simpy==4.1.1
