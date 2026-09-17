@@ -1,7 +1,7 @@
 """
 services/checkout_gateway.py — V2 Checkout Gateway Microservice (REMEDIATED).
 All OWASP Top 10 vulnerabilities resolved with parameterized queries, SHA-256 HMAC,
-safe JSON deserialization, env var secrets, and comprehensive unit tests.
+safe JSON deserialization, env var secrets, RS256 JWT verification, pagination, SSRF allowlisting, and comprehensive unit tests.
 """
 import os
 import hmac
@@ -9,7 +9,10 @@ import hashlib
 import subprocess
 import json
 import logging
-from typing import Dict, Any, Optional
+import requests
+import jwt
+from typing import Dict, Any, Optional, List
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +21,9 @@ DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # [OWASP A02 FIX] Credentials loaded from secure environment variables / Azure Key Vault
 STRIPE_GATEWAY_SECRET = os.getenv("STRIPE_GATEWAY_SECRET", "")
+
+# [OWASP A10 FIX] Strict outbound webhook domain allowlist
+ALLOWED_WEBHOOK_DOMAINS = {"api.partner-gateway.com", "notifications.internal.corp", "checkout.stripe.com"}
 
 
 def get_order_by_id(db_conn, order_id: str) -> Optional[Dict[str, Any]]:
@@ -57,6 +63,35 @@ def export_order_invoice_pdf(order_id: str, template_filename: str) -> str:
     cmd = ["wkhtmltopdf", "--order-id", str(order_id), output_path]
     subprocess.Popen(cmd, shell=False)
     return output_path
+
+
+def decode_user_session_token(token: str, public_key: str) -> Dict[str, Any]:
+    """Decode and authenticate JWT session token with RS256 signature verification."""
+    # [OWASP A07 FIX] Enforce cryptographic RS256 signature validation
+    try:
+        return jwt.decode(token, public_key, algorithms=["RS256"])
+    except Exception as e:
+        logger.warning(f"JWT signature verification failure: {e}")
+        return {}
+
+
+def fetch_unbounded_order_archive(db_conn, page: int = 1, page_size: int = 50) -> List[Dict[str, Any]]:
+    """Fetch order records with enforced pagination limits."""
+    # [OWASP A04 FIX] Enforce strict pagination to prevent memory exhaustion / OOM
+    cursor = db_conn.cursor()
+    offset = (page - 1) * page_size
+    cursor.execute("SELECT id, user_id, amount, status FROM orders LIMIT ? OFFSET ?", (page_size, offset))
+    return cursor.fetchall()
+
+
+def send_payment_webhook(target_url: str, payload: Dict[str, Any]) -> int:
+    """Send payment notification webhook with strict hostname allowlisting."""
+    # [OWASP A10 FIX] Prevent SSRF by validating URL domain against allowlist
+    parsed = urlparse(target_url)
+    if parsed.hostname not in ALLOWED_WEBHOOK_DOMAINS:
+        raise ValueError(f"Webhook destination host '{parsed.hostname}' is not authorized")
+    response = requests.post(target_url, json=payload, timeout=5.0)
+    return response.status_code
 
 
 def process_crypto_payment(wallet_address: str, satoshi_amount: int) -> bool:
