@@ -362,6 +362,89 @@ def get_owasp_compliance_summary():
         "standards_version": "OWASP Top 10 (2021/2025 Standard)",
     }
 
+
+class SecurityEmailRequest(BaseModel):
+    to: Optional[str] = None
+    repo: Optional[str] = "AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure"
+    branch: Optional[str] = "feature/v2-checkout-gateway"
+    commit_sha: Optional[str] = "ece1ed7"
+    author_name: Optional[str] = "Aadi Haldar"
+    dry_run: Optional[bool] = False
+
+
+@app.post("/api/security/send-alert-email")
+def trigger_security_alert_email(req: SecurityEmailRequest):
+    """Trigger a push security vulnerability email alert to the repository owner."""
+    from pr_review_agent.email_notifier import send_security_alert_email
+    from scripts.create_ideal_demo_pr import CHECKOUT_GATEWAY_CODE, ORDER_ORCHESTRATOR_CODE, VULNERABLE_REQUIREMENTS_TXT
+
+    diff_payload = [
+        {"filename": "services/checkout_gateway.py", "patch": "\n".join(["+" + l for l in CHECKOUT_GATEWAY_CODE.splitlines()])},
+        {"filename": "services/order_orchestrator.py", "patch": "\n".join(["+" + l for l in ORDER_ORCHESTRATOR_CODE.splitlines()])},
+        {"filename": "requirements.txt", "patch": VULNERABLE_REQUIREMENTS_TXT},
+    ]
+
+    result = owasp_auditor.audit_pr_diff(diff_payload)
+    findings_list = [f.to_dict() for f in result.findings]
+
+    res = send_security_alert_email(
+        repo_full_name=req.repo,
+        branch=req.branch,
+        commit_sha=req.commit_sha,
+        author_name=req.author_name,
+        author_email=req.to,
+        compliance_score=result.compliance_score,
+        grade=result.grade,
+        total_findings=result.total_findings,
+        findings=findings_list,
+        pr_url=f"https://github.com/{req.repo}/pull/11",
+        to_email=req.to,
+        dry_run=req.dry_run or False,
+    )
+    return res
+
+
+@app.get("/api/security/email-preview", response_class=HTMLResponse)
+def get_security_email_preview():
+    """Return the raw HTML of the last security alert email for browser preview."""
+    from pr_review_agent.email_notifier import get_last_email_html, build_security_email_html
+    html = get_last_email_html()
+    if not html:
+        # Generate default preview
+        from scripts.create_ideal_demo_pr import CHECKOUT_GATEWAY_CODE, ORDER_ORCHESTRATOR_CODE, VULNERABLE_REQUIREMENTS_TXT
+        diff_payload = [
+            {"filename": "services/checkout_gateway.py", "patch": "\n".join(["+" + l for l in CHECKOUT_GATEWAY_CODE.splitlines()])},
+            {"filename": "requirements.txt", "patch": VULNERABLE_REQUIREMENTS_TXT},
+        ]
+        result = owasp_auditor.audit_pr_diff(diff_payload)
+        html = build_security_email_html(
+            repo_full_name="AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure",
+            branch="feature/v2-checkout-gateway",
+            commit_sha="ece1ed7",
+            author_name="Aadi Haldar",
+            compliance_score=result.compliance_score,
+            grade=result.grade,
+            total_findings=result.total_findings,
+            findings=[f.to_dict() for f in result.findings],
+            pr_url="https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/11",
+        )
+    return HTMLResponse(content=html)
+
+
+@app.get("/api/security/email-config")
+def get_security_email_configuration():
+    """Return non-sensitive SMTP configuration."""
+    from pr_review_agent.email_notifier import get_smtp_settings
+    cfg = get_smtp_settings()
+    return {
+        "host": cfg["host"],
+        "port": cfg["port"],
+        "from_email": cfg["from_email"],
+        "recipient": cfg["default_recipient"],
+        "use_tls": cfg["use_tls"],
+        "is_configured": bool(cfg["user"] and cfg["password"]),
+    }
+
 # Primary dashboard UI: mounts dashboard/frontend
 frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend"))
 vite_dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend-vite/dist"))

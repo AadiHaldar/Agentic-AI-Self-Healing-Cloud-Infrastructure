@@ -193,6 +193,61 @@ def _post_welcome_issue(repo_full_name: str, account_login: str = "") -> None:
         logger.warning("[webhook_handler] Could not post welcome issue on %s: %s", repo_full_name, e)
 
 
+def _handle_push_event_background(payload: dict) -> None:
+    """Audit pushed commits and send security alert email to author/owner."""
+    try:
+        repo_name = payload.get("repository", {}).get("full_name", "")
+        ref = payload.get("ref", "")
+        branch = ref.replace("refs/heads/", "") if ref.startswith("refs/heads/") else ref
+        head_commit = payload.get("head_commit") or {}
+        commit_sha = head_commit.get("id") or payload.get("after", "")
+        author_info = head_commit.get("author") or payload.get("pusher") or {}
+        author_name = author_info.get("name", "Developer")
+        author_email = author_info.get("email", "")
+
+        # Get changed files in commit
+        added = head_commit.get("added", [])
+        modified = head_commit.get("modified", [])
+        changed_files = list(set(added + modified))
+
+        token = _get_token_for_repo(repo_name)
+
+        from pr_review_agent.owasp_auditor import OWASPAuditor
+        from pr_review_agent.email_notifier import send_security_alert_email
+        from pr_review_agent.config import _fetch_github_file
+
+        auditor = OWASPAuditor()
+        diff_payload = []
+        for fpath in changed_files:
+            content = _fetch_github_file(repo_name, fpath, token) if token else None
+            if content:
+                patch = "\n".join(["+" + l for l in content.splitlines()])
+                diff_payload.append({"filename": fpath, "patch": patch})
+
+        if not diff_payload:
+            logger.info("[webhook_handler] No diff payload available to audit for push in %s", repo_name)
+            return
+
+        result = auditor.audit_pr_diff(diff_payload)
+        findings_list = [f.to_dict() for f in result.findings]
+
+        # Dispatch alert email to repository owner / commit author
+        send_security_alert_email(
+            repo_full_name=repo_name,
+            branch=branch,
+            commit_sha=commit_sha,
+            author_name=author_name,
+            author_email=author_email,
+            compliance_score=result.compliance_score,
+            grade=result.grade,
+            total_findings=result.total_findings,
+            findings=findings_list,
+        )
+        _metrics.inc("push_alerts_dispatched")
+    except Exception as e:
+        logger.error("[webhook_handler] Push event background audit failed: %s", e)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Webhook endpoint
 # ─────────────────────────────────────────────────────────────────────────────
@@ -322,6 +377,16 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks) ->
         for repo in payload.get("repositories_removed", []):
             remove_installation_repo(installation_id, repo.get("full_name", ""))
         return JSONResponse({"status": "ok"})
+
+    # ── push ──────────────────────────────────────────────────────────────────
+    elif event_type == "push":
+        ref = payload.get("ref", "")
+        # Skip deleted branch refs or tag pushes
+        if payload.get("deleted") or not ref.startswith("refs/heads/"):
+            return JSONResponse({"status": "ignored", "reason": "tag_or_deleted_branch"})
+        background_tasks.add_task(_handle_push_event_background, payload)
+        _metrics.inc("push_webhooks_received")
+        return JSONResponse({"status": "accepted", "action": "push_audit_queued"})
 
     return JSONResponse({"status": "ignored", "event": event_type})
 
