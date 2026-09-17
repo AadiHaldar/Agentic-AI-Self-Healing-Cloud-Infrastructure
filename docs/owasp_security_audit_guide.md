@@ -1,69 +1,81 @@
-# 🛡️ OWASP Top 10 Security & Compliance Audit Engine
+# 🛡️ OWASP Top 10 Security & Compliance Audit Guide
 **AgentHeal Shift-Left DevSecOps & Autonomous Remediation Framework**  
-*Document Version:* `2.0.0` | *Standard:* `OWASP Top 10 (2021/2025 Edition)` | *Date:* September 2026  
+*Document Version:* `2.5.0` | *Standard:* `OWASP Top 10 (2021/2025 Edition)` | *Date:* September 2026  
 *Authors:* Aadi Haldar, Raghuram Sekar, Aaditya Paul, Shravan Rajesh Menon  
 
 ---
 
 ## 📌 Executive Summary
 
-Modern cloud infrastructure outages and data breaches predominantly stem from two sources:
-1. **Application-Layer Vulnerabilities** slipping past pull request reviews into production microservices.
-2. **Third-Party Supply Chain Vulnerabilities** in outdated dependencies.
+Modern cloud microservice infrastructure outages and data breaches predominantly originate from two critical vectors:
+1. **Application-Layer Vulnerabilities** bypassing pull request reviews into live production Kubernetes clusters.
+2. **Third-Party Supply Chain Vulnerabilities** lurking in outdated dependencies (`requirements.txt`).
 
-To address this, **AgentHeal** integrates an autonomous **OWASP Top 10 Security & Compliance Audit Engine** into its Shift-Left CI/CD pipeline. Every Pull Request is statically analyzed using Python compiler grammar (AST), pattern heuristics, and Dependabot-style CVE databases before execution in Kubernetes.
+To eliminate vulnerabilities before they reach production, **AgentHeal** integrates an autonomous **OWASP Top 10 Security & Compliance Audit Engine** directly into the Shift-Left CI/CD pipeline. Every Pull Request is inspected using Python compiler grammar (AST), high-entropy secret detection, heuristic SAST pattern matching, and Dependabot-style CVE databases.
 
 ---
 
-## 🗂️ Detailed Breakdown of All 10 OWASP Categories
+## 🗂️ Detailed Breakdown of All 10 OWASP Top 10 Categories
 
-The table below explains all 10 standard OWASP categories, how they are detected in AgentHeal, the real-world security risk, and the autonomous remediation applied in our live PR demo.
+The section below provides an in-depth breakdown for all **10 OWASP Top 10 categories (A01 through A10)**, featuring:
+* Direct clickable **Local File Links** (`file:///...#LXX`)
+* Direct clickable **GitHub Repository Links** on branch `feature/v2-checkout-gateway`
+* CWE mappings, threat impact analysis, detection mechanisms, and side-by-side code remediations.
 
 ---
 
 ### 1️⃣ A01:2021 — Broken Access Control
 * **CWE Mapping:** `CWE-22` (Path Traversal), `CWE-284` (Improper Access Control)
-* **The Security Risk:** Attackers manipulate input parameters or file paths to access unauthorized files on the server (e.g., passing `../../etc/passwd` or accessing other tenant files).
+* **File Location (Local):** [`services/checkout_gateway.py (Line 49-57)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L49-L57)
+* **GitHub Link:** [PR #11 `services/checkout_gateway.py` (Line 49-57)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L49-L57)
+* **The Security Risk:** Attackers manipulate the `template_filename` input parameter with path traversal sequences (e.g. `../../etc/passwd` or `../../root/.ssh/id_rsa`) to access or overwrite unauthorized system files on the container filesystem.
 * **How AgentHeal Detects It:**  
-  * AST / Static regex inspects `os.path.join()` or file open calls where dynamic user inputs are concatenated directly into directory paths without sanitization.
+  * AST Call Visitor inspects `os.path.join()` invocations and flags instances where non-constant variable arguments are passed without sanitization.
 * **Vulnerable Pattern (PR #11):**
   ```python
-  def export_order_invoice_pdf(order_id: str, template_filename: str):
-      # Vulnerable: template_filename can be "../../etc/passwd"
+  def export_order_invoice_pdf(order_id: str, template_filename: str) -> str:
+      # Vulnerable: template_filename can contain directory traversal sequences "../../"
       output_path = os.path.join("/var/log/invoices", template_filename)
+      ...
   ```
 * **Autonomous Remediation (PR #12):**
   ```python
-  def export_order_invoice_pdf(order_id: str, template_filename: str):
+  def export_order_invoice_pdf(order_id: str, template_filename: str) -> str:
       # Remediated: os.path.basename strips directory traversal sequences
       safe_filename = os.path.basename(template_filename)
       output_path = os.path.join("/var/log/invoices", safe_filename)
+      ...
   ```
 
 ---
 
 ### 2️⃣ A02:2021 — Cryptographic Failures
 * **CWE Mapping:** `CWE-328` (Broken/Weak Hash Algorithm), `CWE-798` (Hardcoded Credentials)
-* **The Security Risk:** Sensitive credentials exposed in plaintext source files or using obsolete hash functions like MD5 and SHA-1 that are vulnerable to collision and pre-image attacks.
+* **File Locations (Local):**
+  * [`services/checkout_gateway.py (Line 20)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L20) — Hardcoded Secret
+  * [`services/checkout_gateway.py (Line 35-39)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L35-L39) — Weak MD5 Digest
+* **GitHub Links:**
+  * [PR #11 `services/checkout_gateway.py` (Line 20)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L20)
+  * [PR #11 `services/checkout_gateway.py` (Line 35-39)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L35-L39)
+* **The Security Risk:** Plaintext API secrets committed into git repositories lead to automated credential harvesting. Using obsolete hash algorithms like MD5 allows attackers to forge transaction signatures via hash collision attacks.
 * **How AgentHeal Detects It:**  
-  * Detect-Secrets high-entropy scanners catch API tokens (`sk_live_...`, `aws_key`).
-  * AST Visitor flags `hashlib.md5()` or `hashlib.sha1()` function calls.
+  * High-entropy regex and AST detectors flag hardcoded secrets and `hashlib.md5()` / `hashlib.sha1()` calls.
 * **Vulnerable Pattern (PR #11):**
   ```python
   STRIPE_GATEWAY_SECRET = "sk_test_mock_dummy_checkout_secret_key_8899"
 
   def verify_order_signature(order_payload: str, expected_signature: str) -> bool:
-      # Vulnerable: MD5 is collision-prone
+      # Vulnerable: MD5 is cryptographically broken and collision-prone
       computed_digest = hashlib.md5(order_payload.encode("utf-8")).hexdigest()
       return computed_digest == expected_signature
   ```
 * **Autonomous Remediation (PR #12):**
   ```python
-  # Remediated: Credentials loaded securely from environment variables
+  # Remediated: Secrets loaded from environment variables / Azure Key Vault
   STRIPE_GATEWAY_SECRET = os.getenv("STRIPE_GATEWAY_SECRET", "")
 
   def verify_order_signature(order_payload: str, expected_signature: str) -> bool:
-      # Remediated: Cryptographic HMAC with SHA-256
+      # Remediated: Cryptographic HMAC using SHA-256 with constant-time comparison
       key = STRIPE_GATEWAY_SECRET.encode("utf-8")
       computed_digest = hmac.new(key, order_payload.encode("utf-8"), hashlib.sha256).hexdigest()
       return hmac.compare_digest(computed_digest, expected_signature)
@@ -71,98 +83,151 @@ The table below explains all 10 standard OWASP categories, how they are detected
 
 ---
 
-### 3️⃣ A03:2021 — Injection (SQLi, Command Injection, Code Exec)
-* **CWE Mapping:** `CWE-89` (SQL Injection), `CWE-78` (OS Command Injection), `CWE-95` (Dynamic Code Execution)
-* **The Security Risk:** Untrusted user input is concatenated directly into SQL queries or shell commands, allowing attackers to bypass authentication, drop tables, or execute shell commands on the host.
+### 3️⃣ A03:2021 — Injection (SQLi & OS Command Injection)
+* **CWE Mapping:** `CWE-89` (SQL Injection), `CWE-78` (OS Command Injection)
+* **File Locations (Local):**
+  * [`services/checkout_gateway.py (Line 26-32)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L26-L32) — SQL Injection
+  * [`services/checkout_gateway.py (Line 54-56)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L54-L56) — OS Command Injection (`shell=True`)
+* **GitHub Links:**
+  * [PR #11 `services/checkout_gateway.py` (Line 26-32)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L26-L32)
+  * [PR #11 `services/checkout_gateway.py` (Line 54-56)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L54-L56)
+* **The Security Risk:** Direct string formatting in SQL queries allows attackers to execute arbitrary SQL commands (e.g. `order_id = "1' OR '1'='1"`), dumping the full database. Invoking `subprocess` with `shell=True` allows shell metacharacters (`&&`, `;`, `|`) to execute remote shell payloads.
 * **How AgentHeal Detects It:**  
-  * Bandit SAST rule `B608` + AST pattern matching detects f-strings and `%` formatting inside `cursor.execute()`.
-  * AST Visitor flags `subprocess.Popen(..., shell=True)`, `eval()`, and `exec()`.
+  * Bandit SAST rule `B608` and AST pattern matching detect f-strings in SQL statements.
+  * AST `visit_Call` flags `subprocess.Popen(..., shell=True)` and `eval()`.
 * **Vulnerable Pattern (PR #11):**
   ```python
   def get_order_by_id(db_conn, order_id: str):
-      # Vulnerable: f-string allows injecting "1' OR '1'='1"
+      # Vulnerable: f-string SQL injection
       query = f"SELECT id, user_id, amount, status FROM orders WHERE id = '{order_id}'"
       cursor.execute(query)
 
-  def run_cmd(cmd):
-      # Vulnerable: shell=True passes strings through OS shell
+  def export_order_invoice_pdf(order_id: str, template_filename: str):
+      cmd = f"wkhtmltopdf --order-id {order_id} {output_path}"
       subprocess.Popen(cmd, shell=True)
   ```
 * **Autonomous Remediation (PR #12):**
   ```python
   def get_order_by_id(db_conn, order_id: str):
-      # Remediated: Parameterized query placeholders
+      # Remediated: Parameterized SQL placeholder
       query = "SELECT id, user_id, amount, status FROM orders WHERE id = ?"
       cursor.execute(query, (order_id,))
 
-  def run_cmd(cmd_list):
-      # Remediated: Tokenized arguments without shell interpreter
-      subprocess.Popen(cmd_list, shell=False)
+  def export_order_invoice_pdf(order_id: str, template_filename: str):
+      # Remediated: Argument list with shell=False
+      cmd = ["wkhtmltopdf", "--order-id", str(order_id), output_path]
+      subprocess.Popen(cmd, shell=False)
   ```
 
 ---
 
-### 4️⃣ A04:2021 — Insecure Design
-* **CWE Mapping:** `CWE-400` (Uncontrolled Resource Consumption), `CWE-799` (Improper Control of Interaction Frequency)
-* **The Security Risk:** Architectural flaws such as unconstrained pagination, missing rate limiting on sensitive login/payment endpoints, or infinite recursion loops.
+### 4️⃣ A04:2021 — Insecure Design (Unbounded Memory & Missing Pagination)
+* **CWE Mapping:** `CWE-400` (Uncontrolled Resource Consumption / OOM DoS)
+* **File Location (Local):** [`services/checkout_gateway.py (Line 67-70)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L67-L70)
+* **GitHub Link:** [PR #11 `services/checkout_gateway.py` (Line 67-70)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L67-L70)
+* **The Security Risk:** Querying the entire database table without pagination limits (`LIMIT` / `OFFSET`) causes memory exhaustion (OOM), triggering container OOMKilled crashes and cluster cascading failovers.
 * **How AgentHeal Detects It:**  
-  * AST checks for unbounded `SELECT *` loops, unbounded array appends, and missing rate limit decorators (`@limiter.limit()`).
-* **Autonomous Remediation:**  
-  * AgentHeal injects sliding-window rate limiters and pagination limits (`LIMIT 50`) on all endpoint handlers.
+  * AST Visitor flags unbounded query calls (`fetch_unbounded`, `load_all_records`, `query_all`) lacking pagination bounds.
+* **Vulnerable Pattern (PR #11):**
+  ```python
+  def fetch_unbounded_order_archive(db_conn) -> List[Dict[str, Any]]:
+      # Vulnerable: Loads millions of records into RAM without limits
+      return fetch_unbounded(db_conn)
+  ```
+* **Autonomous Remediation (PR #12):**
+  ```python
+  def fetch_unbounded_order_archive(db_conn, page: int = 1, page_size: int = 50) -> List[Dict[str, Any]]:
+      # Remediated: Enforces strict LIMIT and OFFSET pagination
+      cursor = db_conn.cursor()
+      offset = (page - 1) * page_size
+      cursor.execute("SELECT id, user_id, amount, status FROM orders LIMIT ? OFFSET ?", (page_size, offset))
+      return cursor.fetchall()
+  ```
 
 ---
 
 ### 5️⃣ A05:2021 — Security Misconfiguration
-* **CWE Mapping:** `CWE-489` (Active Debug Code in Production), `CWE-942` (Overly Permissive CORS)
-* **The Security Risk:** Running servers with `DEBUG = True` leaks interactive debuggers, stack traces, and internal server environment variables to clients during exceptions.
+* **CWE Mapping:** `CWE-489` (Active Debug Code in Production)
+* **File Location (Local):** [`services/checkout_gateway.py (Line 17)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L17)
+* **GitHub Link:** [PR #11 `services/checkout_gateway.py` (Line 17)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L17)
+* **The Security Risk:** `DEBUG = True` enables interactive stack traces, leaks internal application topology, and exposes live environment secrets to web clients upon unhandled exceptions.
 * **How AgentHeal Detects It:**  
-  * AST Assignment visitor checks for static `DEBUG = True` assignments.
+  * AST Assignment Visitor flags static boolean assignments targeting `DEBUG` or `DEBUG_MODE`.
 * **Vulnerable Pattern (PR #11):**
   ```python
-  # Vulnerable: Hardcoded debug flag
+  # Vulnerable: Debug mode hardcoded in production microservice
   DEBUG = True
   ```
 * **Autonomous Remediation (PR #12):**
   ```python
-  # Remediated: Read dynamically with safe False fallback
+  # Remediated: Read dynamically from environment with safe default False
   DEBUG = os.getenv("DEBUG", "false").lower() == "true"
   ```
 
 ---
 
-### 6️⃣ A06:2021 — Vulnerable and Outdated Components (Dependabot-Style)
+### 6️⃣ A06:2021 — Vulnerable and Outdated Components (Dependabot-Style Supply Chain)
 * **CWE Mapping:** `CWE-1395` (Dependency with Known Vulnerabilities / CVEs)
-* **The Security Risk:** Utilizing third-party libraries that contain publicly disclosed CVEs (e.g., PyYAML arbitrary code execution or Requests proxy header leaks).
+* **File Location (Local):** [`requirements.txt`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/requirements.txt)
+* **GitHub Link:** [PR #11 `requirements.txt`](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/requirements.txt)
+* **The Security Risk:** Incorporating outdated packages introduces publicly known vulnerabilities:
+  * `pyyaml==5.3`: Vulnerable to **CVE-2020-14343** (Arbitrary Code Execution through untrusted YAML load).
+  * `requests==2.28.0`: Vulnerable to **CVE-2023-32681** (Leaking `Proxy-Authorization` headers to unauthorized destination servers).
 * **How AgentHeal Detects It:**  
-  * `OWASPAuditor.audit_requirements_txt()` parses `requirements.txt` and matches package versions against a curated vulnerability database.
+  * `OWASPAuditor.audit_requirements_txt()` parses dependency manifests and matches package versions against a curated CVE database.
 * **Vulnerable Manifest (PR #11):**
   ```text
-  pyyaml==5.3       # Affected by CVE-2020-14343 (Arbitrary Code Execution)
-  requests==2.28.0   # Affected by CVE-2023-32681 (Proxy-Authorization Header Leak)
+  pyyaml==5.3
+  requests==2.28.0
   ```
 * **Autonomous Remediation (PR #12):**
   ```text
-  pyyaml==5.4.1     # Patched: SafeLoader enforced
-  requests==2.31.0   # Patched: Header stripping verified
+  pyyaml>=5.4.1
+  requests>=2.31.0
   ```
 
 ---
 
 ### 7️⃣ A07:2021 — Identification and Authentication Failures
-* **CWE Mapping:** `CWE-287` (Improper Authentication), `CWE-384` (Session Fixation)
-* **The Security Risk:** Weak token generation, missing MFA enforcement, hardcoded session cookies, or predictable JWT signing keys.
+* **CWE Mapping:** `CWE-287` (Improper Authentication), `CWE-798` (Hardcoded Credentials)
+* **File Locations (Local):**
+  * [`services/checkout_gateway.py (Line 23)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L23) — Hardcoded JWT Token
+  * [`services/checkout_gateway.py (Line 60-64)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L60-L64) — Unverified Signature Decode
+* **GitHub Links:**
+  * [PR #11 `services/checkout_gateway.py` (Line 23)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L23)
+  * [PR #11 `services/checkout_gateway.py` (Line 60-64)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L60-L64)
+* **The Security Risk:** Decoding JWT authentication tokens with `verify=False` allows attackers to forge authorization claims, impersonating administrators and bypassing authentication entirely.
 * **How AgentHeal Detects It:**  
-  * Static secret entropy analysis and AST token validation.
-* **Autonomous Remediation:**  
-  * Enforces RS256 asymmetric token verification with 9-minute short-lived JWT expiry.
+  * AST Call Visitor inspects `jwt.decode()` calls for `verify=False` or missing cryptographic key arguments.
+* **Vulnerable Pattern (PR #11):**
+  ```python
+  JWT_AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock_unverified_payload_secret_key_77"
+
+  def decode_user_session_token(token: str) -> Dict[str, Any]:
+      # Vulnerable: Accepts unsigned/forged authentication tokens
+      user_claims = jwt.decode(token, verify=False)
+      return user_claims
+  ```
+* **Autonomous Remediation (PR #12):**
+  ```python
+  def decode_user_session_token(token: str, public_key: str) -> Dict[str, Any]:
+      # Remediated: Cryptographic RS256 signature verification enforced
+      try:
+          return jwt.decode(token, public_key, algorithms=["RS256"])
+      except Exception as e:
+          logger.warning(f"JWT verification failure: {e}")
+          return {}
+  ```
 
 ---
 
-### 8️⃣ A08:2021 — Software and Data Integrity Failures
+### 8️⃣ A08:2021 — Software and Data Integrity Failures (Insecure Deserialization)
 * **CWE Mapping:** `CWE-502` (Deserialization of Untrusted Data)
-* **The Security Risk:** Untrusted serialized data is passed to `pickle.loads()` or `yaml.load()`, which executes arbitrary Python bytecode embedded within the payload during reconstruction.
+* **File Location (Local):** [`services/checkout_gateway.py (Line 42-46)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L42-L46)
+* **GitHub Link:** [PR #11 `services/checkout_gateway.py` (Line 42-46)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L42-L46)
+* **The Security Risk:** `pickle.loads()` deserializes arbitrary Python objects and executes any bytecode embedded in the `__reduce__` method, granting remote attackers arbitrary code execution (RCE) on the server.
 * **How AgentHeal Detects It:**  
-  * AST Call visitor flags any invocation of `pickle.loads()`, `pickle.load()`, or `yaml.load()` without `Loader=yaml.SafeLoader`.
+  * AST Call Visitor flags any direct invocation of `pickle.loads()` or `yaml.load()` without `SafeLoader`.
 * **Vulnerable Pattern (PR #11):**
   ```python
   def restore_user_cart_session(raw_session_bytes: bytes) -> Dict[str, Any]:
@@ -173,10 +238,11 @@ The table below explains all 10 standard OWASP categories, how they are detected
 * **Autonomous Remediation (PR #12):**
   ```python
   def restore_user_cart_session(raw_session_json: str) -> Dict[str, Any]:
-      # Remediated: Standard JSON parsing prevents arbitrary object construction
+      # Remediated: Safe JSON deserialization prevents arbitrary code execution
       try:
           return json.loads(raw_session_json)
-      except (json.JSONDecodeError, TypeError):
+      except (json.JSONDecodeError, TypeError) as e:
+          logger.warning(f"Failed to parse cart session: {e}")
           return {}
   ```
 
@@ -184,12 +250,14 @@ The table below explains all 10 standard OWASP categories, how they are detected
 
 ### 9️⃣ A09:2021 — Security Logging and Monitoring Failures
 * **CWE Mapping:** `CWE-778` (Insufficient Logging), `CWE-390` (Detection of Error Condition Without Action)
-* **The Security Risk:** Catching exceptions and executing `pass` silently masks runtime crashes, data corruption, and active penetration attempts from observability probes.
+* **File Location (Local):** [`services/checkout_gateway.py (Line 90-97)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L90-L97)
+* **GitHub Link:** [PR #11 `services/checkout_gateway.py` (Line 90-97)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L90-L97)
+* **The Security Risk:** Silently catching exceptions with `pass` hides transaction failures, security anomalies, and exploit attempts from observability tools (Prometheus, Datadog), preventing self-healing intervention.
 * **How AgentHeal Detects It:**  
-  * AST `ExceptHandler` visitor detects exception blocks containing only `pass` or `continue`.
+  * AST `visit_ExceptHandler` inspects exception blocks containing only `pass` or `continue`.
 * **Vulnerable Pattern (PR #11):**
   ```python
-  def audit_transaction_metrics(order_id: str, amount: float):
+  def audit_transaction_metrics(order_id: str, amount: float) -> None:
       try:
           if amount < 0:
               raise ValueError("Negative transaction amount")
@@ -199,12 +267,12 @@ The table below explains all 10 standard OWASP categories, how they are detected
   ```
 * **Autonomous Remediation (PR #12):**
   ```python
-  def audit_transaction_metrics(order_id: str, amount: float):
+  def audit_transaction_metrics(order_id: str, amount: float) -> None:
       try:
           if amount < 0:
               raise ValueError("Negative transaction amount")
       except Exception as e:
-          # Remediated: Explicit telemetry logging
+          # Remediated: Structured telemetry error logging
           logger.error(f"Audit metric error for order {order_id}: {e}")
   ```
 
@@ -212,20 +280,66 @@ The table below explains all 10 standard OWASP categories, how they are detected
 
 ### 🔟 A10:2021 — Server-Side Request Forgery (SSRF)
 * **CWE Mapping:** `CWE-918` (Server-Side Request Forgery)
-* **The Security Risk:** Application fetches remote resources from URLs supplied by user input without validating destination hostnames, enabling attackers to query cloud instance metadata services (e.g. `http://169.254.169.254/latest/meta-data/`).
+* **File Location (Local):** [`services/checkout_gateway.py (Line 73-77)`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/services/checkout_gateway.py#L73-L77)
+* **GitHub Link:** [PR #11 `services/checkout_gateway.py` (Line 73-77)](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/blob/feature/v2-checkout-gateway/services/checkout_gateway.py#L73-L77)
+* **The Security Risk:** Sending HTTP requests to arbitrary user-supplied URLs allows attackers to target internal cloud metadata endpoints (e.g. `http://169.254.169.254/latest/meta-data/`) to steal IAM instance role credentials.
 * **How AgentHeal Detects It:**  
-  * AST Call visitor checks outbound HTTP client methods (`requests.get`, `urllib.request.urlopen`) invoked with dynamic variable arguments.
-* **Autonomous Remediation:**  
-  * Injects strict destination hostname allowlists and blocks loopback/private RFC-1918 IP addresses.
+  * AST Call Visitor inspects outbound HTTP methods (`requests.get`, `requests.post`, `urllib.request.urlopen`) with dynamic variable arguments lacking validation.
+* **Vulnerable Pattern (PR #11):**
+  ```python
+  def send_payment_webhook(target_url: str, payload: Dict[str, Any]) -> int:
+      # Vulnerable: Outbound HTTP request to unvalidated URL allows SSRF
+      response = requests.get(target_url)
+      return response.status_code
+  ```
+* **Autonomous Remediation (PR #12):**
+  ```python
+  ALLOWED_WEBHOOK_DOMAINS = {"api.partner-gateway.com", "notifications.internal.corp", "checkout.stripe.com"}
+
+  def send_payment_webhook(target_url: str, payload: Dict[str, Any]) -> int:
+      # Remediated: Hostname parsed and validated against strict allowlist
+      parsed = urlparse(target_url)
+      if parsed.hostname not in ALLOWED_WEBHOOK_DOMAINS:
+          raise ValueError(f"Webhook destination host '{parsed.hostname}' is not authorized")
+      response = requests.post(target_url, json=payload, timeout=5.0)
+      return response.status_code
+  ```
 
 ---
 
-## 📊 Summary of Live Demo Artifacts
+## 📊 Live Demo Pull Request Matrix
 
-| Component | Link / Location | Purpose |
-|---|---|---|
-| **❌ Vulnerable Demo PR** | [PR #11 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/11) | Demonstrates all 9 OWASP flaws, AST test gaps, Mermaid call-graph, and **Red ❌ Quality Gate**. |
-| **✅ Autonomous Auto-Fix PR** | [PR #12 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/12) | Demonstrates autonomous 1-click remediation, parameterized queries, SHA-256 HMAC, and unit tests. |
-| **💻 Local Interactive Dashboard** | `http://localhost:8000` (`🛡️ OWASP Top 10` Tab) | Live interactive scorecard, category pills, and instant AST Code & Dependency Scanner. |
-| **⚙️ Core Engine Source** | [`pr_review_agent/owasp_auditor.py`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/pr_review_agent/owasp_auditor.py) | Python AST visitors, regex pattern checkers, and Dependabot-style CVE database. |
-| **🧪 Automated Unit Tests** | [`tests/test_owasp_auditor.py`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/tests/test_owasp_auditor.py) | Comprehensive pytest test suite covering all 10 OWASP categories (8/8 passing). |
+| Category | Category Name | Status (PR #11) | Detected Violations | Status (PR #12 Auto-Fix) |
+|---|---|:---:|---|:---:|
+| **A01:2021** | Broken Access Control | 🔴 **VIOLATION** | `Path Traversal (Line 52)` | 🟢 **Compliant** |
+| **A02:2021** | Cryptographic Failures | 🔴 **VIOLATION** | `Hardcoded Secret (Line 20)` + `Weak MD5 (Line 38)` | 🟢 **Compliant** |
+| **A03:2021** | Injection | 🔴 **VIOLATION** | `SQLi f-string (Line 29)` + `Command Injection (Line 56)` | 🟢 **Compliant** |
+| **A04:2021** | Insecure Design | 🔴 **VIOLATION** | `Unbounded Query Memory (Line 70)` | 🟢 **Compliant** |
+| **A05:2021** | Security Misconfiguration | 🔴 **VIOLATION** | `DEBUG = True (Line 17)` | 🟢 **Compliant** |
+| **A06:2021** | Vulnerable Components | 🔴 **VIOLATION** | `pyyaml==5.3` + `requests==2.28.0` | 🟢 **Compliant** |
+| **A07:2021** | Identification & Auth Failures | 🔴 **VIOLATION** | `JWT Token (Line 23)` + `Unverified Decode (Line 63)` | 🟢 **Compliant** |
+| **A08:2021** | Software & Data Integrity | 🔴 **VIOLATION** | `pickle.loads() Insecure Deserialization (Line 45)` | 🟢 **Compliant** |
+| **A09:2021** | Logging & Monitoring Failures | 🔴 **VIOLATION** | `Swallowed Exception except: pass (Line 95)` | 🟢 **Compliant** |
+| **A10:2021** | Server-Side Request Forgery | 🔴 **VIOLATION** | `SSRF Dynamic Outbound Request (Line 76)` | 🟢 **Compliant** |
+
+---
+
+## 🔗 Live Demo Presentation Links
+
+* **❌ Live Vulnerable Pull Request (PR #11):**  
+  [https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/11](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/11)  
+  *Features: Full 10/10 OWASP Table, AST Test Gaps, Mermaid Call Graph, Red ❌ Quality Gate, Interactive @review-bot Thread.*
+
+* **✅ Live Autonomous Remediation PR (PR #12):**  
+  [https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/12](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/12)  
+  *Features: 100% Remediated codebase, parameterized SQL queries, SHA-256 HMAC, RS256 JWT, passing unit tests.*
+
+* **💻 Local Interactive Dashboard:**  
+  `http://localhost:8000` (Navigate to `🛡️ OWASP Top 10` Tab)  
+  *Features: Live interactive scorecard, category pills, instant AST Code & Dependency Scanner.*
+
+* **⚙️ Core Engine Implementation:**  
+  [`pr_review_agent/owasp_auditor.py`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/pr_review_agent/owasp_auditor.py)
+
+* **🧪 Comprehensive Test Suite (12/12 Passing):**  
+  [`tests/test_owasp_auditor.py`](file:///c:/Users/aadih/Desktop/desktop/work/College/Semester%205/Cloud%20Computing/Project/tests/test_owasp_auditor.py)
