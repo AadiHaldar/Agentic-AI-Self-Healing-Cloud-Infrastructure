@@ -421,7 +421,7 @@ To validate the Shift-Left security and compliance engine in a live setting, we 
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|l|p{2.5cm}|c|c|}
 \hline
-\textbf{OWASP Cat.} & \textbf{Violation Detected} & \textbf{PR \#11} & \textbf{PR \#12} \\
+\textbf{OWASP Cat.} & \textbf{Violation Detected} & \href{https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/11}{\textbf{PR \#11}} & \href{https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/12}{\textbf{PR \#12}} \\
 \hline
 A01: Access & Unauth Path Traversal & 1 & 0 \\
 A02: Crypto & Hardcoded JWT / MD5 & 2 & 0 \\
@@ -443,7 +443,7 @@ A10: SSRF & Untrusted URL Request & 1 & 0 \\
 \end{tabular}
 \end{table}
 
-As shown in Table~\ref{tab:owasp_live}, PR \#11 introduced 14 security violations spanning all 10 OWASP categories and a vulnerable \texttt{pyyaml==5.3.1} dependency. AgentHeal successfully detected all 14 flaws in $0.48\,\text{s}$, assigned Grade F, and blocked merging via the Check Run Quality Gate. The autonomous auto-remediation engine synthesized PR \#12, remediating 100\% of violations, updating vulnerable dependencies, and achieving a 100/100 Grade A+ score with 6/6 passing unit tests.
+As shown in Table~\ref{tab:owasp_live}, \href{https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/11}{PR \#11} introduced 14 security violations spanning all 10 OWASP categories and a vulnerable \texttt{pyyaml==5.3.1} dependency. AgentHeal successfully detected all 14 flaws in $0.48\,\text{s}$, assigned Grade F, and blocked merging via the Check Run Quality Gate. The autonomous auto-remediation engine synthesized \href{https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/12}{PR \#12}, remediating 100\% of violations, updating vulnerable dependencies, and achieving a 100/100 Grade A+ score with 6/6 passing unit tests.
 
 In addition, the 12/12 unit test suite (\texttt{tests/test\_owasp\_auditor.py}) executing in $0.22\,\text{s}$ confirms 100\% rule coverage across all OWASP categories. Evaluation across 50 synthetic PRs (Table~\ref{tab:praudit}) confirms 98.5\% precision and 97.5\% recall.
 
