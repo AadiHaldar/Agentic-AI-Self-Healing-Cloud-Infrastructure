@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  18 AUG 2026 13:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  27 SEP 2026 13:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -878,37 +878,50 @@ Package hyperref Info: Link coloring ON on input line 25.
 \openout4 = `paper.out'.
 
 \c@lstlisting=\count362
-LaTeX Font Info:    Trying to load font information for U+msa on input line 60.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 58.
 
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 60.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 58.
 
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \hbox (badness 1521) in paragraph at lines 63--65
-\OT1/ptm/b/n/9 Dig-i-tal Twin, Iso-la-tion For-est, Ker-nelSHAP, Re-in-force-me
-nt
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 71--72
+Underfull \hbox (badness 10000) in paragraph at lines 69--70
 []\OT1/ptm/m/n/10 Distributed cloud-native ap-pli-ca-tions de-ployed on
  []
 
 
-Underfull \hbox (badness 6493) in paragraph at lines 71--72
+Underfull \hbox (badness 6493) in paragraph at lines 69--70
 \OT1/ptm/m/n/10 Kubernetes-orchestrated mi-croser-vice ar-chi-tec-tures suf-fer
 
  []
 
 
-Underfull \hbox (badness 3199) in paragraph at lines 71--72
-\OT1/ptm/m/n/10 from un-planned in-ci-dents in mi-croser-vice en-vi-ron-ments
+Underfull \hbox (badness 1558) in paragraph at lines 69--70
+\OT1/ptm/m/n/10 by pre-ventable soft-ware de-fects [[][]1[][]]. Sec-ond, even w
+ith
+ []
+
+
+Underfull \hbox (badness 5302) in paragraph at lines 84--85
+\OT1/ptm/b/n/10 En-gine \OT1/ptm/m/n/10 pro-vid-ing quan-ti-ta-tive com-pli-anc
+e scor-ing
+ []
+
+
+Underfull \hbox (badness 7326) in paragraph at lines 85--86
+[]\OT1/ptm/m/n/10 A \OT1/ptm/b/n/10 three-layer safety ar-chi-tec-ture\OT1/ptm/
+m/n/10 : de-ter-min-is-tic
+ []
+
+
+Underfull \hbox (badness 1418) in paragraph at lines 85--86
+\OT1/ptm/m/n/10 sus, and SimPy $\OML/cmm/m/it/10 M=M=c$ \OT1/ptm/m/n/10 pre-exe
+cution digital-twin
  []
 
 [1{C:/Users/aadih/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/aa
@@ -917,24 +930,47 @@ dih/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}
 
 ]
 LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 1
-66.
+52.
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
-Underfull \hbox (badness 4328) in paragraph at lines 175--176
+Underfull \hbox (badness 3312) in paragraph at lines 159--160
+[]\OT1/ptm/b/n/10 A03 In-jec-tion: \OT1/ptm/m/n/10 Iden-ti-fies raw string con-
+cate-na-tion
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 159--160
+\OT1/ptm/m/n/10 in SQL queries and un-safe pro-cess spawn-ing
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 162--163
+\OT1/ptm/m/n/10 known CVE databases [[][]5[][]] (e.g., \OT1/pcr/m/n/10 pyyaml<5
+.4
+ []
+
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 197--198
+ \OT1/ptm/m/it/10 5) Qual-ity Gate & Auto-Remediation Branch: [][][] \OT1/ptm/m
+/n/10 A
+ []
+
+
+Underfull \hbox (badness 4328) in paragraph at lines 202--203
  \OT1/ptm/m/it/10 1) Teleme-try Stream-ing: [][][] \OT1/ptm/m/n/10 The \OT1/pcr
 /m/n/10 StateSynchronizer
  []
 
 
-Underfull \hbox (badness 8075) in paragraph at lines 175--176
+Underfull \hbox (badness 8075) in paragraph at lines 202--203
 \OT1/ptm/m/n/10 polls Prometheus met-rics ev-ery $\OT1/cmr/m/n/10 5\OML/cmm/m/i
 t/10 :\OT1/cmr/m/n/10 0 []$\OT1/ptm/m/n/10 , as-sem-bling 4-
  []
 
-[2]
-Underfull \hbox (badness 4193) in paragraph at lines 200--202
+
+Underfull \hbox (badness 4193) in paragraph at lines 227--229
 \OT1/ptm/m/n/10 with $\OML/cmm/m/it/10  \OT1/cmr/m/n/10 = 0\OML/cmm/m/it/10 :\
 OT1/cmr/m/n/10 1$\OT1/ptm/m/n/10 , $\OML/cmm/m/it/10 ^^M \OT1/cmr/m/n/10 = 0\OM
 L/cmm/m/it/10 :\OT1/cmr/m/n/10 95$\OT1/ptm/m/n/10 . Ac-tion space $\OMS/cmsy/m/
@@ -943,103 +979,128 @@ n/10 A \OT1/cmr/m/n/10 =
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 213.
+(hyperref)                removing `math shift' on input line 240.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 213.
+(hyperref)                removing `math shift' on input line 240.
 
 
-Underfull \hbox (badness 2119) in paragraph at lines 228--229
+Underfull \hbox (badness 2119) in paragraph at lines 255--256
 []\OT1/ptm/b/n/10 Deployment: \OT1/ptm/m/n/10 The plat-form runs on Mi-crosoft 
 Azure
  []
 
 
-Underfull \hbox (badness 3078) in paragraph at lines 228--229
+Underfull \hbox (badness 3078) in paragraph at lines 255--256
 \OT1/ptm/m/n/10 raform (\OT1/pcr/m/n/10 azurerm \OT1/ptm/m/n/10 v3.90). A multi
 -stage Docker build
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 249--249
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 276--276
 []|\OT1/ptm/m/n/8 CPU=0.954,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 250--250
+Underfull \hbox (badness 10000) in paragraph at lines 277--277
 []|\OT1/ptm/m/n/8 CPU=0.99,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 251--251
+Underfull \hbox (badness 10000) in paragraph at lines 278--278
 []|\OT1/ptm/m/n/8 RAM=0.942,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 252--252
+Underfull \hbox (badness 10000) in paragraph at lines 279--279
 []|\OT1/ptm/m/n/8 CPU=0.88,
  []
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 257.
+(hyperref)                removing `math shift' on input line 284.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 257.
+(hyperref)                removing `math shift' on input line 284.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 301.
+(hyperref)                removing `math shift' on input line 328.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 301.
-
-[3]
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 322.
+(hyperref)                removing `math shift' on input line 328.
 
 
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 322.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 343.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 343.
-
-[4]
-Underfull \hbox (badness 1371) in paragraph at lines 450--451
-\OT1/ptm/m/n/10 ure dis-tri-bu-tions re-quires fur-ther in-ves-ti-ga-tion. The 
-plat-
+Underfull \hbox (badness 4429) in paragraph at lines 414--415
+\OT1/ptm/m/n/10 gine in a live set-ting, we con-ducted em-pir-i-cal tests
  []
 
 
-Underfull \hbox (badness 6961) in paragraph at lines 471--472
+Underfull \hbox (badness 7522) in paragraph at lines 414--415
+\OT1/ptm/m/n/10 on the pub-lic repos-i-tory [][]$https : / / github . com / Aad
+iHaldar /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 427--427
+[]|\OT1/ptm/m/n/8 Hardcoded JWT /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 428--428
+[]|\OT1/ptm/m/n/8 Raw SQL /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 434--434
+[]|\OT1/ptm/m/n/8 Swallowed
+ []
+
+
+Underfull \hbox (badness 1917) in paragraph at lines 435--435
+[]|\OT1/ptm/m/n/8 Untrusted URL Re-
+ []
+
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 448--449
+[]\OT1/ptm/m/n/10 In ad-di-tion, the 12/12 unit test suite
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 448--449
+\OT1/ptm/m/n/10 (\OT1/pcr/m/n/10 tests/test_owasp_auditor.py\OT1/ptm/m/n/10 ) e
+x-e-cut-ing in
+ []
+
+
+Underfull \hbox (badness 1527) in paragraph at lines 448--449
+\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 22 []$ \OT1/ptm/m/n/10 con-f
+irms 100% rule cov-er-age across all OWASP
+ []
+
+
+Underfull \hbox (badness 6961) in paragraph at lines 510--511
 []\OT1/ptm/m/n/8 Kubernetes Doc-u-men-ta-tion, ``Hor-i-zon-tal Pod Au-toscaler,
 '' [][]$https :
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 471--472
+Underfull \hbox (badness 10000) in paragraph at lines 510--511
 \OT1/ptm/m/n/8 / / kubernetes . io / docs / tasks / run-[]application / horizon
 tal-[]pod-[]autoscale/$[][],
  []
 
 [5]
-Underfull \hbox (badness 6825) in paragraph at lines 513--514
+Underfull \hbox (badness 6825) in paragraph at lines 552--553
 []\OT1/ptm/m/n/8 Google LLC, ``On-line Bou-tique: A cloud-native mi-croser-vice
 s
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 513--514
+Underfull \hbox (badness 10000) in paragraph at lines 552--553
 \OT1/ptm/m/n/8 demo ap-pli-ca-tion,'' [][]$https : / / github . com / GoogleClo
 udPlatform /
  []
@@ -1063,16 +1124,16 @@ LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: 7A344AE2D2D8BB6982FFA851ADFF36DB;6250.
+(rerunfilecheck)             Checksum: 2BA85AD885B9F01C542E02ED3AE630B7;7391.
  ) 
 Here is how much of TeX's memory you used:
- 24395 strings out of 467871
- 457074 string characters out of 5418377
- 864419 words of memory out of 5000000
- 52782 multiletter control sequences out of 15000+600000
+ 24408 strings out of 467871
+ 457308 string characters out of 5418377
+ 873072 words of memory out of 5000000
+ 52789 multiletter control sequences out of 15000+600000
  675290 words of font info for 133 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,14n,94p,1651b,780s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,13n,94p,1625b,780s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
 cmbx8.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
 onts/cm/cmex10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/pu
@@ -1101,9 +1162,9 @@ utmb8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/
 utmbi8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times
 /utmr8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times
 /utmri8a.pfb>
-Output written on paper.pdf (6 pages, 353964 bytes).
+Output written on paper.pdf (6 pages, 364260 bytes).
 PDF statistics:
- 405 PDF objects out of 1000 (max. 8388607)
- 83 named destinations out of 1000 (max. 500000)
- 277 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 427 PDF objects out of 1000 (max. 8388607)
+ 89 named destinations out of 1000 (max. 500000)
+ 293 words of extra memory for PDF output out of 10000 (max. 10000000)
 
