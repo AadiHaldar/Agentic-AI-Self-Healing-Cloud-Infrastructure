@@ -92,7 +92,7 @@ export function Healing({ scenario }: { scenario?: string }) {
     try {
       const res = await api.evaluate({
         target_service: service, cpu_usage: cpu, mem_usage: mem, latency_ms: lat, request_rate: rate,
-        execute: execute && !!meta?.kubectl_available,
+        execute: execute && !!meta?.cluster_reachable,
       });
       setResult(res);
       const t = res.timings;
@@ -119,7 +119,7 @@ export function Healing({ scenario }: { scenario?: string }) {
   };
 
   const override = async () => {
-    if (!window.confirm(`Apply ${ovAction} to ${service}? This calls the cluster API${meta?.kubectl_available ? '' : ' (kubectl is not installed here, so it will be a dry run)'}.`)) return;
+    if (!window.confirm(`Apply ${ovAction} to ${service}? ${meta?.cluster_reachable ? `This changes the live cluster (${meta.kube_context}, namespace ${meta.k8s_namespace}).` : 'No cluster is reachable from this host, so it will be a dry run or fail.'}`)) return;
     try {
       const r = await api.override(service, ovAction, ovReason);
       setOvMsg(`${r.k8s_output.status}: ${r.k8s_output.message ?? ''}`);
@@ -207,12 +207,14 @@ export function Healing({ scenario }: { scenario?: string }) {
               <Slider label="Latency" value={lat} min={20} max={5000} step={10} onChange={setLat} fmt={(v) => `${v} ms`} />
               <Slider label="Request rate" value={rate} min={0} max={3000} step={10} onChange={setRate} fmt={(v) => `${v}/s`} />
             </div>
-            <label className="row small" style={{ cursor: meta?.kubectl_available ? 'pointer' : 'not-allowed', opacity: meta?.kubectl_available ? 1 : 0.6 }}>
-              <input type="checkbox" checked={execute && !!meta?.kubectl_available} disabled={!meta?.kubectl_available}
+            <label className="row small" style={{ cursor: meta?.cluster_reachable ? 'pointer' : 'not-allowed', opacity: meta?.cluster_reachable ? 1 : 0.6 }}>
+              <input type="checkbox" checked={execute && !!meta?.cluster_reachable} disabled={!meta?.cluster_reachable}
                 onChange={(e) => setExecute(e.target.checked)} />
               <span>
                 Execute on the cluster if the twin says SAFE
-                {!meta?.kubectl_available && <span className="mute"> — kubectl not installed here; runs are plan-only</span>}
+                {meta?.cluster_reachable
+                  ? <span className="mute"> — live: {meta.kube_context} / {meta.k8s_namespace}</span>
+                  : <span className="mute"> — no reachable cluster from this host; runs are plan-only</span>}
               </span>
             </label>
             <div className="row">

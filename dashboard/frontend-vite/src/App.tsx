@@ -123,7 +123,7 @@ export default function App() {
             {m && (
               <>
                 <Pill tone={m.gemini_configured ? 'info' : 'warn'}>{m.gemini_configured ? 'Gemini connected' : 'Gemini: no key'}</Pill>
-                <Pill tone={m.kubectl_available ? 'ok' : 'mute'}>{m.kubectl_available ? 'kubectl: live' : 'kubectl: dry-run'}</Pill>
+                <Pill tone={m.cluster_reachable ? 'ok' : 'mute'}>{m.cluster_reachable ? `cluster: ${m.kube_context ?? 'connected'}` : m.kubectl_available ? 'no cluster (dry-run)' : 'kubectl missing (dry-run)'}</Pill>
                 {m.demo_seed && <Pill tone="warn">demo dataset</Pill>}
               </>
             )}

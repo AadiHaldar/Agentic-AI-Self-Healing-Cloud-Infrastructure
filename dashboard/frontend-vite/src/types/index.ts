@@ -6,6 +6,9 @@ export interface Meta {
   demo_seed: boolean;
   gemini_configured: boolean;
   kubectl_available: boolean;
+  cluster_reachable: boolean;
+  kube_context: string | null;
+  k8s_namespace: string;
   detector_trained: boolean;
   github_pr_review_mounted: boolean;
 }

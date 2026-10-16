@@ -40,8 +40,9 @@ class K8sRemediationTools:
     All subprocess calls use shell=False with validated argument lists to prevent
     shell injection via unsanitized service/deployment name inputs.
     """
-    def __init__(self, default_namespace: str = "online-boutique"):
-        self.default_namespace = default_namespace
+    def __init__(self, default_namespace: str = None):
+        # K8S_NAMESPACE lets the same code target kind (online-boutique) or AKS (default).
+        self.default_namespace = default_namespace or os.getenv("K8S_NAMESPACE", "online-boutique")
 
     def get_pod_name_for_service(self, service_name: str, namespace: str = None) -> str:
         """Find the real active pod name matching app={service_name} or return target."""

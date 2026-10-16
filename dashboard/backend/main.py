@@ -4,6 +4,7 @@ import json
 import time
 import numpy as np
 import shutil
+import subprocess
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -183,6 +184,29 @@ def get_system_status():
     }
 
 
+_cluster_cache = {"at": 0.0, "reachable": False, "context": None}
+
+
+def _cluster_status() -> Dict[str, Any]:
+    """Is a Kubernetes API actually reachable through kubectl? Cached for 15 s."""
+    now = time.time()
+    if now - _cluster_cache["at"] < 15:
+        return _cluster_cache
+    reachable, context = False, None
+    if shutil.which("kubectl"):
+        try:
+            r = subprocess.run(["kubectl", "get", "--raw", "/readyz", "--request-timeout=3s"],
+                               capture_output=True, text=True, timeout=6, shell=False)
+            reachable = r.returncode == 0
+            c = subprocess.run(["kubectl", "config", "current-context"],
+                               capture_output=True, text=True, timeout=4, shell=False)
+            context = c.stdout.strip() or None
+        except Exception:
+            reachable = False
+    _cluster_cache.update(at=now, reachable=reachable, context=context)
+    return _cluster_cache
+
+
 @app.get("/api/meta")
 def get_meta():
     """Non-sensitive facts about this deployment, so the UI never has to guess."""
@@ -193,6 +217,9 @@ def get_meta():
         "demo_seed": DEMO_SEED_ENABLED,
         "gemini_configured": bool(llm.client or llm.legacy_genai),
         "kubectl_available": shutil.which("kubectl") is not None,
+        "cluster_reachable": _cluster_status()["reachable"],
+        "kube_context": _cluster_status()["context"],
+        "k8s_namespace": k8s_tools.default_namespace,
         "detector_trained": anomaly_detector.is_trained,
         "github_pr_review_mounted": "/webhooks/github" in app.openapi().get("paths", {}),
     }

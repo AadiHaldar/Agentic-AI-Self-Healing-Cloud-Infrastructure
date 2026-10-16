@@ -38,7 +38,9 @@ export function System() {
               <dt>Uptime</dt><dd>{meta ? fmtUptime(meta.uptime_seconds) : '—'}</dd>
               <dt>Anomaly model trained</dt><dd>{yn(meta?.detector_trained)}</dd>
               <dt>Gemini API connected</dt><dd>{yn(meta?.gemini_configured, 'yes', 'no key')}</dd>
-              <dt>kubectl on this host</dt><dd>{yn(meta?.kubectl_available, 'live actuation', 'dry-run only')}</dd>
+              <dt>kubectl installed</dt><dd>{yn(meta?.kubectl_available)}</dd>
+              <dt>Cluster reachable</dt><dd>{yn(meta?.cluster_reachable, meta?.kube_context ?? 'yes', 'no (dry-run only)')}</dd>
+              <dt>Target namespace</dt><dd className="mono">{meta?.k8s_namespace ?? '—'}</dd>
               <dt>PR-review webhook mounted</dt><dd>{yn(meta?.github_pr_review_mounted)}</dd>
               <dt>Seeded demo data</dt><dd>{yn(meta ? !meta.demo_seed : undefined, 'off', 'on')}</dd>
             </dl>
