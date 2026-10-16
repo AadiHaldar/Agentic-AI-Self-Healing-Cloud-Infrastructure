@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  16 OCT 2026 12:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  16 OCT 2026 16:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**./docs/paper/paper.tex
-(docs/paper/paper.tex
+**./paper.tex
+(paper.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/ieeetran\IEEEtran.cls
@@ -738,9 +738,7 @@ File: tikzlibrarybackgrounds.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 tex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count340
-)
-(C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud Computing\Project
-\docs\paper\paper.aux)
+) (paper.aux)
 \openout1 = `paper.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 28.
@@ -790,11 +788,7 @@ fg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
 Package hyperref Info: Link coloring OFF on input line 28.
-
-(C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud Computing\Project
-\docs\paper\paper.out)
-(C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud Computing\Project
-\docs\paper\paper.out)
+ (paper.out) (paper.out)
 \@outlinefile=\write4
 \openout4 = `paper.out'.
 
@@ -810,10 +804,18 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 41.
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \hbox (badness 1400) in paragraph at lines 59--60
+\OT1/ptm/m/n/10 actuation safety gate that eval-u-ates can-di-date self-
+ []
 
- [1{C:/Users/aadih/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/a
-adih/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}
+
+Underfull \hbox (badness 3386) in paragraph at lines 60--61
+[]\OT1/ptm/m/it/10 Empirical Eval-u-a-tion\OT1/ptm/m/n/10 : We eval-u-ate Agent
+Heal on
+ []
+
+[1{C:/Users/aadih/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/aa
+dih/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}
 
 
 ]
@@ -1034,56 +1036,61 @@ Underfull \hbox (badness 2042) in paragraph at lines 214--215
  []
 
 [2]
+LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 2
+43.
+ (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.fd
+File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
+)
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [3]
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 381--382
+Underfull \hbox (badness 10000) in paragraph at lines 368--369
 []\OT1/ptm/m/n/10 Our code and live de-ploy-ment are
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 381--382
+Underfull \hbox (badness 10000) in paragraph at lines 368--369
 \OT1/ptm/m/n/10 on-line at []$https : / / github . com / AadiHaldar /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 381--382
+Underfull \hbox (badness 10000) in paragraph at lines 368--369
 \OT1/ptm/m/n/10 Agentic-[]AI-[]Self-[]Healing-[]Cloud-[]Infrastructure$[] and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 381--382
+Underfull \hbox (badness 10000) in paragraph at lines 368--369
 []$\OT1/ptm/m/n/10 https : / / pr-[]review-[]agent . wonderful^^Mower-[]41d6d2a
 5 . eastasia .
  []
 
 
-Underfull \hbox (badness 6961) in paragraph at lines 392--393
+Underfull \hbox (badness 6961) in paragraph at lines 379--380
 []\OT1/ptm/m/n/8 Kubernetes Doc-u-men-ta-tion, ``Hor-i-zon-tal Pod Au-toscaler,
 '' []$https :
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 392--393
+Underfull \hbox (badness 10000) in paragraph at lines 379--380
 \OT1/ptm/m/n/8 / / kubernetes . io / docs / tasks / run-[]application / horizon
 tal-[]pod-[]autoscale/$[],
  []
 
 
-Underfull \hbox (badness 6825) in paragraph at lines 407--408
+Underfull \hbox (badness 6825) in paragraph at lines 394--395
 []\OT1/ptm/m/n/8 Google LLC, ``On-line Bou-tique: A cloud-native mi-croser-vice
 s
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 407--408
+Underfull \hbox (badness 10000) in paragraph at lines 394--395
 \OT1/ptm/m/n/8 demo ap-pli-ca-tion,'' []$https : / / github . com / GoogleCloud
 Platform /
  []
 
 [5]
-Underfull \hbox (badness 3009) in paragraph at lines 411--412
+Underfull \hbox (badness 3009) in paragraph at lines 398--399
 []\OT1/ptm/m/n/8 M. Fowler, ``Blue-Green-De-ploy-ment,'' []$https : / / martinf
 owler . com / bliki /
  []
@@ -1101,9 +1108,7 @@ Before submitting the final camera ready copy, remember to:
 
 [6
 
-]
-(C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud Computing\Project
-\docs\paper\paper.aux)
+] (paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -1112,13 +1117,13 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: D1DFE137679BBE705FC5F85A14A1B56B;2785.
  ) 
 Here is how much of TeX's memory you used:
- 21966 strings out of 467871
- 415371 string characters out of 5418377
- 871865 words of memory out of 5000000
- 50407 multiletter control sequences out of 15000+600000
- 672181 words of font info for 126 fonts, out of 8000000 for 9000
+ 21999 strings out of 467871
+ 415342 string characters out of 5418377
+ 871024 words of memory out of 5000000
+ 50438 multiletter control sequences out of 15000+600000
+ 672696 words of font info for 128 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,14n,94p,1845b,864s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,14n,94p,1812b,864s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
 cmbx10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
 fonts/cm/cmbx5.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/pu
@@ -1140,15 +1145,15 @@ ams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/aadih/AppData/Loc
 al/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb><C:/Users/aad
 ih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm5.pfb>
 <C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbo
-ls/msbm7.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/time
-s/utmb8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/time
-s/utmbi8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
-es/utmr8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
-es/utmri8a.pfb>
-Output written on "C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud
- Computing\Project\docs\paper\paper.pdf" (6 pages, 321865 bytes).
+ls/msbm7.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/cour
+ier/ucrr8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/ti
+mes/utmb8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/ti
+mes/utmbi8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/t
+imes/utmr8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/t
+imes/utmri8a.pfb>
+Output written on paper.pdf (6 pages, 333639 bytes).
 PDF statistics:
- 371 PDF objects out of 1000 (max. 8388607)
- 75 named destinations out of 1000 (max. 500000)
+ 378 PDF objects out of 1000 (max. 8388607)
+ 73 named destinations out of 1000 (max. 500000)
  117 words of extra memory for PDF output out of 10000 (max. 10000000)
 
