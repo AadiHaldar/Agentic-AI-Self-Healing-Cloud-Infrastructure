@@ -20,6 +20,8 @@ Legend: 🔴 fix before you submit or claim it · 🟠 fix soon · 🟡 nice to 
 | A7 | kubectl failures were reported as `"[Simulated] … (Cluster Offline)"` and the API still said `success`. Now `failed` with the real stderr, and `dry_run` when kubectl is not installed. | `agentic_engine/tools/k8s_tools.py` |
 | A8 | The Vite console was **never served** (`dashboard/frontend/` won the mount). Order reversed: built Vite UI first, legacy UI as fallback. | `main.py` |
 | A9 | New `/api/meta` (what is really configured), `/api/topology/reset`, per-stage `timings` in `/api/evaluate`. Seed topology starts healthy so a demo can create the incident. | `main.py` |
+| A9b | `/api/meta` also reports whether a Kubernetes API is actually **reachable** (and the kube context); the console only offers *Execute* then. `K8S_NAMESPACE` selects the namespace (kind vs AKS). | `main.py`, `k8s_tools.py` |
+| A9c | `scripts/demo_e2e.py`: scripted end-to-end run / smoke test with 15 checks; recorded output in `docs/DEMO_E2E_SAMPLE_OUTPUT.txt`. | `scripts/` |
 | A10 | Demo seed data is switchable (`SEED_DEMO_DATA=0`) and the UI labels it. | `main.py` |
 | A11 | **UI rewritten.** No invented fallback numbers anywhere; offline shows as offline. Review/Auto-Fix read the real PRs and check runs from GitHub. No external fonts/CDNs (works on venue Wi-Fi). | `dashboard/frontend-vite/` |
 | A12 | Windows-only native packages moved to `optionalDependencies`, so `npm ci` works in the Linux Docker build. | `dashboard/frontend-vite/package.json` + lock |
@@ -110,6 +112,8 @@ merge, contradicting the paper ("if the score falls below our safety bar, the me
   synthetic anomalies are 5σ+ outside the healthy range, so 100% recall is trivial. Evaluate on a harder or real dataset.
 - RL agent: epsilon-greedy (10% random actions) in production, reward is a constant, `Q[s][a]` updates with `next_state == state`.
   Use greedy at inference and a real reward (post-action health from the twin).
+- **The RL agent always proposes `RESTART_POD`** for any anomaly (seeded Q-prior `[0.1, 0.8, 0.9, 0.7]`, never trained offline). In the
+  recorded run it agreed with live Gemini on 0 of 4 faults. Train it on twin rollouts, or describe it as a heuristic baseline.
 - `SimiFedRLAgent` uses cosine similarity to a single fixed baseline; "federated" is a name only. Say so, or implement it.
 - Twin state is process-local; `StateSynchronizer` (Prometheus) is never started by the app. Wire it up or drop the claim.
 - `PredictiveForecaster` (LSTM) is not used by any request path; the LLM prompt hard-codes "High exhaustion risk within 10 minutes".

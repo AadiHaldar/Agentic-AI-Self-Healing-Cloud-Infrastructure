@@ -112,7 +112,7 @@ def step(n: int, title: str, say: str):
 
 
 def load_dotenv_secret() -> str:
-    for candidate in (".env", os.path.join(os.path.dirname(__file__), "..", ".env")):
+    for candidate in (".env", ".env.app", os.path.join(os.path.dirname(__file__), "..", ".env"), os.path.join(os.path.dirname(__file__), "..", ".env.app")):
         try:
             for line in open(candidate, encoding="utf-8"):
                 if line.startswith("GITHUB_WEBHOOK_SECRET="):
@@ -205,7 +205,7 @@ def main() -> int:
         top = max(r["shap_scores"], key=lambda k: abs(r["shap_scores"][k]))
         sim = llm["simulation"]
         gate = "skipped" if sim["recommendation"] == "N/A" else ("SAFE" if sim["is_safe"] else "RISK")
-        rows.append((name, svc, det["model_flagged"], top, rl["action"], llm["proposed_action"], llm["source"].split(":")[0], gate,
+        rows.append((name, svc, det["model_flagged"], top if det["model_flagged"] else "-", rl["action"], llm["proposed_action"], llm["source"].split(":")[0], gate,
                      t["detect_ms"], t["shap_ms"], t["rl_ms"], t["llm_ms"]))
         check(f"{name}: anomaly {'flagged' if should_flag else 'NOT flagged'}", det["model_flagged"] == should_flag,
               f"score {det['anomaly_score']}")
@@ -219,10 +219,13 @@ def main() -> int:
     for (name, svc, flag, top, rlx, llmx, src, gate, d_, s_, r_, l_) in rows:
         print(f"   {name:<19}{str(flag):<6}{top:<14}{rlx:<13}{llmx:<13}{src:<9}{gate:<8}{d_:>6.1f}ms{s_:>6.1f}ms{r_:>5.1f}ms{l_ / 1000:>7.2f}s")
     if rows:
-        agree = sum(1 for r in rows if r[2] and r[4] == r[5])
-        flagged = sum(1 for r in rows if r[2])
-        print(DIM(f"   RL and LLM chose the same action in {agree}/{flagged} flagged runs. LLM source: {rows[-1][6]} "
-                  f"({'live model call' if rows[-1][6] == 'gemini' else 'canned fallback - no Gemini key on this server'})."))
+        live = all(r[6] == "gemini" for r in rows if r[2])
+        if live:
+            agree = sum(1 for r in rows if r[2] and r[4] == r[5])
+            flagged = sum(1 for r in rows if r[2])
+            print(DIM(f"   RL and LLM chose the same action in {agree}/{flagged} flagged runs (LLM = live Gemini calls)."))
+        else:
+            print(DIM("   LLM source is the canned fallback (no Gemini key / call failed on this server), so RL-vs-LLM agreement is not meaningful here."))
     check("healthy control raised no action", any(r[0] == "Healthy control" and not r[2] and r[5] == "DO_NOTHING" for r in rows))
 
     # ── 4. Acting ──────────────────────────────────────────────────────────

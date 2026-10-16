@@ -1,0 +1,55 @@
+# Recorded run of scripts/demo_e2e.py - laptop server, live Gemini, no cluster attached (plan-only).
+# Date: 2026-10-16T17:35Z   Use as a fallback if the live demo cannot run.
+
+
+STEP 0 - Platform facts
+   say: Before anything else: what is this deployment actually wired to?
+   version 2.0.0  uptime 70s  anomaly model trained: True
+   Gemini connected: True   cluster reachable: False (kind-boutique-cluster, ns online-boutique)   demo seed: True
+   [PASS] API reachable and anomaly model trained
+   [PASS] digital twin starts healthy  4 services
+
+STEP 1 - Shift-left: a risky change arrives
+   say: The same auditor that reviews every pull request; it parses the AST, nothing is executed.
+   vulnerable file -> grade F (0%), 7 findings in 4 categories [A02, A03, A08, A10]
+      critical line 9   Command Injection Risk (`shell=True`)
+      critical line 12  Insecure Deserialization via `pickle.loads()`
+      critical line 15  Dynamic Code Execution via `eval()`
+      critical line 6   SQL Injection via f-string string formatting
+   [PASS] vulnerable code is blocked by the gate (score < 85)  score 0
+   ...the agent proposes a fix; the fixed file is audited again:
+   fixed file      -> grade A+ (100%), 0 findings
+   [PASS] fixed code passes the gate
+   dependency audit -> 2 vulnerable pins: `pyyaml==5.3` (CVE-2020-14343); `requests==2.28.0` (CVE-2023-32681)
+   [PASS] dependency CVEs detected
+
+STEP 2 - Shift-left: the webhook front door
+   say: GitHub events are only accepted with a valid HMAC-SHA256 signature, and replays are ignored.
+   [PASS] unsigned request rejected (401)  HTTP 401
+   [PASS] wrong signature rejected (401)  HTTP 401
+   [PASS] correctly signed request accepted  HTTP 200 {'status': 'ignored', 'event': 'ping'}
+   [PASS] replayed delivery ignored  {'status': 'ignored', 'reason': 'duplicate_delivery'}
+   note: the GitHub App's webhook URL points at the production deployment, not this server; a live PR -> review round-trip is not exercised here.
+
+STEP 3 - Shift-right: faults hit the running cluster
+   say: Detect -> explain -> decide -> simulate -> (act). All timings below are measured on this server, per request.
+   [PASS] Healthy control: anomaly NOT flagged  score 0.1586
+   [PASS] Flash-sale surge: anomaly flagged  score -0.1858
+   [PASS] Thread deadlock: anomaly flagged  score -0.2164
+   [PASS] Memory leak: anomaly flagged  score -0.0645
+   [PASS] Cascading overload: anomaly flagged  score -0.2284
+
+   fault              flag  top SHAP      RL           LLM          LLM src  gate      detect    shap     rl      llm
+   Healthy control    False -             DO_NOTHING   DO_NOTHING   skipped  skipped   10.0ms  15.5ms  0.7ms   0.00s
+   Flash-sale surge   True  cpu_usage     RESTART_POD  SCALE_UP     gemini   SAFE       8.4ms  15.8ms  0.9ms   4.86s
+   Thread deadlock    True  cpu_usage     RESTART_POD  SCALE_UP     gemini   SAFE       6.9ms  12.3ms  0.9ms   4.91s
+   Memory leak        True  memory_usage  RESTART_POD  PATCH_LIMITS gemini   SAFE       8.1ms  13.6ms  0.6ms   6.24s
+   Cascading overload True  cpu_usage     RESTART_POD  SCALE_UP     gemini   SAFE       9.0ms  12.7ms  1.0ms   4.61s
+   RL and LLM chose the same action in 0/4 flagged runs (LLM = live Gemini calls).
+   [PASS] healthy control raised no action
+
+STEP 4 - Acting on the plan
+   say: Nothing touches the cluster unless the twin says SAFE and a cluster is reachable.
+   not executed (no cluster is reachable from this server, so runs are plan-only).
+
+SUMMARY: 15/15 checks passed in 21.4s
