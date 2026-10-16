@@ -410,8 +410,11 @@ async def install_page(request: Request) -> HTMLResponse:
         manifest_obj = _json.loads(manifest_raw)
         manifest_obj["name"] = f"agentic-review-agent-{int(_time.time()) % 100000}"
         manifest_obj["url"] = base_url
-        manifest_obj["hook_attributes"]["url"] = f"{base_url}/webhooks/github"
+        # WEBHOOK_PROXY_URL (e.g. a smee.io channel) lets GitHub reach a server that is not
+        # publicly addressable, such as a laptop; the browser-facing URLs stay on base_url.
+        manifest_obj["hook_attributes"]["url"] = os.getenv("WEBHOOK_PROXY_URL") or f"{base_url}/webhooks/github"
         manifest_obj["redirect_url"] = f"{base_url}/api/github/app-callback"
+        manifest_obj["public"] = False  # only the owner can install it; nobody else can trigger reviews
         events = manifest_obj.get("default_events", [])
         manifest_obj["default_events"] = [
             e for e in events if e not in ("installation", "installation_repositories")
@@ -440,6 +443,8 @@ async def install_page(request: Request) -> HTMLResponse:
     except Exception:
         pass
 
+    # /install?new=1 forces the registration form even if an App is already stored
+    app_configured = app_configured and request.query_params.get("new") != "1"
     if app_configured and installed_repos:
         repo_items = "".join(f"""
         <div class="repo-item">

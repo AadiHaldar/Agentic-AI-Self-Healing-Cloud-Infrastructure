@@ -176,13 +176,25 @@ def remove_installation_repo(installation_id: int, repo_full_name: str) -> None:
 
 
 def get_installation_id_for_repo(repo_full_name: str) -> Optional[int]:
-    """Resolve the installation_id for a given repo (used in pipeline auth)."""
+    """
+    Resolve the installation_id for a repo (used in pipeline auth).
+
+    A repo can be linked to several installations over time (re-registered Apps).
+    Prefer the installation that belongs to the currently configured App, then the newest,
+    otherwise an installation token minted with the current App key would 404.
+    """
+    current_app = get_app_config("GITHUB_APP_ID")
     with _conn() as con:
-        row = con.execute(
-            "SELECT installation_id FROM installation_repos WHERE repo_full_name=?",
+        rows = con.execute(
+            "SELECT ir.installation_id AS installation_id, i.app_id AS app_id "
+            "FROM installation_repos ir LEFT JOIN installations i ON i.installation_id = ir.installation_id "
+            "WHERE ir.repo_full_name=? ORDER BY i.installed_at DESC, ir.installation_id DESC",
             (repo_full_name,)
-        ).fetchone()
-    return row["installation_id"] if row else None
+        ).fetchall()
+    for r in rows:
+        if current_app and str(r["app_id"]) == str(current_app):
+            return r["installation_id"]
+    return rows[0]["installation_id"] if rows else None
 
 
 def delete_installation(installation_id: int) -> None:

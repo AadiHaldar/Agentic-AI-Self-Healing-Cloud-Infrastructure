@@ -207,3 +207,50 @@ The console and API will execute a gated plan only when a cluster is reachable (
 - **AKS** needs `az aks get-credentials` on the machine running the server and `K8S_NAMESPACE=default` (the Boutique there is in
   `default`). Only do this if you have rehearsed it; the actions change a real cluster.
 - Rehearse once before the review. If the cluster is not reachable on the day, the dry-run demo above is complete on its own.
+
+---
+
+## 8. Live PR review on GitHub (the real webhook path)
+
+This is the real thing: a pull request opened on GitHub is delivered by webhook (through the smee.io relay) to your laptop, reviewed by
+the pipeline, and the results are posted back by the GitHub App `agentic-review-agent-73886`. It was rehearsed end to end on PR #13.
+
+**Start (about 20 s):**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\live_demo.ps1
+```
+
+It opens two terminal windows (leave both visible: **RELAY** and **AGENTHEAL SERVER**), the console, and the GitHub
+"Open a pull request" form for branch `demo/live-review`. Check the READY block says *Gemini connected: True* and
+*PR-review webhook: True*, and the relay window says *Connected to https://smee.io/…*.
+
+**What you do and say:**
+
+| Step | Action | What to point at |
+|---|---|---|
+| 1 | In the GitHub tab, click **Create pull request** (title e.g. "Add payment service"). The branch adds one deliberately vulnerable file. | "A developer opens a PR. Nothing else is triggered by me." |
+| 2 | Switch to the **AGENTHEAL SERVER** window. Within a second you see `Received event: pull_request`. | "GitHub just called our webhook; the signature was verified." |
+| 3 | Watch the log: `Static analysis: N findings across 5 tools` → `LLM review: …` (the slow one, ~25 s) → `Test gap detection` → `Posted PR summary comment` → `Posted inline review with N comments` → `Check Run created: conclusion=failure`. | "Ruff, Bandit, detect-secrets, pip-audit, then Gemini, then the AST test-gap check." |
+| 4 | On the PR page: the **summary comment** (verification matrix, OWASP grade), then **Files changed** for the inline comments with severity, then the **Checks** tab: `review-agent/quality-gate` ✗. | "Merge is blocked by a real GitHub check, not a label." |
+| 5 | Add a comment: `@review-bot what is the most dangerous issue here and how do I fix it?` and wait ~30 s. | The bot answers using the actual diff, with a code fix. |
+
+Total time from *Create pull request* to the failing gate is **about 70 seconds** (measured). Fill the Gemini wait with step 4's explanation
+of the pipeline matrix, or have the PR page open on **Files changed** and refresh.
+
+**Safety net (if the live run fails or is slow):** PR **#13** is the rehearsal of exactly this flow, with the full review, 23 inline
+comments and the failing check. Open it and say "this is the same run from earlier". Also PR #11/#12 for the fix-PR story (their comments
+were script-posted, see section 2).
+
+**If nothing happens after opening the PR:**
+1. Is the RELAY window printing `POST … - 200` lines? If not, restart it (re-run the script).
+2. GitHub → *Settings → Developer settings → GitHub Apps → agentic-review-agent-73886 → Advanced → Recent deliveries* → click the
+   `pull_request` delivery → **Redeliver**.
+3. Or close and **Reopen** the PR (a `reopened` event also triggers a full review).
+
+**Caveats to state if asked:** the laptop must be online and running both windows; the relay (smee.io) is a third-party forwarder, but every
+request is HMAC-verified so a forged request is rejected (401); only the App's installation on this one repository can post. The first
+review of a PR includes a ~27 s Gemini call, and each posting step to GitHub takes several seconds.
+
+**After the demo:** close the demo PR in GitHub (do not merge it); stop the two terminal windows.
+

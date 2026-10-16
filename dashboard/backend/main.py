@@ -18,6 +18,8 @@ from agentic_engine.tools.k8s_tools import K8sRemediationTools
 from detection.anomaly.isolation_forest import MetricsAnomalyDetector
 from detection.explainer.shap_explainer import SHAPExplainer
 
+# Show the PR-review pipeline's progress in the server terminal (LOG_LEVEL=WARNING to quiet it).
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"), format="%(asctime)s %(levelname)s %(message)s", datefmt="%H:%M:%S")
 logger = logging.getLogger(__name__)
 
 app = FastAPI(

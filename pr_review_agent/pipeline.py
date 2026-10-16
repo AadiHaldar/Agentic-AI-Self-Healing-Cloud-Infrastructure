@@ -22,6 +22,7 @@ import logging
 import os
 import re
 import subprocess
+import shutil
 import tempfile
 import time
 import urllib.request
@@ -158,11 +159,26 @@ def _run_cmd(args: List[str], cwd: Optional[str] = None, timeout: int = 60) -> T
     import sys
     import site
     env = dict(os.environ)
-    user_scripts = os.path.join(site.USER_BASE, "Scripts")
-    py_scripts = os.path.join(os.path.dirname(sys.executable), "Scripts")
-    path_dirs = [d for d in [user_scripts, py_scripts] if os.path.isdir(d)]
+    import sysconfig
+    candidates = [
+        os.path.join(site.USER_BASE, "Scripts"),
+        os.path.join(site.USER_BASE, "bin"),
+        os.path.join(os.path.dirname(sys.executable), "Scripts"),
+        os.path.dirname(sys.executable),
+    ]
+    try:  # where `pip install --user` puts console scripts for this interpreter (e.g. ...\Python314\Scripts)
+        candidates.append(sysconfig.get_path("scripts", f"{os.name}_user"))
+    except Exception:
+        pass
+    path_dirs = [d for d in dict.fromkeys(candidates) if d and os.path.isdir(d)]
     if path_dirs:
         env["PATH"] = os.pathsep.join(path_dirs) + os.pathsep + env.get("PATH", "")
+
+    # On Windows CreateProcess resolves the program via the *parent's* PATH, ignoring env["PATH"],
+    # so resolve the executable explicitly against the augmented PATH.
+    resolved = shutil.which(args[0], path=env.get("PATH"))
+    if resolved:
+        args = [resolved] + list(args[1:])
 
     try:
         res = subprocess.run(
@@ -256,7 +272,8 @@ def _parse_pip_audit(stdout: str) -> List[Dict[str, Any]]:
     findings = []
     try:
         data = json.loads(stdout)
-        for dep in data:
+        deps = data.get("dependencies", []) if isinstance(data, dict) else data
+        for dep in deps:
             for vuln in dep.get("vulns", []):
                 findings.append({
                     "file": "requirements.txt",
@@ -318,21 +335,22 @@ def run_static_analysis(
         if stdout:
             findings.extend(_parse_detect_secrets(stdout))
 
-    # 4. pip-audit (Python, if requirements.txt or pyproject.toml present)
-    if "pip-audit" not in disabled:
-        has_req = any(
-            os.path.exists(os.path.join(cwd, f))
-            for f in ("requirements.txt", "pyproject.toml", "setup.py")
+    # 4. pip-audit: audit the PR's own requirements.txt. (Without -r, pip-audit would audit the
+    #    environment of the server running the review, not the code under review.)
+    if "pip-audit" not in disabled and os.path.exists(os.path.join(cwd, "requirements.txt")):
+        rc, stdout, stderr = _run_cmd(
+            ["pip-audit", "-r", "requirements.txt", "--no-deps", "--disable-pip", "--format=json"],
+            cwd=cwd, timeout=120,
         )
-        if has_req:
-            rc, stdout, stderr = _run_cmd(
-                ["pip-audit", "--format=json", "--no-deps"], cwd=cwd, timeout=120
-            )
-            if stdout:
-                findings.extend(_parse_pip_audit(stdout))
+        if stdout:
+            findings.extend(_parse_pip_audit(stdout))
+        elif stderr:
+            logger.debug("[pipeline] pip-audit stderr: %s", stderr[:200])
 
     # 5. ESLint (only if config present)
-    if "eslint" not in disabled:
+    # ESLint loads and executes the repository's own config file (arbitrary JS), so it only runs
+    # when explicitly enabled with ALLOW_ESLINT=1 on a trusted/sandboxed host.
+    if "eslint" not in disabled and os.getenv("ALLOW_ESLINT") == "1":
         eslint_configs = [
             ".eslintrc", ".eslintrc.js", ".eslintrc.json", ".eslintrc.yml",
             "eslint.config.js", "eslint.config.mjs",
@@ -364,7 +382,26 @@ def run_static_analysis(
                     pass
 
     logger.info("[pipeline] Static analysis: %d findings across %d tools", len(findings), 5 - len(disabled))
-    return findings
+    # Normalise paths to repo-relative POSIX form (GitHub inline comments need that) and drop repeats.
+    norm: List[Dict[str, Any]] = []
+    seen = set()
+    for f in findings:
+        path = str(f.get("file", ""))
+        if os.path.isabs(path):
+            try:
+                path = os.path.relpath(path, cwd)
+            except ValueError:
+                pass
+        path = path.replace("\\", "/")
+        while path.startswith("./"):
+            path = path[2:]
+        f["file"] = path
+        key = (f["file"], f.get("line"), f.get("rule_id"), f.get("message"))
+        if key in seen:
+            continue
+        seen.add(key)
+        norm.append(f)
+    return norm
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1090,7 +1127,7 @@ def post_quality_gate_check(
 # Full pipeline orchestrator
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_full_pipeline(
+def _run_full_pipeline_impl(
     repo_full_name: str,
     pr_number: int,
     commit_sha: str,
@@ -1194,3 +1231,74 @@ def run_full_pipeline(
         "truncated": truncation_note is not None,
         **post_result,
     }
+
+
+def checkout_pr_head(repo_full_name: str, sha: str, token: str, paths: Optional[List[str]] = None) -> Optional[str]:
+    """
+    Fetch the PR head commit into a temp dir so static analysis and test-gap detection run on the
+    code under review (not on whatever is in the server's cwd).
+
+    Uses a blobless, sparse checkout: only the changed files, requirements.txt and the tests/
+    directories are downloaded, so large repositories stay fast. Returns the directory, or None.
+    Never logs the command line (it carries the token).
+    """
+    import base64 as _b64
+    tmp = tempfile.mkdtemp(prefix="agentheal-pr-")
+    header = "Authorization: Basic " + _b64.b64encode(f"x-access-token:{token}".encode()).decode()
+    env = {**os.environ, "GIT_TERMINAL_PROMPT": "0"}
+    patterns = ["/requirements.txt", "/tests/", "/test/"] + [
+        "/" + p.lstrip("/") for p in (paths or []) if p and ".." not in p.split("/")
+    ]
+    steps = [
+        ("init", ["git", "init", "-q"]),
+        ("remote", ["git", "remote", "add", "origin", f"https://github.com/{repo_full_name}.git"]),
+        ("sparse", ["git", "sparse-checkout", "set", "--no-cone", *patterns]),
+        ("fetch", ["git", "-c", "credential.helper=", "-c", f"http.extraheader={header}",
+                   "fetch", "-q", "--depth", "1", "--filter=blob:none", "origin", sha]),
+        ("checkout", ["git", "-c", "credential.helper=", "-c", f"http.extraheader={header}",
+                      "checkout", "-q", "FETCH_HEAD"]),
+    ]
+    try:
+        for name, cmd in steps:
+            res = subprocess.run(cmd, cwd=tmp, capture_output=True, text=True, timeout=90, env=env, shell=False)
+            if res.returncode != 0:
+                logger.warning("[pipeline] PR checkout step '%s' failed: %s", name,
+                               (res.stderr or "").strip()[:160].replace(token, "***"))
+                shutil.rmtree(tmp, ignore_errors=True)
+                return None
+        return tmp
+    except Exception as e:  # message may embed the command line, so log only the type
+        logger.warning("[pipeline] PR checkout failed (%s)", type(e).__name__)
+        shutil.rmtree(tmp, ignore_errors=True)
+        return None
+
+
+def run_full_pipeline(
+    repo_full_name: str,
+    pr_number: int,
+    commit_sha: str,
+    token: str,
+    repo_path: Optional[str] = None,
+    gemini_client=None,
+) -> Dict[str, Any]:
+    """
+    Run the complete PR review pipeline. Unless `repo_path` is given, the PR head commit is
+    checked out into a temp dir so every analyser sees the real code under review.
+    """
+    own_checkout = None
+    if repo_path is None:
+        try:
+            changed = [f["filename"] for f in fetch_pr_diff(repo_full_name, pr_number, token)]
+        except Exception:
+            changed = []
+        own_checkout = checkout_pr_head(repo_full_name, commit_sha, token, changed)
+        if own_checkout is None:
+            logger.warning("[pipeline] could not check out %s@%s; static analysis falls back to the server cwd",
+                           repo_full_name, commit_sha[:7])
+        repo_path = own_checkout
+    try:
+        return _run_full_pipeline_impl(repo_full_name, pr_number, commit_sha, token,
+                                       repo_path=repo_path, gemini_client=gemini_client)
+    finally:
+        if own_checkout:
+            shutil.rmtree(own_checkout, ignore_errors=True)
