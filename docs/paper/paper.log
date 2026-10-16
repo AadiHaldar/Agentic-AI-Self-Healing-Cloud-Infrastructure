@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  16 OCT 2026 11:13
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  16 OCT 2026 12:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -798,13 +798,13 @@ Package hyperref Info: Link coloring OFF on input line 28.
 \@outlinefile=\write4
 \openout4 = `paper.out'.
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 59.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 41.
 
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 59.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 41.
 
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
@@ -1080,13 +1080,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 407--408
 Platform /
  []
 
-
+[5]
 Underfull \hbox (badness 3009) in paragraph at lines 411--412
 []\OT1/ptm/m/n/8 M. Fowler, ``Blue-Green-De-ploy-ment,'' []$https : / / martinf
 owler . com / bliki /
  []
 
-[5]
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -1111,13 +1110,13 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: D1DFE137679BBE705FC5F85A14A1B56B;2785.
  ) 
 Here is how much of TeX's memory you used:
- 21956 strings out of 467871
- 415275 string characters out of 5418377
- 870769 words of memory out of 5000000
- 50401 multiletter control sequences out of 15000+600000
- 670636 words of font info for 120 fonts, out of 8000000 for 9000
+ 21966 strings out of 467871
+ 415371 string characters out of 5418377
+ 871865 words of memory out of 5000000
+ 50407 multiletter control sequences out of 15000+600000
+ 672181 words of font info for 126 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,14n,94p,1197b,864s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,14n,94p,1646b,864s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
 cmbx10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
 fonts/cm/cmbx5.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/pu
@@ -1127,26 +1126,27 @@ eX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/aadih/AppData/Local/Prog
 rams/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi5.pfb><C:/Users/aadih/AppData/Lo
 cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/aadih/Ap
 pData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/
-aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C
-:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5
-.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/
-cm/cmr7.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/am
-sfonts/cm/cmr8.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/pu
-blic/amsfonts/cm/cmsy10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts
-/type1/public/amsfonts/cm/cmsy5.pfb><C:/Users/aadih/AppData/Local/Programs/MiKT
-eX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/aadih/AppData/Local/Progr
-ams/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb><C:/Users/aadih/AppDa
-ta/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm5.pfb><C:/User
-s/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm7
-.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a
-.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8
-a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8
-a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri
-8a.pfb>
+aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi9.pfb><C
+:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr1
+0.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
+/cm/cmr5.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/a
+msfonts/cm/cmr7.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/p
+ublic/amsfonts/cm/cmr8.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/
+type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Users/aadih/AppData/Local/Progr
+ams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/aadih/AppData/Loc
+al/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb><C:/Users/aad
+ih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm5.pfb>
+<C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbo
+ls/msbm7.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/time
+s/utmb8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/time
+s/utmbi8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
+es/utmr8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
+es/utmri8a.pfb>
 Output written on "C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud
- Computing\Project\docs\paper\paper.pdf" (6 pages, 311709 bytes).
+ Computing\Project\docs\paper\paper.pdf" (6 pages, 321723 bytes).
 PDF statistics:
- 366 PDF objects out of 1000 (max. 8388607)
+ 371 PDF objects out of 1000 (max. 8388607)
  75 named destinations out of 1000 (max. 500000)
  117 words of extra memory for PDF output out of 10000 (max. 10000000)
 
