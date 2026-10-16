@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  16 OCT 2026 16:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  16 OCT 2026 17:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1041,7 +1041,7 @@ Underfull \hbox (badness 2042) in paragraph at lines 214--215
  []
 
 
-Underfull \vbox (badness 1253) has occurred while \output is active []
+Underfull \vbox (badness 2318) has occurred while \output is active []
 
  [2]
 Overfull \vbox (14.75352pt too high) has occurred while \output is active []
@@ -1127,7 +1127,7 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 Here is how much of TeX's memory you used:
  21999 strings out of 467871
  415342 string characters out of 5418377
- 873285 words of memory out of 5000000
+ 874253 words of memory out of 5000000
  50438 multiletter control sequences out of 15000+600000
  672696 words of font info for 128 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1159,7 +1159,7 @@ mes/utmb8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/ti
 mes/utmbi8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/t
 imes/utmr8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/t
 imes/utmri8a.pfb>
-Output written on paper.pdf (6 pages, 335168 bytes).
+Output written on paper.pdf (6 pages, 335184 bytes).
 PDF statistics:
  383 PDF objects out of 1000 (max. 8388607)
  73 named destinations out of 1000 (max. 500000)
