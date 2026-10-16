@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  16 OCT 2026 16:39
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  16 OCT 2026 16:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -804,6 +804,11 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 41.
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
+Underfull \hbox (badness 10000) in paragraph at lines 52--53
+[]\OT1/ptm/m/n/10 Currently, there are two com-pletely in-de-pen-dent
+ []
+
+
 Underfull \hbox (badness 1400) in paragraph at lines 59--60
 \OT1/ptm/m/n/10 actuation safety gate that eval-u-ates can-di-date self-
  []
@@ -1035,62 +1040,65 @@ Underfull \hbox (badness 2042) in paragraph at lines 214--215
 -al-iza-tion like
  []
 
-[2]
+
+Underfull \vbox (badness 1253) has occurred while \output is active []
+
+ [2]
+Overfull \vbox (14.75352pt too high) has occurred while \output is active []
+
 LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 2
 43.
- (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.fd
+
+(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [3]
-[4]
-Underfull \hbox (badness 10000) in paragraph at lines 368--369
+[3] [4]
+Underfull \hbox (badness 10000) in paragraph at lines 366--367
 []\OT1/ptm/m/n/10 Our code and live de-ploy-ment are
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 368--369
+Underfull \hbox (badness 10000) in paragraph at lines 366--367
 \OT1/ptm/m/n/10 on-line at []$https : / / github . com / AadiHaldar /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 368--369
+Underfull \hbox (badness 10000) in paragraph at lines 366--367
 \OT1/ptm/m/n/10 Agentic-[]AI-[]Self-[]Healing-[]Cloud-[]Infrastructure$[] and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 368--369
+Underfull \hbox (badness 10000) in paragraph at lines 366--367
 []$\OT1/ptm/m/n/10 https : / / pr-[]review-[]agent . wonderful^^Mower-[]41d6d2a
 5 . eastasia .
  []
 
 
-Underfull \hbox (badness 6961) in paragraph at lines 379--380
+Underfull \hbox (badness 6961) in paragraph at lines 377--378
 []\OT1/ptm/m/n/8 Kubernetes Doc-u-men-ta-tion, ``Hor-i-zon-tal Pod Au-toscaler,
 '' []$https :
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 379--380
+Underfull \hbox (badness 10000) in paragraph at lines 377--378
 \OT1/ptm/m/n/8 / / kubernetes . io / docs / tasks / run-[]application / horizon
 tal-[]pod-[]autoscale/$[],
  []
 
 
-Underfull \hbox (badness 6825) in paragraph at lines 394--395
+Underfull \hbox (badness 6825) in paragraph at lines 392--393
 []\OT1/ptm/m/n/8 Google LLC, ``On-line Bou-tique: A cloud-native mi-croser-vice
 s
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 394--395
+Underfull \hbox (badness 10000) in paragraph at lines 392--393
 \OT1/ptm/m/n/8 demo ap-pli-ca-tion,'' []$https : / / github . com / GoogleCloud
 Platform /
  []
 
 [5]
-Underfull \hbox (badness 3009) in paragraph at lines 398--399
+Underfull \hbox (badness 3009) in paragraph at lines 396--397
 []\OT1/ptm/m/n/8 M. Fowler, ``Blue-Green-De-ploy-ment,'' []$https : / / martinf
 owler . com / bliki /
  []
@@ -1119,7 +1127,7 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 Here is how much of TeX's memory you used:
  21999 strings out of 467871
  415342 string characters out of 5418377
- 871024 words of memory out of 5000000
+ 873285 words of memory out of 5000000
  50438 multiletter control sequences out of 15000+600000
  672696 words of font info for 128 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1151,9 +1159,9 @@ mes/utmb8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/ti
 mes/utmbi8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/t
 imes/utmr8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/t
 imes/utmri8a.pfb>
-Output written on paper.pdf (6 pages, 333639 bytes).
+Output written on paper.pdf (6 pages, 335154 bytes).
 PDF statistics:
- 378 PDF objects out of 1000 (max. 8388607)
+ 383 PDF objects out of 1000 (max. 8388607)
  73 named destinations out of 1000 (max. 500000)
  117 words of extra memory for PDF output out of 10000 (max. 10000000)
 
