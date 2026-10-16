@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  27 SEP 2026 13:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.8)  16 OCT 2026 11:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**./paper.tex
-(paper.tex
+**./docs/paper/paper.tex
+(docs/paper/paper.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/ieeetran\IEEEtran.cls
@@ -115,14 +115,7 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <24> not available
 \IEEEPARstartletwidth=\dimen171
 \c@IEEEbiography=\count289
 \@IEEEtranrubishbin=\box54
-)
-** ATTENTION: Overriding command lockouts (line 2).
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/cite\cite.sty
-LaTeX Info: Redefining \cite on input line 302.
-LaTeX Info: Redefining \nocite on input line 332.
-Package: cite 2015/02/27  v 5.5
-)
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+) (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
 Package: amsmath 2025/07/09 v2.17z AMS math features
 \@mathmargin=\skip52
 
@@ -200,42 +193,14 @@ Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-))
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/algorithms\algorithmic.
-sty
-Package: algorithmic 2009/08/24 v0.1 Document Style `algorithmic'
- (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.sty
-Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
-)
+)) (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.st
+y
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks23
 )
-\c@ALC@unique=\count302
-\c@ALC@line=\count303
-\c@ALC@rem=\count304
-\c@ALC@depth=\count305
-\ALC@tlm=\skip55
-\algorithmicindent=\skip56
-)
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/algorithms\algorithm.st
-y
-Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating enviro
-nment
- (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
-Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count306
-\float@exts=\toks24
-\float@box=\box57
-\@float@everytoks=\toks25
-\@floatcapt=\box58
-)
-\@float@every@algorithm=\toks26
-\c@algorithm=\count307
-)
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
-Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
-
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
 Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
 
@@ -253,27 +218,8 @@ File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen181
 \Gin@req@width=\dimen182
-) (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/base\textcomp.sty
-Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
 )
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
-Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
-
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
-File: color.cfg 2016/01/02 v1.6 sample color configuration
-)
-Package xcolor Info: Driver file: pdftex.def on input line 274.
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx)
-Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
-Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
-Package xcolor Info: Model `RGB' extended on input line 1365.
-Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
-Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
-Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
-Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
-Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
-Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
-) (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
+(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \heavyrulewidth=\dimen183
 \lightrulewidth=\dimen184
@@ -285,14 +231,22 @@ Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \cmidrulesep=\dimen190
 \cmidrulekern=\dimen191
 \defaultaddspace=\dimen192
-\@cmidla=\count308
-\@cmidlb=\count309
+\@cmidla=\count302
+\@cmidlb=\count303
 \@aboverulesep=\dimen193
 \@belowrulesep=\dimen194
-\@thisruleclass=\count310
-\@lastruleclass=\count311
+\@thisruleclass=\count304
+\@lastruleclass=\count305
 \@thisrulewidth=\dimen195
-) (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
+)
+(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/multirow\multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip55
+\multirow@cntb=\count306
+\multirow@dima=\skip56
+\bigstrutjot=\dimen196
+)
+(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
 \Urlmuskip=\muskip18
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
@@ -345,20 +299,20 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
-\c@section@level=\count312
+\c@section@level=\count307
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty
 Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count313
+\etb@tempcnta=\count308
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.s
 ty
 Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
 )
 )
-\@linkdim=\dimen196
-\Hy@linkcounter=\count314
-\Hy@pagecounter=\count315
+\@linkdim=\dimen197
+\Hy@linkcounter=\count309
+\Hy@pagecounter=\count310
  (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
 File: pd1enc.def 2025-07-12 v7.01o Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
@@ -366,7 +320,7 @@ Now handling font encoding PD1 ...
 ) (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
-\Hy@SavedSpaceFactor=\count316
+\Hy@SavedSpaceFactor=\count311
  (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
 File: puenc.def 2025-07-12 v7.01o Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
@@ -379,9 +333,9 @@ Package hyperref Info: Plain pages OFF on input line 4210.
 Package hyperref Info: Backreferencing OFF on input line 4215.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4462.
-\c@Hy@tempcnt=\count317
+\c@Hy@tempcnt=\count312
 LaTeX Info: Redefining \url on input line 4801.
-\XeTeXLinkMargin=\dimen197
+\XeTeXLinkMargin=\dimen198
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
@@ -391,9 +345,9 @@ Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
 )
 ))
-\Fld@menulength=\count318
-\Field@Width=\dimen198
-\Fld@charsize=\dimen199
+\Fld@menulength=\count313
+\Field@Width=\dimen199
+\Fld@charsize=\dimen256
 Package hyperref Info: Hyper figures OFF on input line 6078.
 Package hyperref Info: Link nesting OFF on input line 6083.
 Package hyperref Info: Hyper index ON on input line 6086.
@@ -401,16 +355,16 @@ Package hyperref Info: backreferencing OFF on input line 6093.
 Package hyperref Info: Link coloring OFF on input line 6098.
 Package hyperref Info: Link coloring with OCG OFF on input line 6103.
 Package hyperref Info: PDF/A mode OFF on input line 6108.
-\Hy@abspage=\count319
-\c@Item=\count320
-\c@Hfootnote=\count321
+\Hy@abspage=\count314
+\c@Item=\count315
+\c@Hfootnote=\count316
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
 File: hpdftex.def 2025-07-12 v7.01o Hyperref driver for pdfTeX
-\Fld@listcount=\count322
-\c@bookmark@seq@number=\count323
+\Fld@listcount=\count317
+\c@bookmark@seq@number=\count318
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfil
 echeck.sty
@@ -425,67 +379,37 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 )
 \Hy@SectionHShift=\skip57
 )
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/multirow\multirow.sty
-Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
-\multirow@colwidth=\skip58
-\multirow@cntb=\count324
-\multirow@dima=\skip59
-\bigstrutjot=\dimen256
+(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+
+(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+) (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
 Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
 \col@sep=\dimen257
-\ar@mcellbox=\box59
+\ar@mcellbox=\box57
 \extrarowheight=\dimen258
-\NC@list=\toks27
-\extratabsurround=\skip60
-\backup@length=\skip61
-\ar@cellbox=\box60
+\NC@list=\toks24
+\extratabsurround=\skip58
+\backup@length=\skip59
+\ar@cellbox=\box58
 )
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.sty
-Package: tabularx 2023/12/11 v2.12a `tabularx' package (DPC)
-\TX@col@width=\dimen259
-\TX@old@table=\dimen260
-\TX@old@col=\dimen261
-\TX@target=\dimen262
-\TX@delta=\dimen263
-\TX@cols=\count325
-\TX@ftn=\toks28
+(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/preprint\balance.sty
+Package: balance 1999/02/23 4.3 (PWD)
+\oldvsize=\dimen259
 )
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
-\lst@mode=\count326
-\lst@gtempboxa=\box61
-\lst@token=\toks29
-\lst@length=\count327
-\lst@currlwidth=\dimen264
-\lst@column=\count328
-\lst@pos=\count329
-\lst@lostspace=\dimen265
-\lst@width=\dimen266
-\lst@newlines=\count330
-\lst@lineno=\count331
-\lst@maxwidth=\dimen267
-
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstpatch.sty
-File: lstpatch.sty 2025/11/14 1.11b (Carsten Heinz)
-)
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
-File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
-\c@lstnumber=\count332
-\lst@skipnumbers=\count333
-\lst@framebox=\box62
-)
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
-File: listings.cfg 2025/11/14 1.11b listings configuration
-))
-Package: listings 2025/11/14 1.11b (Carsten Heinz)
-==> First Aid for listings.sty no longer applied!
-    Expected:
-        2024/09/23 1.10c (Carsten Heinz)
-    but found:
-        2025/11/14 1.11b (Carsten Heinz)
-    so I'm assuming it got fixed.
-
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/pgf/frontendlayer\tikz.
 sty
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/pgf/basiclayer\pgf.sty
@@ -493,13 +417,13 @@ sty
 y
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfutil
 -common.tex
-\pgfutil@everybye=\toks30
-\pgfutil@tempdima=\dimen268
-\pgfutil@tempdimb=\dimen269
+\pgfutil@everybye=\toks25
+\pgfutil@tempdima=\dimen260
+\pgfutil@tempdimb=\dimen261
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfutil
 -latex.def
-\pgfutil@abb=\box63
+\pgfutil@abb=\box59
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfrcs.
 code.tex
@@ -518,33 +442,33 @@ Package: pgfsys 2025-08-29 v3.1.11a (3.1.11a)
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfkeys
 .code.tex
-\pgfkeys@pathtoks=\toks31
-\pgfkeys@temptoks=\toks32
+\pgfkeys@pathtoks=\toks26
+\pgfkeys@temptoks=\toks27
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfkeys
 libraryfiltered.code.tex
-\pgfkeys@tmptoks=\toks33
+\pgfkeys@tmptoks=\toks28
 ))
-\pgf@x=\dimen270
-\pgf@y=\dimen271
-\pgf@xa=\dimen272
-\pgf@ya=\dimen273
-\pgf@xb=\dimen274
-\pgf@yb=\dimen275
-\pgf@xc=\dimen276
-\pgf@yc=\dimen277
-\pgf@xd=\dimen278
-\pgf@yd=\dimen279
+\pgf@x=\dimen262
+\pgf@y=\dimen263
+\pgf@xa=\dimen264
+\pgf@ya=\dimen265
+\pgf@xb=\dimen266
+\pgf@yb=\dimen267
+\pgf@xc=\dimen268
+\pgf@yc=\dimen269
+\pgf@xd=\dimen270
+\pgf@yd=\dimen271
 \w@pgf@writea=\write3
 \r@pgf@reada=\read2
-\c@pgf@counta=\count334
-\c@pgf@countb=\count335
-\c@pgf@countc=\count336
-\c@pgf@countd=\count337
-\t@pgf@toka=\toks34
-\t@pgf@tokb=\toks35
-\t@pgf@tokc=\toks36
-\pgf@sys@id@count=\count338
+\c@pgf@counta=\count319
+\c@pgf@countb=\count320
+\c@pgf@countc=\count321
+\c@pgf@countd=\count322
+\t@pgf@toka=\toks29
+\t@pgf@tokb=\toks30
+\t@pgf@tokc=\toks31
+\pgf@sys@id@count=\count323
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgf.c
 fg
@@ -563,8 +487,8 @@ File: pgfsys-common-pdf.def 2025-08-29 v3.1.11a (3.1.11a)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsy
 ssoftpath.code.tex
 File: pgfsyssoftpath.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgfsyssoftpath@smallbuffer@items=\count339
-\pgfsyssoftpath@bigbuffer@items=\count340
+\pgfsyssoftpath@smallbuffer@items=\count324
+\pgfsyssoftpath@bigbuffer@items=\count325
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsy
 sprotocol.code.tex
@@ -580,12 +504,12 @@ Package: pgfcore 2025-08-29 v3.1.11a (3.1.11a)
 code.tex)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathparse
 r.code.tex
-\pgfmath@dimen=\dimen280
-\pgfmath@count=\count341
-\pgfmath@box=\box64
-\pgfmath@toks=\toks37
-\pgfmath@stack@operand=\toks38
-\pgfmath@stack@operation=\toks39
+\pgfmath@dimen=\dimen272
+\pgfmath@count=\count326
+\pgfmath@box=\box60
+\pgfmath@toks=\toks32
+\pgfmath@stack@operand=\toks33
+\pgfmath@stack@operation=\toks34
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunct
 ions.code.tex)
@@ -609,59 +533,59 @@ ions.integerarithmetics.code.tex)
 code.tex)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfloat
 .code.tex
-\c@pgfmathroundto@lastzeros=\count342
+\c@pgfmathroundto@lastzeros=\count327
 ))
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfint.code.
 tex)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 epoints.code.tex
 File: pgfcorepoints.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgf@picminx=\dimen281
-\pgf@picmaxx=\dimen282
-\pgf@picminy=\dimen283
-\pgf@picmaxy=\dimen284
-\pgf@pathminx=\dimen285
-\pgf@pathmaxx=\dimen286
-\pgf@pathminy=\dimen287
-\pgf@pathmaxy=\dimen288
-\pgf@xx=\dimen289
-\pgf@xy=\dimen290
-\pgf@yx=\dimen291
-\pgf@yy=\dimen292
-\pgf@zx=\dimen293
-\pgf@zy=\dimen294
+\pgf@picminx=\dimen273
+\pgf@picmaxx=\dimen274
+\pgf@picminy=\dimen275
+\pgf@picmaxy=\dimen276
+\pgf@pathminx=\dimen277
+\pgf@pathmaxx=\dimen278
+\pgf@pathminy=\dimen279
+\pgf@pathmaxy=\dimen280
+\pgf@xx=\dimen281
+\pgf@xy=\dimen282
+\pgf@yx=\dimen283
+\pgf@yy=\dimen284
+\pgf@zx=\dimen285
+\pgf@zy=\dimen286
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 epathconstruct.code.tex
 File: pgfcorepathconstruct.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgf@path@lastx=\dimen295
-\pgf@path@lasty=\dimen296
+\pgf@path@lastx=\dimen287
+\pgf@path@lasty=\dimen288
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 epathusage.code.tex
 File: pgfcorepathusage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgf@shorten@end@additional=\dimen297
-\pgf@shorten@start@additional=\dimen298
+\pgf@shorten@end@additional=\dimen289
+\pgf@shorten@start@additional=\dimen290
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 escopes.code.tex
 File: pgfcorescopes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgfpic=\box65
-\pgf@hbox=\box66
-\pgf@layerbox@main=\box67
-\pgf@picture@serial@count=\count343
+\pgfpic=\box61
+\pgf@hbox=\box62
+\pgf@layerbox@main=\box63
+\pgf@picture@serial@count=\count328
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 egraphicstate.code.tex
 File: pgfcoregraphicstate.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgflinewidth=\dimen299
+\pgflinewidth=\dimen291
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 etransformations.code.tex
 File: pgfcoretransformations.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgf@pt@x=\dimen300
-\pgf@pt@y=\dimen301
-\pgf@pt@temp=\dimen302
+\pgf@pt@x=\dimen292
+\pgf@pt@y=\dimen293
+\pgf@pt@temp=\dimen294
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 equick.code.tex
@@ -678,14 +602,14 @@ File: pgfcorepathprocessing.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 earrows.code.tex
 File: pgfcorearrows.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgfarrowsep=\dimen303
+\pgfarrowsep=\dimen295
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 eshade.code.tex
 File: pgfcoreshade.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgf@max=\dimen304
-\pgf@sys@shading@range@num=\count344
-\pgf@shadingcount=\count345
+\pgf@max=\dimen296
+\pgf@sys@shading@range@num=\count329
+\pgf@shadingcount=\count330
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 eimage.code.tex
@@ -694,7 +618,7 @@ File: pgfcoreimage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 eexternal.code.tex
 File: pgfcoreexternal.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgfexternal@startupbox=\box68
+\pgfexternal@startupbox=\box64
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
 elayers.code.tex
@@ -715,7 +639,7 @@ File: pgfcorerdf.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\pgfmodule
 shapes.code.tex
 File: pgfmoduleshapes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgfnodeparttextbox=\box69
+\pgfnodeparttextbox=\box65
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\pgfmodule
 plot.code.tex
@@ -724,8 +648,8 @@ File: pgfmoduleplot.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/pgf/compatibility\pgfco
 mp-version-0-65.sty
 Package: pgfcomp-version-0-65 2025-08-29 v3.1.11a (3.1.11a)
-\pgf@nodesepstart=\dimen305
-\pgf@nodesepend=\dimen306
+\pgf@nodesepstart=\dimen297
+\pgf@nodesepend=\dimen298
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/pgf/compatibility\pgfco
 mp-version-1-18.sty
@@ -743,10 +667,10 @@ ty
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgffor.
 code.tex
 Package: pgffor 2025-08-29 v3.1.11a (3.1.11a)
-\pgffor@iter=\dimen307
-\pgffor@skip=\dimen308
-\pgffor@stack=\toks40
-\pgffor@toks=\toks41
+\pgffor@iter=\dimen299
+\pgffor@skip=\dimen300
+\pgffor@stack=\toks35
+\pgffor@toks=\toks36
 ))
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tik
 z\tikz.code.tex
@@ -755,56 +679,39 @@ Package: tikz 2025-08-29 v3.1.11a (3.1.11a)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries\pgflibr
 aryplothandlers.code.tex
 File: pgflibraryplothandlers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgf@plot@mark@count=\count346
-\pgfplotmarksize=\dimen309
+\pgf@plot@mark@count=\count331
+\pgfplotmarksize=\dimen301
 )
-\tikz@lastx=\dimen310
-\tikz@lasty=\dimen311
-\tikz@lastxsaved=\dimen312
-\tikz@lastysaved=\dimen313
-\tikz@lastmovetox=\dimen314
-\tikz@lastmovetoy=\dimen315
-\tikzleveldistance=\dimen316
-\tikzsiblingdistance=\dimen317
-\tikz@figbox=\box70
-\tikz@figbox@bg=\box71
-\tikz@tempbox=\box72
-\tikz@tempbox@bg=\box73
-\tikztreelevel=\count347
-\tikznumberofchildren=\count348
-\tikznumberofcurrentchild=\count349
-\tikz@fig@count=\count350
+\tikz@lastx=\dimen302
+\tikz@lasty=\dimen303
+\tikz@lastxsaved=\dimen304
+\tikz@lastysaved=\dimen305
+\tikz@lastmovetox=\dimen306
+\tikz@lastmovetoy=\dimen307
+\tikzleveldistance=\dimen308
+\tikzsiblingdistance=\dimen309
+\tikz@figbox=\box66
+\tikz@figbox@bg=\box67
+\tikz@tempbox=\box68
+\tikz@tempbox@bg=\box69
+\tikztreelevel=\count332
+\tikznumberofchildren=\count333
+\tikznumberofcurrentchild=\count334
+\tikz@fig@count=\count335
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\pgfmodule
 matrix.code.tex
 File: pgfmodulematrix.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\pgfmatrixcurrentrow=\count351
-\pgfmatrixcurrentcolumn=\count352
-\pgf@matrix@numberofcolumns=\count353
+\pgfmatrixcurrentrow=\count336
+\pgfmatrixcurrentcolumn=\count337
+\pgf@matrix@numberofcolumns=\count338
 )
-\tikz@expandcount=\count354
+\tikz@expandcount=\count339
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tik
 z/libraries\tikzlibrarytopaths.code.tex
 File: tikzlibrarytopaths.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 )))
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tik
-z/libraries\tikzlibraryshapes.geometric.code.tex
-File: tikzlibraryshapes.geometric.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries/shapes\
-pgflibraryshapes.geometric.code.tex
-File: pgflibraryshapes.geometric.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-))
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tik
-z/libraries\tikzlibraryarrows.code.tex
-File: tikzlibraryarrows.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries\pgflibr
-aryarrows.code.tex
-File: pgflibraryarrows.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-\arrowsize=\dimen318
-))
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tik
 z/libraries\tikzlibrarypositioning.code.tex
 File: tikzlibrarypositioning.code.tex 2025-08-29 v3.1.11a (3.1.11a)
@@ -813,54 +720,64 @@ File: tikzlibrarypositioning.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 z/libraries\tikzlibraryfit.code.tex
 File: tikzlibraryfit.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 )
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tik
-z/libraries\tikzlibrarycalc.code.tex
-File: tikzlibrarycalc.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries\pgflibr
+aryarrows.meta.code.tex
+File: pgflibraryarrows.meta.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfarrowinset=\dimen310
+\pgfarrowlength=\dimen311
+\pgfarrowwidth=\dimen312
+\pgfarrowlinewidth=\dimen313
 )
-Package hyperref Info: Option `colorlinks' set `true' on input line 20.
-
+(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tik
+z/libraries\tikzlibrarybackgrounds.code.tex
+File: tikzlibrarybackgrounds.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@layerbox@background=\box70
+\pgf@layerboxsaved@background=\box71
+)
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
 tex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count355
-) (paper.aux)
+\l__color_backend_stack_int=\count340
+)
+(C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud Computing\Project
+\docs\paper\paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
 
 -- Lines per column: 56 (exact).
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
 ii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count356
-\scratchdimen=\dimen319
-\scratchbox=\box74
-\nofMPsegments=\count357
-\nofMParguments=\count358
-\everyMPshowfont=\toks42
-\MPscratchCnt=\count359
-\MPscratchDim=\dimen320
-\MPnumerator=\count360
-\makeMPintoPDFobject=\count361
-\everyMPtoPDFconversion=\toks43
+\scratchcounter=\count341
+\scratchdimen=\dimen314
+\scratchbox=\box72
+\nofMPsegments=\count342
+\nofMParguments=\count343
+\everyMPshowfont=\toks37
+\MPscratchCnt=\count344
+\MPscratchDim=\dimen315
+\MPnumerator=\count345
+\makeMPintoPDFobject=\count346
+\everyMPtoPDFconversion=\toks38
 )
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
 ase.sty
@@ -872,239 +789,304 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 fg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring ON on input line 25.
- (paper.out) (paper.out)
+Package hyperref Info: Link coloring OFF on input line 28.
+
+(C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud Computing\Project
+\docs\paper\paper.out)
+(C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud Computing\Project
+\docs\paper\paper.out)
 \@outlinefile=\write4
 \openout4 = `paper.out'.
 
-\c@lstlisting=\count362
-LaTeX Font Info:    Trying to load font information for U+msa on input line 58.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 59.
 
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 58.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 59.
 
 
 (C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \hbox (badness 10000) in paragraph at lines 69--70
-[]\OT1/ptm/m/n/10 Distributed cloud-native ap-pli-ca-tions de-ployed on
- []
-
-
-Underfull \hbox (badness 6493) in paragraph at lines 69--70
-\OT1/ptm/m/n/10 Kubernetes-orchestrated mi-croser-vice ar-chi-tec-tures suf-fer
-
- []
-
-
-Underfull \hbox (badness 1558) in paragraph at lines 69--70
-\OT1/ptm/m/n/10 by pre-ventable soft-ware de-fects [[][]1[][]]. Sec-ond, even w
-ith
- []
-
-
-Underfull \hbox (badness 5302) in paragraph at lines 84--85
-\OT1/ptm/b/n/10 En-gine \OT1/ptm/m/n/10 pro-vid-ing quan-ti-ta-tive com-pli-anc
-e scor-ing
- []
-
-
-Underfull \hbox (badness 7326) in paragraph at lines 85--86
-[]\OT1/ptm/m/n/10 A \OT1/ptm/b/n/10 three-layer safety ar-chi-tec-ture\OT1/ptm/
-m/n/10 : de-ter-min-is-tic
- []
-
-
-Underfull \hbox (badness 1418) in paragraph at lines 85--86
-\OT1/ptm/m/n/10 sus, and SimPy $\OML/cmm/m/it/10 M=M=c$ \OT1/ptm/m/n/10 pre-exe
-cution digital-twin
- []
-
 [1{C:/Users/aadih/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/aa
 dih/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}
 
 
 ]
-LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 1
-52.
-
-(C:\Users\aadih\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.fd
-File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
-)
-Underfull \hbox (badness 3312) in paragraph at lines 159--160
-[]\OT1/ptm/b/n/10 A03 In-jec-tion: \OT1/ptm/m/n/10 Iden-ti-fies raw string con-
-cate-na-tion
+Overfull \vbox (1.43997pt too high) detected at line 86
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 159--160
-\OT1/ptm/m/n/10 in SQL queries and un-safe pro-cess spawn-ing
+Underfull \hbox (badness 4217) in paragraph at lines 86--87
+[]|\OT1/ptm/m/n/7 Depends on pre-de-fined scripts;
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 162--163
-\OT1/ptm/m/n/10 known CVE databases [[][]5[][]] (e.g., \OT1/pcr/m/n/10 pyyaml<5
-.4
+Underfull \hbox (badness 10000) in paragraph at lines 87--87
+[]|\OT1/ptm/m/n/7 Progressive de-liv-ery
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 87--87
+\OT1/ptm/m/n/7 con-troller for canary/blue-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 89--89
+[]|\OT1/ptm/m/n/7 Site Re-li-a-bil-ity
+ []
+
+
+Underfull \hbox (badness 2142) in paragraph at lines 89--89
+[]|\OT1/ptm/m/n/7 Error bud-gets, on-call run-
+ []
+
+
+Underfull \hbox (badness 4752) in paragraph at lines 90--90
+[]|\OT1/ptm/m/n/7 Chaos En-gi-neer-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+[]|\OT1/ptm/m/n/7 Continuous
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+[]|\OT1/ptm/m/n/7 Blue-Green
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+[]|\OT1/ptm/m/n/7 Dual en-vi-ron-ment traffic-
+ []
+
+
+Underfull \hbox (badness 3557) in paragraph at lines 94--94
+[]|\OT1/ptm/m/n/7 MARL for cloud re-source
+ []
+
+
+Underfull \hbox (badness 2671) in paragraph at lines 94--95
+[]|\OT1/ptm/m/n/7 Black-box de-ci-sions; lacks pre-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 95--95
+[]|\OT1/ptm/m/n/7 Tabular temporal-difference
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 95--95
+[]|\OT1/ptm/m/n/7 Mathematical proof of Q-
+ []
+
+
+Underfull \hbox (badness 1983) in paragraph at lines 96--96
+[]|\OT1/ptm/m/n/7 McMahan et al.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 96--96
+[]|\OT1/ptm/m/n/7 Privacy-preserving dis-tributed
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 97--97
+[]|\OT1/ptm/m/n/7 Recovers clus-ter health in
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 99--99
+[]|\OT1/ptm/m/n/7 Tree en-sem-ble path-length
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 100--100
+[]|\OT1/ptm/m/n/7 Local Out-lier
+ []
+
+
+Underfull \hbox (badness 6691) in paragraph at lines 100--100
+[]|\OT1/ptm/m/n/7 Density-based lo-cal out-lier
+ []
+
+
+Underfull \hbox (badness 1917) in paragraph at lines 100--100
+[]|\OT1/ptm/m/n/7 Catches den-sity vari-a-tions in
+ []
+
+
+Underfull \hbox (badness 2753) in paragraph at lines 101--102
+[]|\OT1/ptm/m/n/7 No in-te-grated sim-u-la-tion safety
+ []
+
+
+Overfull \vbox (2.15996pt too high) detected at line 105
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 106--106
+[]|\OT1/ptm/m/n/7 Thought-Action-Observation
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 107--107
+[]|\OT1/ptm/m/n/7 Google
+ []
+
+
+Underfull \hbox (badness 1708) in paragraph at lines 107--107
+[]|\OT1/ptm/m/n/7 Multimodal agen-tic foun-da-
+ []
+
+
+Underfull \hbox (badness 7168) in paragraph at lines 109--109
+[]|\OT1/ptm/m/n/7 AST se-cu-rity scan-ner for
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 109--109
+[]|\OT1/ptm/m/n/7 Flags known se-cu-rity anti-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 110--110
+[]|\OT1/ptm/m/n/7 Multi-language static code
+ []
+
+
+Underfull \hbox (badness 1845) in paragraph at lines 110--110
+[]|\OT1/ptm/m/n/7 Comprehensive static se-cu-rity
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 111--111
+[]|\OT1/ptm/m/n/7 OWASP Top
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 112--112
+[]|\OT1/ptm/m/n/7 OWASP Top
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 113--113
+[]|\OT1/ptm/m/n/7 Live CVE vul-ner-a-bil-ity
+ []
+
+
+Underfull \hbox (badness 7238) in paragraph at lines 113--113
+[]|\OT1/ptm/m/n/7 Continuously up-dated pub-lic
+ []
+
+
+Underfull \hbox (badness 4954) in paragraph at lines 114--114
+[]|\OT1/ptm/m/n/7 Machine-readable open-source
+ []
+
+
+Underfull \hbox (badness 1454) in paragraph at lines 115--115
+[]|\OT1/ptm/m/n/7 Automated de-pen-dency pull
+ []
+
+
+Underfull \hbox (badness 2245) in paragraph at lines 115--115
+[]|\OT1/ptm/m/n/7 Opens version-bump PRs on
+ []
+
+
+Overfull \vbox (2.15996pt too high) detected at line 118
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 120--120
+[]|\OT1/ptm/m/n/7 Prometheus
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 120--121
+[]|\OT1/ptm/m/n/7 Stores num-bers; in-cludes no
+ []
+
+
+Overfull \vbox (1.43997pt too high) detected at line 122
+ []
+
+
+Underfull \hbox (badness 2393) in paragraph at lines 122--122
+[]|\OT1/ptm/m/n/7 Theoretical sim-u-la-tion frame-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 123--123
+[]|\OT1/ptm/m/n/7 M/M/c Queu-ing
+ []
+
+
+Underfull \hbox (badness 2042) in paragraph at lines 214--215
+[]\OT1/ptm/m/it/10 A08 (In-tegrity Fail-ures)\OT1/ptm/m/n/10 : Un-safe de-se-ri
+-al-iza-tion like
  []
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 197--198
- \OT1/ptm/m/it/10 5) Qual-ity Gate & Auto-Remediation Branch: [][][] \OT1/ptm/m
-/n/10 A
- []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-Underfull \hbox (badness 4328) in paragraph at lines 202--203
- \OT1/ptm/m/it/10 1) Teleme-try Stream-ing: [][][] \OT1/ptm/m/n/10 The \OT1/pcr
-/m/n/10 StateSynchronizer
- []
-
-
-Underfull \hbox (badness 8075) in paragraph at lines 202--203
-\OT1/ptm/m/n/10 polls Prometheus met-rics ev-ery $\OT1/cmr/m/n/10 5\OML/cmm/m/i
-t/10 :\OT1/cmr/m/n/10 0 []$\OT1/ptm/m/n/10 , as-sem-bling 4-
- []
-
-
-Underfull \hbox (badness 4193) in paragraph at lines 227--229
-\OT1/ptm/m/n/10 with $\OML/cmm/m/it/10  \OT1/cmr/m/n/10 = 0\OML/cmm/m/it/10 :\
-OT1/cmr/m/n/10 1$\OT1/ptm/m/n/10 , $\OML/cmm/m/it/10 ^^M \OT1/cmr/m/n/10 = 0\OM
-L/cmm/m/it/10 :\OT1/cmr/m/n/10 95$\OT1/ptm/m/n/10 . Ac-tion space $\OMS/cmsy/m/
-n/10 A \OT1/cmr/m/n/10 =
- []
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 240.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 240.
-
-
-Underfull \hbox (badness 2119) in paragraph at lines 255--256
-[]\OT1/ptm/b/n/10 Deployment: \OT1/ptm/m/n/10 The plat-form runs on Mi-crosoft 
-Azure
- []
-
-
-Underfull \hbox (badness 3078) in paragraph at lines 255--256
-\OT1/ptm/m/n/10 raform (\OT1/pcr/m/n/10 azurerm \OT1/ptm/m/n/10 v3.90). A multi
--stage Docker build
- []
-
-[3]
-Underfull \hbox (badness 10000) in paragraph at lines 276--276
-[]|\OT1/ptm/m/n/8 CPU=0.954,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 277--277
-[]|\OT1/ptm/m/n/8 CPU=0.99,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 278--278
-[]|\OT1/ptm/m/n/8 RAM=0.942,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 279--279
-[]|\OT1/ptm/m/n/8 CPU=0.88,
- []
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 284.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 284.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 328.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 328.
-
-
-Underfull \hbox (badness 4429) in paragraph at lines 414--415
-\OT1/ptm/m/n/10 gine in a live set-ting, we con-ducted em-pir-i-cal tests
- []
-
-
-Underfull \hbox (badness 7522) in paragraph at lines 414--415
-\OT1/ptm/m/n/10 on the pub-lic repos-i-tory [][]$https : / / github . com / Aad
-iHaldar /
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 427--427
-[]|\OT1/ptm/m/n/8 Hardcoded JWT /
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 428--428
-[]|\OT1/ptm/m/n/8 Raw SQL /
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 434--434
-[]|\OT1/ptm/m/n/8 Swallowed
- []
-
-
-Underfull \hbox (badness 1917) in paragraph at lines 435--435
-[]|\OT1/ptm/m/n/8 Untrusted URL Re-
- []
-
+ [3]
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 448--449
-[]\OT1/ptm/m/n/10 In ad-di-tion, the 12/12 unit test suite
+Underfull \hbox (badness 10000) in paragraph at lines 381--382
+[]\OT1/ptm/m/n/10 Our code and live de-ploy-ment are
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 448--449
-\OT1/ptm/m/n/10 (\OT1/pcr/m/n/10 tests/test_owasp_auditor.py\OT1/ptm/m/n/10 ) e
-x-e-cut-ing in
+Underfull \hbox (badness 10000) in paragraph at lines 381--382
+\OT1/ptm/m/n/10 on-line at []$https : / / github . com / AadiHaldar /
  []
 
 
-Underfull \hbox (badness 1527) in paragraph at lines 448--449
-\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 22 []$ \OT1/ptm/m/n/10 con-f
-irms 100% rule cov-er-age across all OWASP
+Underfull \hbox (badness 10000) in paragraph at lines 381--382
+\OT1/ptm/m/n/10 Agentic-[]AI-[]Self-[]Healing-[]Cloud-[]Infrastructure$[] and
  []
 
 
-Underfull \hbox (badness 6961) in paragraph at lines 510--511
+Underfull \hbox (badness 10000) in paragraph at lines 381--382
+[]$\OT1/ptm/m/n/10 https : / / pr-[]review-[]agent . wonderful^^Mower-[]41d6d2a
+5 . eastasia .
+ []
+
+
+Underfull \hbox (badness 6961) in paragraph at lines 392--393
 []\OT1/ptm/m/n/8 Kubernetes Doc-u-men-ta-tion, ``Hor-i-zon-tal Pod Au-toscaler,
-'' [][]$https :
+'' []$https :
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 510--511
+Underfull \hbox (badness 10000) in paragraph at lines 392--393
 \OT1/ptm/m/n/8 / / kubernetes . io / docs / tasks / run-[]application / horizon
-tal-[]pod-[]autoscale/$[][],
+tal-[]pod-[]autoscale/$[],
  []
 
-[5]
-Underfull \hbox (badness 6825) in paragraph at lines 552--553
+
+Underfull \hbox (badness 6825) in paragraph at lines 407--408
 []\OT1/ptm/m/n/8 Google LLC, ``On-line Bou-tique: A cloud-native mi-croser-vice
 s
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 552--553
-\OT1/ptm/m/n/8 demo ap-pli-ca-tion,'' [][]$https : / / github . com / GoogleClo
-udPlatform /
+Underfull \hbox (badness 10000) in paragraph at lines 407--408
+\OT1/ptm/m/n/8 demo ap-pli-ca-tion,'' []$https : / / github . com / GoogleCloud
+Platform /
  []
 
+
+Underfull \hbox (badness 3009) in paragraph at lines 411--412
+[]\OT1/ptm/m/n/8 M. Fowler, ``Blue-Green-De-ploy-ment,'' []$https : / / martinf
+owler . com / bliki /
+ []
+
+[5]
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -1118,53 +1100,53 @@ Before submitting the final camera ready copy, remember to:
 
 [6
 
-] (paper.aux)
+]
+(C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud Computing\Project
+\docs\paper\paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: 2BA85AD885B9F01C542E02ED3AE630B7;7391.
+(rerunfilecheck)             Checksum: D1DFE137679BBE705FC5F85A14A1B56B;2785.
  ) 
 Here is how much of TeX's memory you used:
- 24408 strings out of 467871
- 457308 string characters out of 5418377
- 873072 words of memory out of 5000000
- 52789 multiletter control sequences out of 15000+600000
- 675290 words of font info for 133 fonts, out of 8000000 for 9000
+ 21956 strings out of 467871
+ 415275 string characters out of 5418377
+ 870769 words of memory out of 5000000
+ 50401 multiletter control sequences out of 15000+600000
+ 670636 words of font info for 120 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,13n,94p,1625b,780s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,14n,94p,1197b,864s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
-cmbx8.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
-onts/cm/cmex10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/pu
-blic/amsfonts/cm/cmmi10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts
-/type1/public/amsfonts/cm/cmmi5.pfb><C:/Users/aadih/AppData/Local/Programs/MiKT
-eX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Users/aadih/AppData/Local/Progr
-ams/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/aadih/AppData/Loc
-al/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/aadih/App
-Data/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi9.pfb><C:/Users/a
-adih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:
-/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5.
-pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/c
-m/cmr7.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
-fonts/cm/cmr8.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/pub
-lic/amsfonts/cm/cmr9.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/ty
-pe1/public/amsfonts/cm/cmsy10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX
-/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Users/aadih/AppData/Local/Program
-s/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/aadih/AppData/Local
-/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/aadih/AppDa
-ta/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/aad
-ih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb><C:/U
-sers/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/ms
-bm10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/
-ucrr8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/
-utmb8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/
-utmbi8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times
-/utmr8a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times
-/utmri8a.pfb>
-Output written on paper.pdf (6 pages, 364260 bytes).
+cmbx10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
+fonts/cm/cmbx5.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/pu
+blic/amsfonts/cm/cmbx7.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/
+type1/public/amsfonts/cm/cmex10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/aadih/AppData/Local/Prog
+rams/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi5.pfb><C:/Users/aadih/AppData/Lo
+cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/aadih/Ap
+pData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/
+aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C
+:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5
+.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/
+cm/cmr7.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/am
+sfonts/cm/cmr8.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/pu
+blic/amsfonts/cm/cmsy10.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts
+/type1/public/amsfonts/cm/cmsy5.pfb><C:/Users/aadih/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/aadih/AppData/Local/Progr
+ams/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb><C:/Users/aadih/AppDa
+ta/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm5.pfb><C:/User
+s/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm7
+.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a
+.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8
+a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8
+a.pfb><C:/Users/aadih/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri
+8a.pfb>
+Output written on "C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud
+ Computing\Project\docs\paper\paper.pdf" (6 pages, 311709 bytes).
 PDF statistics:
- 427 PDF objects out of 1000 (max. 8388607)
- 89 named destinations out of 1000 (max. 500000)
- 293 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 366 PDF objects out of 1000 (max. 8388607)
+ 75 named destinations out of 1000 (max. 500000)
+ 117 words of extra memory for PDF output out of 10000 (max. 10000000)
 
