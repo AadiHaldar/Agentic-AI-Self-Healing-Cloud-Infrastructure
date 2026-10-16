@@ -3,6 +3,7 @@ import os
 import json
 import time
 import numpy as np
+import shutil
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,20 +51,37 @@ anomaly_detector = MetricsAnomalyDetector()
 shap_explainer = SHAPExplainer(anomaly_detector.model)
 
 # Initialize seed topology with clean service IDs
-topology.update_node("frontend", "pod", {"cpu_usage": 0.35, "memory_usage": 0.40, "status": "Healthy"})
-topology.update_node("checkoutservice", "pod", {"cpu_usage": 0.88, "memory_usage": 0.72, "status": "Warning"})
-topology.update_node("cartservice", "pod", {"cpu_usage": 0.45, "memory_usage": 0.50, "status": "Healthy"})
-topology.update_node("redis-cart", "pod", {"cpu_usage": 0.20, "memory_usage": 0.30, "status": "Healthy"})
+def seed_topology() -> None:
+    """(Re)build the digital twin's default four-service checkout chain."""
+    topology.graph.clear()
+    topology.update_node("frontend", "pod", {"cpu_usage": 0.35, "memory_usage": 0.40, "status": "Healthy"})
+    topology.update_node("checkoutservice", "pod", {"cpu_usage": 0.42, "memory_usage": 0.48, "status": "Healthy"})
+    topology.update_node("cartservice", "pod", {"cpu_usage": 0.45, "memory_usage": 0.50, "status": "Healthy"})
+    topology.update_node("redis-cart", "pod", {"cpu_usage": 0.20, "memory_usage": 0.30, "status": "Healthy"})
 
-topology.add_dependency("frontend", "checkoutservice")
-topology.add_dependency("checkoutservice", "cartservice")
-topology.add_dependency("cartservice", "redis-cart")
+    topology.add_dependency("frontend", "checkoutservice")
+    topology.add_dependency("checkoutservice", "cartservice")
+    topology.add_dependency("cartservice", "redis-cart")
+
+
+seed_topology()
+
+
+DEMO_SEED_ENABLED = os.getenv("SEED_DEMO_DATA", "1") != "0"
+START_TIME = time.time()
 
 
 # ── Auto-seed demo data on startup ───────────────────────────────────────────
 @app.on_event("startup")
 def seed_demo_on_startup():
-    """Seed AadiHaldar's real repos + PR review history into SQLite on every boot."""
+    """Seed AadiHaldar's real repos + PR review history into SQLite on every boot.
+
+    Set SEED_DEMO_DATA=0 to disable; /api/meta reports whether the seed is on so the
+    UI can label the review history as demo data.
+    """
+    if not DEMO_SEED_ENABLED:
+        logger.info("[startup] SEED_DEMO_DATA=0 - demo seed skipped")
+        return
     try:
         from pr_review_agent.db import (
             _conn, init_db, upsert_installation, add_installation_repo,
@@ -135,8 +153,15 @@ class AlertRequest(BaseModel):
     target_service: str
     cpu_usage: float
     mem_usage: float
-    is_anomaly: bool = True
+    # Optional extra telemetry. When omitted, healthy-baseline values are assumed
+    # (and reported back in `detection.assumed_features`).
+    latency_ms: Optional[float] = None
+    request_rate: Optional[float] = None
+    # None -> the Isolation Forest decides. True/False forces the verdict.
+    is_anomaly: Optional[bool] = None
     shap_explanation: Optional[str] = None
+    # Plan-only by default. execute=True actuates, and only if the twin gate says SAFE.
+    execute: bool = False
 
 class OverrideRequest(BaseModel):
     target_service: str
@@ -157,51 +182,121 @@ def get_system_status():
         "active_mode": orchestrator.mode
     }
 
+
+@app.get("/api/meta")
+def get_meta():
+    """Non-sensitive facts about this deployment, so the UI never has to guess."""
+    llm = orchestrator.llm_agent
+    return {
+        "version": app.version,
+        "uptime_seconds": round(time.time() - START_TIME, 1),
+        "demo_seed": DEMO_SEED_ENABLED,
+        "gemini_configured": bool(llm.client or llm.legacy_genai),
+        "kubectl_available": shutil.which("kubectl") is not None,
+        "detector_trained": anomaly_detector.is_trained,
+        "github_pr_review_mounted": "/webhooks/github" in app.openapi().get("paths", {}),
+    }
+
+
 @app.get("/api/topology")
 def get_topology():
     """Return Digital Twin graph topology representation."""
     return topology.to_dict()
 
+
+@app.post("/api/topology/reset")
+def reset_topology():
+    """Return the digital twin to its healthy baseline (used between demo runs)."""
+    seed_topology()
+    return {"status": "reset", "nodes": len(topology.graph.nodes)}
+
+
+HEALTHY_LATENCY_MS = 45.0
+HEALTHY_REQUEST_RATE = 120.0
+
+
 @app.post("/api/evaluate")
 def evaluate_alert(request: AlertRequest):
-    """Run Dynamic SHAP attribution and Parallel Orchestration evaluation."""
-    sample = np.array([[request.cpu_usage, request.mem_usage, request.cpu_usage * 100, request.mem_usage * 200]])
-    
-    # 1. Run dynamic SHAP feature importance calculation
+    """Detect -> explain (SHAP) -> decide (RL || LLM) -> gate (SimPy) -> optionally act."""
+    timings: Dict[str, float] = {}
+
+    assumed = []
+    latency = request.latency_ms
+    if latency is None:
+        latency = HEALTHY_LATENCY_MS
+        assumed.append("latency_ms")
+    rate = request.request_rate
+    if rate is None:
+        rate = HEALTHY_REQUEST_RATE
+        assumed.append("request_rate")
+    sample = np.array([[request.cpu_usage, request.mem_usage, latency, rate]], dtype=np.float32)
+
+    # 1. Detection (real Isolation Forest verdict)
+    t0 = time.perf_counter()
+    model_flagged = bool(anomaly_detector.predict(sample)[0] == -1)
+    anomaly_score = float(anomaly_detector.model.decision_function(sample)[0])
+    timings["detect_ms"] = round((time.perf_counter() - t0) * 1000, 3)
+    is_anomaly = model_flagged if request.is_anomaly is None else request.is_anomaly
+
+    # 2. Explainability
+    t0 = time.perf_counter()
     shap_dict = shap_explainer.explain_instance(sample)
     formatted_shap_str = shap_explainer.format_explanation_for_llm(shap_dict)
+    timings["shap_ms"] = round((time.perf_counter() - t0) * 1000, 3)
 
     context = {
         "target_service": request.target_service,
         "cpu_usage": request.cpu_usage,
         "mem_usage": request.mem_usage,
-        "is_anomaly": request.is_anomaly,
+        "is_anomaly": is_anomaly,
         "shap_explanation": formatted_shap_str,
         "shap_dict": shap_dict
     }
-    
-    # 2. Update Topology Graph state
+
+    # 3. Update topology graph state
     topology.update_node(request.target_service, "pod", {
         "cpu_usage": request.cpu_usage,
         "memory_usage": request.mem_usage,
         "status": "Critical" if request.cpu_usage > 0.8 else "Healthy"
     })
-    
-    # 3. Evaluate Parallel Agent Pipeline
-    result = orchestrator.process_alert(context)
+
+    # 4. Parallel agents + digital-twin gate (plan only here; actuation is step 5)
+    result = orchestrator.process_alert(context, execute=False)
     result["shap_summary"] = formatted_shap_str
     result["shap_scores"] = shap_dict
+    result["detection"] = {
+        "model_flagged": model_flagged,
+        "anomaly_score": round(anomaly_score, 4),
+        "is_anomaly_used": is_anomaly,
+        "forced": request.is_anomaly is not None,
+        "features": {
+            "cpu_usage": request.cpu_usage, "memory_usage": request.mem_usage,
+            "latency_ms": latency, "request_rate": rate,
+        },
+        "assumed_features": assumed,
+    }
 
-    # 4. Live Kubernetes Actuation
+    llm = result.get("agents", {}).get("llm_react", {})
+    rl = result.get("agents", {}).get("rl_simifed", {})
+    timings["rl_ms"] = round(rl.get("latency_seconds", 0.0) * 1000, 3)
+    timings["llm_ms"] = round(llm.get("latency_seconds", 0.0) * 1000, 3)
+    result["timings"] = timings
+
+    # 5. Optional live actuation: only the gated LLM plan, never the raw RL action.
     actuation = None
-    action_to_take = result.get("agents", {}).get("rl_simifed", {}).get("action") or result.get("agents", {}).get("llm_react", {}).get("action_taken")
-    if action_to_take == "SCALE_UP":
-        actuation = orchestrator.k8s_tools.scale_deployment(request.target_service, replicas=4)
-    elif action_to_take == "RESTART_POD":
-        actuation = orchestrator.k8s_tools.restart_pod(request.target_service)
-    elif action_to_take == "PATCH_LIMITS":
-        actuation = orchestrator.k8s_tools.patch_resource_limits(request.target_service, cpu_limit="500m", memory_limit="512Mi")
+    gate_safe = llm.get("simulation", {}).get("is_safe", False)
+    if request.execute and is_anomaly and gate_safe:
+        action_to_take = llm.get("proposed_action")
+        if action_to_take == "SCALE_UP":
+            actuation = orchestrator.k8s_tools.scale_deployment(request.target_service, replicas=4)
+        elif action_to_take == "RESTART_POD":
+            actuation = orchestrator.k8s_tools.restart_pod(request.target_service)
+        elif action_to_take == "PATCH_LIMITS":
+            actuation = orchestrator.k8s_tools.patch_resource_limits(request.target_service, cpu_limit="500m", memory_limit="512Mi")
+    elif request.execute and not gate_safe:
+        actuation = {"status": "blocked", "message": "Digital-twin gate rejected the action; nothing executed."}
     result["actuation"] = actuation
+    result["executed"] = bool(request.execute)
     return result
 
 from agentic_engine.tools.github_tools import github_manager
@@ -445,17 +540,14 @@ def get_security_email_configuration():
         "is_configured": bool(cfg["user"] and cfg["password"]),
     }
 
-# Primary dashboard UI: mounts dashboard/frontend
+# Primary dashboard UI: the built React/Vite console; falls back to the legacy single-file UI.
 frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend"))
 vite_dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend-vite/dist"))
+_vite_index = os.path.join(vite_dist_path, "index.html")
 
-if os.path.exists(frontend_path):
-    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
-    logger.info("[main] Mounted frontend dashboard from %s", frontend_path)
-elif (
-    os.path.exists(vite_dist_path)
-    and os.path.exists(os.path.join(vite_dist_path, "index.html"))
-    and os.path.getsize(os.path.join(vite_dist_path, "index.html")) > 100
-):
+if os.path.exists(_vite_index) and os.path.getsize(_vite_index) > 100:
     app.mount("/", StaticFiles(directory=vite_dist_path, html=True), name="frontend_vite")
-    logger.info("[main] Mounted modern React/Vite dashboard from %s", vite_dist_path)
+    logger.info("[main] Mounted React/Vite dashboard from %s", vite_dist_path)
+elif os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+    logger.info("[main] Mounted legacy dashboard from %s", frontend_path)

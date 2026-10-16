@@ -19,30 +19,58 @@ class SimPySimulationTools:
         `action_type`: 'SCALE', 'RESTART', 'PATCH'
         """
         logger.info(f"[SimPyTools] Simulating action '{action_type}' on target '{target}'...")
+
+        if not self.topology.graph.has_node(target):
+            return {
+                "action_type": action_type,
+                "target": target,
+                "simulation_steps": 0,
+                "is_safe": False,
+                "predicted_max_cpu": None,
+                "blast_radius": [],
+                "recommendation": "TARGET_NOT_IN_TWIN",
+            }
+
         twin = SimPyDigitalTwin(self.topology)
-        
+
         # Apply target action to simulation model
         twin.apply_remediation_action(target, action_type)
         twin.initialize_simulation()
-        
+
         # Run simulation for 10 steps
         history = twin.run_simulation(until=10)
-        
-        # Evaluate simulated post-action stability
-        final_cpus = []
-        for pod_history in history.values():
-            if pod_history:
-                final_cpus.append(pod_history[-1]["cpu"])
-                
-        max_final_cpu = max(final_cpus) if final_cpus else 0.0
-        is_safe = max_final_cpu < 0.90
-        
+
+        # The gate judges the blast radius of THIS action: the target plus its direct
+        # dependencies/dependents. Unrelated pods that are already hot do not veto it.
+        radius = [target] + [
+            n for n in (self.topology.get_dependencies(target) + self.topology.get_dependents(target))
+            if n != target
+        ]
+        predicted = {}
+        is_safe = True
+        for pod in radius:
+            pod_history = history.get(pod)
+            if not pod_history:
+                continue
+            initial_cpu, final_cpu = pod_history[0]["cpu"], pod_history[-1]["cpu"]
+            predicted[pod] = round(final_cpu, 4)
+            if pod == target:
+                is_safe = is_safe and final_cpu < 0.90
+            else:
+                # A neighbour passes if it stays under the ceiling, or the action did not
+                # push it materially higher than where it started (<= 25% growth).
+                is_safe = is_safe and (final_cpu < 0.90 or final_cpu <= initial_cpu * 1.25)
+
+        max_final_cpu = max(predicted.values()) if predicted else 0.0
+
         return {
             "action_type": action_type,
             "target": target,
             "simulation_steps": 10,
             "is_safe": is_safe,
             "predicted_max_cpu": round(max_final_cpu, 4),
+            "predicted_cpu": predicted,
+            "blast_radius": radius,
             "recommendation": "SAFE_TO_EXECUTE" if is_safe else "RISK_OF_OVERLOAD"
         }
 

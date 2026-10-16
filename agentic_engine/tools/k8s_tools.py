@@ -25,6 +25,15 @@ def _validate_k8s_name(name: str) -> str:
     return name
 
 
+def _dry_run(command: str) -> Dict[str, Any]:
+    """Result returned when kubectl is not installed: nothing was executed."""
+    return {
+        "status": "dry_run",
+        "message": f"kubectl not available on this host - dry run only. Would execute: {command}",
+        "executed": False,
+    }
+
+
 class K8sRemediationTools:
     """
     Executes actual Kubernetes control-plane operations using kubectl / K8s API.
@@ -67,6 +76,8 @@ class K8sRemediationTools:
                 return {"status": "success", "message": f"Pod {pod_name} deleted.", "output": res.stdout}
             else:
                 return self.rollout_restart(target_service, ns)
+        except FileNotFoundError:
+            return _dry_run(f"kubectl delete pod {pod_name} -n {ns}")
         except Exception as e:
             logger.error(f"Failed to restart pod {pod_name}: {e}")
             return {"status": "error", "message": str(e)}
@@ -87,7 +98,9 @@ class K8sRemediationTools:
             if res.returncode == 0:
                 return {"status": "success", "message": f"Deployment {deployment_name} scaled to {replicas}.", "output": res.stdout}
             else:
-                return {"status": "simulated", "message": f"[Simulated] Deployment {deployment_name} scaled to {replicas} (Cluster Offline).", "output": res.stderr}
+                return {"status": "failed", "message": f"kubectl scale failed for {deployment_name}: {res.stderr.strip()[:200]}", "output": res.stderr}
+        except FileNotFoundError:
+            return _dry_run(f"kubectl scale deployment {deployment_name} --replicas={replicas} -n {ns}")
         except Exception as e:
             logger.error(f"Failed to scale deployment {deployment_name}: {e}")
             return {"status": "error", "message": str(e)}
@@ -114,7 +127,9 @@ class K8sRemediationTools:
             if res.returncode == 0:
                 return {"status": "success", "message": f"Patched resources for {deployment_name}.", "output": res.stdout}
             else:
-                return {"status": "simulated", "message": f"[Simulated] Patched limits for {deployment_name} (Cluster Offline).", "output": res.stderr}
+                return {"status": "failed", "message": f"kubectl patch failed for {deployment_name}: {res.stderr.strip()[:200]}", "output": res.stderr}
+        except FileNotFoundError:
+            return _dry_run(f"kubectl patch deployment {deployment_name} -n {ns} (cpu={cpu_limit}, memory={memory_limit})")
         except Exception as e:
             logger.error(f"Failed to patch deployment {deployment_name}: {e}")
             return {"status": "error", "message": str(e)}
@@ -133,7 +148,9 @@ class K8sRemediationTools:
             if res.returncode == 0:
                 return {"status": "success", "message": f"Rollout restart initiated for {deployment_name}.", "output": res.stdout}
             else:
-                return {"status": "simulated", "message": f"[Simulated] Rollout restart for {deployment_name} (Cluster Offline).", "output": res.stderr}
+                return {"status": "failed", "message": f"kubectl rollout restart failed for {deployment_name}: {res.stderr.strip()[:200]}", "output": res.stderr}
+        except FileNotFoundError:
+            return _dry_run(f"kubectl rollout restart deployment/{deployment_name} -n {ns}")
         except Exception as e:
             logger.error(f"Failed rollout restart for {deployment_name}: {e}")
             return {"status": "error", "message": str(e)}

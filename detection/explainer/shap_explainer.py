@@ -14,16 +14,33 @@ class SHAPExplainer:
         self.feature_names = feature_names or ["cpu_usage", "memory_usage", "latency_ms", "request_rate"]
         
         if background_data is None:
-            background_data = np.random.normal(loc=[0.25, 0.40, 45.0, 120.0], scale=[0.05, 0.08, 5.0, 15.0], size=(20, 4))
+            background_data = self._default_background()
             
         if hasattr(model, 'get_booster'):
             logger.info("[SHAPExplainer] Initializing TreeExplainer for XGBoost model.")
             self.explainer = shap.TreeExplainer(model)
         else:
             logger.info("[SHAPExplainer] Initializing KernelExplainer for IsolationForest model.")
-            predict_fn = getattr(model, "predict", None) or getattr(model, "decision_function", None)
+            if hasattr(model, "decision_function"):
+                # decision_function is high for normal points; negate it so a POSITIVE SHAP
+                # value always means "pushes toward anomaly". (predict() is a +/-1 step function.)
+                predict_fn = lambda X: -model.decision_function(X)  # noqa: E731
+            else:
+                predict_fn = getattr(model, "predict", None)
             self.explainer = shap.KernelExplainer(predict_fn, background_data)
             
+    @staticmethod
+    def _default_background() -> np.ndarray:
+        """Sample of the healthy training telemetry if present, else a synthetic healthy cloud."""
+        import os
+        path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../datasets/healthy_telemetry.csv"))
+        try:
+            import pandas as pd
+            df = pd.read_csv(path)
+            return df[["cpu_usage", "memory_usage", "latency_ms", "request_rate"]].sample(50, random_state=42).values
+        except Exception:
+            return np.random.normal(loc=[0.25, 0.40, 45.0, 120.0], scale=[0.05, 0.08, 5.0, 15.0], size=(50, 4))
+
     def explain_instance(self, instance: np.ndarray) -> Dict[str, float]:
         """Calculates SHAP feature values for a single metric vector instance."""
         inst_arr = np.array(instance, dtype=np.float32)

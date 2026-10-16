@@ -1,116 +1,89 @@
-import type { SystemStatus, ConnectedRepo, PRReviewRecord, TopologyData, EvaluateResponse } from '../types';
+import type {
+  Meta, SystemStatus, ConnectedRepo, PRReviewRecord, TopologyData, ServiceHealth,
+  EvaluateRequest, EvaluateResponse, OwaspScanResponse,
+  GhPull, GhCheckRun, GhComment,
+} from '../types';
 
-const API_BASE = '';
-
-export async function fetchSystemStatus(): Promise<SystemStatus> {
-  try {
-    const res = await fetch(`${API_BASE}/api/status`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (e) {
-    return {
-      status: 'HEALTHY',
-      total_pods: 4,
-      active_anomalies: 0,
-      anomalous_pods: [],
-      active_mode: 'parallel'
-    };
+/**
+ * Every call either returns real data or throws. There are deliberately no silent
+ * fallbacks to invented values: the UI renders its own "offline" state instead.
+ */
+async function http<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, init);
+  if (!res.ok) {
+    let detail = '';
+    try { detail = (await res.json())?.detail ?? ''; } catch { /* body not JSON */ }
+    throw new Error(`HTTP ${res.status}${detail ? ` - ${typeof detail === 'string' ? detail : JSON.stringify(detail)}` : ''}`);
   }
+  return res.json() as Promise<T>;
 }
 
-export async function fetchConnectedRepos(): Promise<ConnectedRepo[]> {
+const post = <T>(url: string, body: unknown) =>
+  http<T>(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+
+export const api = {
+  meta: () => http<Meta>('/api/meta'),
+  status: () => http<SystemStatus>('/api/status'),
+  repos: () => http<ConnectedRepo[]>('/api/repos'),
+  reviews: (limit = 50) => http<PRReviewRecord[]>(`/api/pr-reviews?limit=${limit}`),
+  serviceHealth: () => http<ServiceHealth>('/api/service-health'),
+  topology: () => http<TopologyData>('/api/topology'),
+  resetTopology: () => post<{ status: string }>('/api/topology/reset', {}),
+  evaluate: (req: EvaluateRequest) => post<EvaluateResponse>('/api/evaluate', req),
+  override: (target_service: string, override_action: string, reason: string) =>
+    post<{ status: string; message: string; k8s_output: { status: string; message?: string } }>(
+      '/api/override', { target_service, override_action, reason }),
+  dismissRule: (repo_full_name: string, rule_id: string, note = '') =>
+    post<{ status: string; dismissal_id: number }>('/api/learnings/dismiss', { repo_full_name, rule_id, note }),
+  owaspScan: (code: string | null, filename: string, requirements_txt: string | null) =>
+    post<OwaspScanResponse>('/api/owasp/scan', { code, filename, requirements_txt }),
+};
+
+/* ── GitHub public API (read-only, 60 req/h/IP unauthenticated) ─────────── */
+
+const GH = 'https://api.github.com';
+const mem = new Map<string, { at: number; data: unknown }>();
+const TTL_MS = 10 * 60_000; // unauthenticated GitHub allows only 60 requests/hour/IP, so cache hard
+
+function readCache(key: string): unknown | undefined {
+  const hit = mem.get(key);
+  if (hit && Date.now() - hit.at < TTL_MS) return hit.data;
   try {
-    const res = await fetch(`${API_BASE}/api/repos`);
-    if (!res.ok) return [];
-    return await res.json();
-  } catch (e) {
-    return [];
+    const raw = sessionStorage.getItem(`gh:${key}`);
+    if (raw) {
+      const { at, data } = JSON.parse(raw) as { at: number; data: unknown };
+      if (Date.now() - at < TTL_MS) { mem.set(key, { at, data }); return data; }
+    }
+  } catch { /* storage unavailable */ }
+  return undefined;
+}
+
+function writeCache(key: string, data: unknown) {
+  const at = Date.now();
+  mem.set(key, { at, data });
+  try { sessionStorage.setItem(`gh:${key}`, JSON.stringify({ at, data })); } catch { /* quota or blocked */ }
+}
+
+async function gh<T>(path: string): Promise<T> {
+  const cached = readCache(path);
+  if (cached !== undefined) return cached as T;
+  const res = await fetch(`${GH}${path}`, { headers: { Accept: 'application/vnd.github+json' } });
+  if (!res.ok) {
+    throw new Error(res.status === 403 ? 'GitHub rate limit reached (60 requests/hour unauthenticated); showing what was cached' : `GitHub HTTP ${res.status}`);
   }
+  const data = (await res.json()) as T;
+  writeCache(path, data);
+  return data;
 }
 
-export async function fetchPRReviews(limit: number = 50): Promise<PRReviewRecord[]> {
-  try {
-    const res = await fetch(`${API_BASE}/api/pr-reviews?limit=${limit}`);
-    if (!res.ok) return [];
-    return await res.json();
-  } catch (e) {
-    return [];
-  }
-}
+export const github = {
+  pulls: (repo: string) => gh<GhPull[]>(`/repos/${repo}/pulls?state=all&per_page=30&sort=created&direction=desc`),
+  pull: (repo: string, n: number) => gh<GhPull>(`/repos/${repo}/pulls/${n}`),
+  checks: async (repo: string, sha: string) =>
+    (await gh<{ check_runs: GhCheckRun[] }>(`/repos/${repo}/commits/${sha}/check-runs`)).check_runs,
+  issueComments: (repo: string, n: number) => gh<GhComment[]>(`/repos/${repo}/issues/${n}/comments?per_page=50`),
+  reviewComments: (repo: string, n: number) => gh<GhComment[]>(`/repos/${repo}/pulls/${n}/comments?per_page=100`),
+};
 
-export async function fetchTopology(): Promise<TopologyData> {
-  try {
-    const res = await fetch(`${API_BASE}/api/topology`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (e) {
-    return {
-      nodes: [
-        { id: 'frontend', type: 'pod', cpu_usage: 0.35, memory_usage: 0.40, status: 'Healthy' },
-        { id: 'checkoutservice', type: 'pod', cpu_usage: 0.88, memory_usage: 0.72, status: 'Warning' },
-        { id: 'cartservice', type: 'pod', cpu_usage: 0.45, memory_usage: 0.50, status: 'Healthy' },
-        { id: 'redis-cart', type: 'pod', cpu_usage: 0.20, memory_usage: 0.30, status: 'Healthy' }
-      ],
-      links: [
-        { source: 'frontend', target: 'checkoutservice', relation: 'calls' },
-        { source: 'checkoutservice', target: 'cartservice', relation: 'calls' },
-        { source: 'cartservice', target: 'redis-cart', relation: 'calls' }
-      ]
-    };
-  }
-}
-
-export async function evaluateAlert(
-  targetService: string,
-  cpuUsage: number,
-  memUsage: number
-): Promise<EvaluateResponse> {
-  const res = await fetch(`${API_BASE}/api/evaluate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      target_service: targetService,
-      cpu_usage: cpuUsage,
-      mem_usage: memUsage,
-      is_anomaly: true
-    })
-  });
-  if (!res.ok) throw new Error(`Evaluation failed: HTTP ${res.status}`);
-  return await res.json();
-}
-
-export async function manualOverride(
-  targetService: string,
-  action: string,
-  reason: string
-): Promise<any> {
-  const res = await fetch(`${API_BASE}/api/override`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      target_service: targetService,
-      override_action: action,
-      reason: reason
-    })
-  });
-  if (!res.ok) throw new Error(`Override failed: HTTP ${res.status}`);
-  return await res.json();
-}
-
-export async function dismissRule(
-  repoFullName: string,
-  ruleId: string,
-  note: string = ''
-): Promise<{ status: string; dismissal_id: number }> {
-  const res = await fetch(`${API_BASE}/api/learnings/dismiss`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      repo_full_name: repoFullName,
-      rule_id: ruleId,
-      note: note
-    })
-  });
-  if (!res.ok) throw new Error(`Dismiss failed: HTTP ${res.status}`);
-  return await res.json();
-}
+export const DEFAULT_REPO = 'AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure';
+export const GATE_CHECK_NAME = 'review-agent/quality-gate';

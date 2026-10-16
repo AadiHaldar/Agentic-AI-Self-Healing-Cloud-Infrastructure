@@ -1,116 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import type { StageTab, SystemStatus, ConnectedRepo, PRReviewRecord, TopologyData } from './types';
-import { fetchSystemStatus, fetchConnectedRepos, fetchPRReviews, fetchTopology } from './api/client';
-import { StatusBar } from './components/StatusBar';
-import { PipelineNav } from './components/PipelineNav';
-import { OverviewPage } from './pages/OverviewPage';
-import { ReviewPage } from './pages/ReviewPage';
-import { AnalyzePage } from './pages/AnalyzePage';
-import { FixPage } from './pages/FixPage';
-import { SecurePage } from './pages/SecurePage';
-import { InfraHealingPage } from './pages/InfraHealingPage';
-import { SettingsPage } from './pages/SettingsPage';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Activity, GitPullRequest, LayoutDashboard, Moon, ScanSearch, Server, ShieldCheck, Sun, Wrench,
+} from 'lucide-react';
+import type { ReactNode } from 'react';
+import { api, DEFAULT_REPO } from './api/client';
+import { AppCtx } from './lib/context';
+import { useHashRoute, useRemote } from './lib/hooks';
+import { Pill } from './components/ui';
+import { Overview } from './pages/Overview';
+import { Review } from './pages/Review';
+import { Scanner } from './pages/Scanner';
+import { AutoFix } from './pages/AutoFix';
+import { Healing } from './pages/Healing';
+import { System } from './pages/System';
 
-export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<StageTab>('overview');
-  const [status, setStatus] = useState<SystemStatus>({
-    status: 'HEALTHY',
-    total_pods: 4,
-    active_anomalies: 0,
-    anomalous_pods: [],
-    active_mode: 'parallel'
-  });
-  const [repos, setRepos] = useState<ConnectedRepo[]>([]);
-  const [reviews, setReviews] = useState<PRReviewRecord[]>([]);
-  const [topology, setTopology] = useState<TopologyData>({
-    nodes: [
-      { id: 'frontend', type: 'pod', cpu_usage: 0.35, memory_usage: 0.40, status: 'Healthy' },
-      { id: 'checkoutservice', type: 'pod', cpu_usage: 0.88, memory_usage: 0.72, status: 'Warning' },
-      { id: 'cartservice', type: 'pod', cpu_usage: 0.45, memory_usage: 0.50, status: 'Healthy' },
-      { id: 'redis-cart', type: 'pod', cpu_usage: 0.20, memory_usage: 0.30, status: 'Healthy' }
-    ],
-    links: [
-      { source: 'frontend', target: 'checkoutservice', relation: 'calls' },
-      { source: 'checkoutservice', target: 'cartservice', relation: 'calls' },
-      { source: 'cartservice', target: 'redis-cart', relation: 'calls' }
-    ]
-  });
-  const [lastScanTime, setLastScanTime] = useState<string>('Just now');
+const NAV: { id: string; label: string; icon: ReactNode; group: string; accent?: string }[] = [
+  { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={16} />, group: '' },
+  { id: 'review', label: 'PR Review', icon: <GitPullRequest size={16} />, group: 'left', accent: 'var(--left)' },
+  { id: 'scanner', label: 'Security Scanner', icon: <ScanSearch size={16} />, group: 'left', accent: 'var(--left)' },
+  { id: 'autofix', label: 'Auto-Fix', icon: <Wrench size={16} />, group: 'left', accent: 'var(--left)' },
+  { id: 'healing', label: 'Self-Healing', icon: <Activity size={16} />, group: 'right', accent: 'var(--right)' },
+  { id: 'system', label: 'System', icon: <Server size={16} />, group: 'sys' },
+];
 
-  const loadData = async () => {
-    try {
-      const [st, rp, pr, tp] = await Promise.all([
-        fetchSystemStatus(),
-        fetchConnectedRepos(),
-        fetchPRReviews(50),
-        fetchTopology()
-      ]);
-      setStatus(st);
-      setRepos(rp);
-      setReviews(pr);
-      setTopology(tp);
-      setLastScanTime(new Date().toLocaleTimeString());
-    } catch (e) {
-      console.error('Error loading dashboard telemetry:', e);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, 8000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const totalCritical = reviews.reduce((acc, r) => acc + (r.critical_count || 0), 0);
-
-  return (
-    <div className="app-container">
-      <StatusBar status={status} lastScanTime={lastScanTime} />
-      <PipelineNav
-        activeTab={activeTab}
-        onTabChange={(tab) => setActiveTab(tab)}
-        prCount={reviews.length}
-        criticalCount={totalCritical}
-        anomalyCount={status.active_anomalies}
-      />
-
-      <main className="main-content">
-        {activeTab === 'overview' && (
-          <OverviewPage
-            status={status}
-            repos={repos}
-            reviews={reviews}
-            onNavigate={(tab) => setActiveTab(tab)}
-          />
-        )}
-
-        {activeTab === 'review' && (
-          <ReviewPage
-            reviews={reviews}
-            onRefresh={loadData}
-            onDismissRule={(ruleId) => {
-              console.log('Dismiss rule:', ruleId);
-            }}
-          />
-        )}
-
-        {activeTab === 'analyze' && <AnalyzePage />}
-
-        {activeTab === 'fix' && <FixPage />}
-
-        {activeTab === 'secure' && <SecurePage />}
-
-        {activeTab === 'infra' && (
-          <InfraHealingPage
-            topology={topology}
-            onRefreshTopology={loadData}
-          />
-        )}
-
-        {activeTab === 'settings' && <SettingsPage repos={repos} />}
-      </main>
-    </div>
-  );
+const TITLES: Record<string, string> = {
+  overview: 'Overview', review: 'PR Review', scanner: 'Security Scanner',
+  autofix: 'Auto-Fix', healing: 'Self-Healing', system: 'System',
 };
 
-export default App;
+function readTheme(): 'dark' | 'light' {
+  try {
+    const t = localStorage.getItem('agentheal-theme');
+    if (t === 'light' || t === 'dark') return t;
+  } catch { /* storage blocked */ }
+  return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+export default function App() {
+  const { route, params } = useHashRoute();
+  const [theme, setTheme] = useState<'dark' | 'light'>(readTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem('agentheal-theme', theme); } catch { /* ignore */ }
+  }, [theme]);
+
+  const metaQ = useRemote(api.meta, [], 30_000);
+  const statusQ = useRemote(api.status, [], 8_000);
+  const reposQ = useRemote(api.repos, [], 60_000);
+
+  const online = !statusQ.error && !!statusQ.data;
+  const repo = reposQ.data?.find((r) => r.repo_full_name.includes('Self-Healing'))?.repo_full_name ?? DEFAULT_REPO;
+
+  const ctx = useMemo(
+    () => ({ meta: metaQ.data, status: statusQ.data, online, repo, refreshStatus: statusQ.reload }),
+    [metaQ.data, statusQ.data, online, repo, statusQ.reload],
+  );
+
+  const active = NAV.some((n) => n.id === route) ? route : 'overview';
+
+  useEffect(() => { document.title = `${TITLES[active]} · AgentHeal`; }, [active]);
+
+  let page: ReactNode;
+  switch (active) {
+    case 'review': page = <Review />; break;
+    case 'scanner': page = <Scanner />; break;
+    case 'autofix': page = <AutoFix />; break;
+    case 'healing': page = <Healing scenario={params.get('scenario') ?? undefined} />; break;
+    case 'system': page = <System />; break;
+    default: page = <Overview />;
+  }
+
+  const m = metaQ.data;
+
+  return (
+    <AppCtx.Provider value={ctx}>
+      <div className="shell">
+        <aside className="side">
+          <div className="brand">
+            <div className="brand-mark"><ShieldCheck size={18} strokeWidth={2.4} /></div>
+            <div>
+              <div className="brand-name">AgentHeal</div>
+              <div className="brand-sub">Review · Secure · Self-heal</div>
+            </div>
+          </div>
+          <nav className="nav" aria-label="Primary">
+            {NAV.map((n, i) => (
+              <div key={n.id}>
+                {n.group !== (NAV[i - 1]?.group ?? '__') && n.group === 'left' && (
+                  <div className="nav-label"><span className="nav-dot" style={{ background: 'var(--left)' }} />Shift-left · code</div>
+                )}
+                {n.group !== (NAV[i - 1]?.group ?? '__') && n.group === 'right' && (
+                  <div className="nav-label"><span className="nav-dot" style={{ background: 'var(--right)' }} />Shift-right · cluster</div>
+                )}
+                {n.group !== (NAV[i - 1]?.group ?? '__') && n.group === 'sys' && (
+                  <div className="nav-label">Platform</div>
+                )}
+                <a href={`#/${n.id}`} className={active === n.id ? 'active' : ''}
+                  style={{ ['--accent' as string]: n.accent }} aria-current={active === n.id ? 'page' : undefined}>
+                  {n.icon}<span>{n.label}</span>
+                </a>
+              </div>
+            ))}
+          </nav>
+          <div className="side-foot">
+            <div>v{m?.version ?? '—'}</div>
+            <button className="theme-btn" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              aria-label="Toggle colour theme">
+              {theme === 'dark' ? <Sun size={13} /> : <Moon size={13} />}
+              {theme === 'dark' ? 'Light theme' : 'Dark theme'}
+            </button>
+          </div>
+        </aside>
+
+        <div className="main">
+          <div className="topbar">
+            <strong style={{ fontSize: 14 }}>{TITLES[active]}</strong>
+            <span className="grow" />
+            {online
+              ? <Pill tone="ok" dot pulse>API online</Pill>
+              : <Pill tone="bad" dot>{statusQ.loading ? 'connecting…' : 'API offline'}</Pill>}
+            {m && (
+              <>
+                <Pill tone={m.gemini_configured ? 'info' : 'warn'}>{m.gemini_configured ? 'Gemini connected' : 'Gemini: no key'}</Pill>
+                <Pill tone={m.kubectl_available ? 'ok' : 'mute'}>{m.kubectl_available ? 'kubectl: live' : 'kubectl: dry-run'}</Pill>
+                {m.demo_seed && <Pill tone="warn">demo dataset</Pill>}
+              </>
+            )}
+            {statusQ.data && (
+              <Pill tone={statusQ.data.status === 'HEALTHY' ? 'ok' : 'bad'}>
+                cluster {statusQ.data.status.toLowerCase()}
+              </Pill>
+            )}
+          </div>
+          <main className="page" id="content">{page}</main>
+        </div>
+      </div>
+    </AppCtx.Provider>
+  );
+}

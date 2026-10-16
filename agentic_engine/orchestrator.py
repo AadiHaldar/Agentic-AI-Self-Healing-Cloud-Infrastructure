@@ -27,9 +27,10 @@ class ParallelAgentOrchestrator:
         self.rl_agent = SimiFedRLAgent()
         self.llm_agent = LLMReActAgent(self.k8s_tools, self.sim_tools)
 
-    def process_alert(self, alert_context: Dict[str, Any]) -> Dict[str, Any]:
+    def process_alert(self, alert_context: Dict[str, Any], execute: bool = False) -> Dict[str, Any]:
         """
         Process an infrastructure alert through the configured agent pipeline.
+        `execute=False` returns plans and safety verdicts without touching the cluster.
         """
         service = alert_context.get("target_service", "unknown-service")
         cpu_usage = alert_context.get("cpu_usage", 0.0)
@@ -54,7 +55,21 @@ class ParallelAgentOrchestrator:
         # 2. Evaluate LLM ReAct Agent
         if self.mode in ["parallel", "llm_only"]:
             t0 = time.time()
-            llm_decision = self.llm_agent.evaluate_and_heal(alert_context)
+            if is_anomaly:
+                llm_decision = self.llm_agent.evaluate_and_heal(alert_context, execute=execute)
+            else:
+                llm_decision = {
+                    "agent_type": "LLM_ReAct_Gemini",
+                    "source": "skipped",
+                    "thought": "Telemetry is not anomalous; LLM reasoning skipped.",
+                    "root_cause": None,
+                    "simulation": {"is_safe": True, "recommendation": "N/A", "predicted_max_cpu": None},
+                    "action_taken": "DO_NOTHING",
+                    "proposed_action": "DO_NOTHING",
+                    "executed": False,
+                    "execution_result": {"status": "no_action_needed"},
+                    "explanation": "No anomaly detected.",
+                }
             llm_duration = time.time() - t0
             llm_decision["latency_seconds"] = round(llm_duration, 4)
             results["agents"]["llm_react"] = llm_decision
