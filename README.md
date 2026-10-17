@@ -4,10 +4,10 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB.svg)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646CFF.svg)](https://vitejs.dev/)
-[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-2.0%20Flash-4285F4.svg)](https://ai.google.dev/)
+[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-3.6%20Flash-4285F4.svg)](https://ai.google.dev/)
 [![Azure AKS](https://img.shields.io/badge/Azure-AKS%20%26%20ACR-0078D4.svg)](https://azure.microsoft.com/en-us/products/kubernetes-service)
 [![GitHub App](https://img.shields.io/badge/GitHub%20App-Manifest%20Flow-181717.svg)](https://docs.github.com/en/apps)
-[![Tests](https://img.shields.io/badge/Tests-29%20Passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-51%20Passed-brightgreen.svg)]()
 > An enterprise-grade, dual-engine cloud reliability platform combining **Shift-Left Autonomous PR Code Review with Quality Gates** and **Predictive Self-Healing Cloud Infrastructure** powered by Digital Twin Simulations, SHAP Explainable AI, and Parallel ReAct LLM Reasoning.
 
 ---
@@ -16,9 +16,9 @@
 
 | Product & Engine | Live Demo Resource | Current Status | Key Capabilities Demonstrated |
 |---|---|---|---|
-| ** Product A (Shift-Left PR Review)** | **[Pull Request #9 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/9)** | 🔴 **Quality Gate Blocked** | 11-Stage Audit Matrix, Bandit SQLi (B608), Detect-Secrets, AST Test Gap, Interactive Mermaid Call-Graph, `@review-bot` Conversational Chat |
-| ** Product A (Autonomous 1-Click Auto-Fix)** | **[Auto-Fix PR #10 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/10)** | 🟢 **Quality Gate Passed** | Parameterized SQL query, environment variable secret extraction, and auto-generated unit test suite (`tests/test_order_validator.py`) |
-| ** Product B (Shift-Right Self-Healing Twin)** | `python scripts/demo_multi_defect_chaos.py` | 🟢 **Live Actuation Verified** | Isolation Forest ($2.20\text{ms}$), KernelSHAP attribution, SimPy $0.01\text{s}$ Safety Gate, and physical Kubernetes pod scaling/restarts |
+| ** Product A (Shift-Left PR Review)** | **[Pull Request #11 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/11)** | 🔴 **Quality Gate Blocked** | 11-Stage Audit Matrix, Bandit SQLi (B608), Detect-Secrets, AST Test Gap, Interactive Mermaid Call-Graph, `@review-bot` Conversational Chat |
+| ** Product A (Autonomous 1-Click Auto-Fix)** | **[Auto-Fix PR #12 on GitHub](https://github.com/AadiHaldar/Agentic-AI-Self-Healing-Cloud-Infrastructure/pull/12)** | 🟢 **Quality Gate Passed** | Parameterized SQL query, environment variable secret extraction, and auto-generated unit test suite (`tests/test_order_validator.py`) |
+| ** Product B (Shift-Right Self-Healing Twin)** | `python scripts/demo_interactive_chaos.py` | 🟡 **Measured by `scripts/run_evaluation.py`** | Isolation Forest (~7 ms/vector), KernelSHAP attribution (~12 ms), SimPy safety gate (~0.3 ms); numbers are in `docs/paper/eval_results.json`. Kubernetes actuation time is not measured |
 | ** Web Control Plane** | **[Azure Production App](https://pr-review-agent.wonderfulflower-41d6d2a5.eastasia.azurecontainerapps.io)** | 🟢 **Online 24/7** | Single-pane-of-glass React/Vite console hosted on Microsoft Azure Container Apps (`rg-agentic-app-prod`) |
 
 ---
@@ -55,7 +55,7 @@
 
 Modern cloud engineering ecosystems suffer from two disconnected vulnerabilities:
 1. **Developer Velocity & Security Drift:** Code reviews take days; memory leaks, dependency CVEs, missing unit tests, and secret tokens slip past manual reviews into production branches.
-2. **Reactive Infrastructure Outages:** Autoscalers (e.g. Kubernetes HPA) react 3–5 minutes after CPU/RAM breaches critical thresholds, executing blunt restarts that cause cascading microservice failures without root cause diagnosis.
+2. **Reactive Infrastructure Outages:** Autoscalers (e.g. Kubernetes HPA) react only to coarse CPU/RAM thresholds (reaction time depends on configuration and was not benchmarked here), executing blunt restarts that cause cascading microservice failures without root cause diagnosis.
 
 This platform bridges software development and cloud operations through a unified, closed-loop AI architecture:
 
@@ -65,8 +65,8 @@ This platform bridges software development and cloud operations through a unifie
 ├───────────────────────────────────────────┬────────────────────────────────────────────┤
 │       PRODUCT A: PREVENTATIVE PR REVIEW   │       PRODUCT B: RUNTIME SELF-HEALING      │
 │  • Multi-Tool AST Security & Linter Scan  │  • Real-Time Isolation Forest + XGBoost    │
-│  • Gemini 2.0 Flash Code Logic Review     │  • KernelSHAP Mathematical Attribution     │
-│  • AST Test Gap Detection (Flag-Only)     │  • SimPy Digital Twin 0.01s Dry-Run Gate   │
+│  • Gemini (`gemini-3.6-flash` by default; set `GEMINI_MODEL`) Code Logic Review     │  • KernelSHAP Mathematical Attribution     │
+│  • AST Test Gap Detection (Flag-Only)     │  • SimPy Digital Twin Dry-Run Gate        │
 │  • Automated Fix PRs & Inline Suggestions │  • Parallel SimiFed RL vs. Gemini ReAct    │
 │  • Quality Gate Check Runs (Merge Blocker)│  • Hardened Kubernetes & AKS Remediation   │
 │  • Interactive @review-bot Conversational │  • Single-Pane-of-Glass React/Vite Console │
@@ -89,7 +89,7 @@ graph TB
         HMAC["HMAC-SHA256 Verifier"]
         AUTH["RS256 JWT Token Exchange"]
         SA["Multi-Tool Static Analysis<br/>(Ruff, Bandit, Secrets, Pip-Audit)"]
-        LLM_REV["Gemini 2.0 Flash Reviewer"]
+        LLM_REV["Gemini (`gemini-3.6-flash` by default; set `GEMINI_MODEL`) Reviewer"]
         AST_GAP["AST Unit Test Gap Detector"]
         DEDUP["Deduplication & Learnings Filter"]
         MERMAID["AST Call Graph Generator"]
@@ -103,10 +103,10 @@ graph TB
         IFOREST["Isolation Forest Anomaly Detector"]
         SHAP["KernelSHAP Feature Attribution"]
         TOPO["NetworkX Dynamic Topology Graph"]
-        SIMPY["SimPy 0.01s Action Safety Gate"]
-        RL_SIMI["SimiFed Cosine RL Agent (0.001s)"]
-        LLM_REACT["Gemini ReAct Agent (2.4s)"]
-        PAR_ORCH["Consensus & Arbitration Engine"]
+        SIMPY["SimPy Action Safety Gate (~0.3 ms)"]
+        RL_SIMI["SimiFed Cosine RL Agent (~1 ms)"]
+        LLM_REACT["Gemini ReAct Agent (~5-8 s measured)"]
+        PAR_ORCH["Agreement Check (RL vs LLM)"]
         K8S_TOOLS["Hardened K8s & AKS Execution Engine"]
     end
 
@@ -165,13 +165,13 @@ The table below synthesizes the foundational base paper and all 9 peer-reviewed 
 
 | Paper Name & Citation | Summary of the Paper | What We Took from the Paper | Our Novelty & Architectural Enhancement |
 | :--- | :--- | :--- | :--- |
-| **0. Base Paper: SF-DTM**<br/>Saxena & Singh (*IEEE TII*, 2025)<br/>`arXiv:2505.01215v1` | Proposes a self-healing and fault-tolerant digital twin management model using **SimiFed** (Cosine-similarity federated LSTM learning), **Frequent Sequence Pattern (FSP)** analytics ($NFSP$ vs $SFSP$) on $TDT_{db}$, and Multi-Version Programming (MVP) majority voting for VM allocation. | • Cosine similarity formula: $\text{Cosine}(R_i, R_j) = \frac{R_i \cdot R_j}{\|R_i\| \|R_j\|}$ for incident vector matching.<br/>• Digital Twin state synchronizer graph ($TDT_{db}$).<br/>• Availability metrics: $A = \frac{\text{MTBF}}{\text{MTBF} + \text{MTTR}}$. | **1. KernelSHAP XAI:** Replaced black-box scalar thresholds with exact Shapley feature attribution.<br/>**2. SimPy Action Safety Gate:** Built a 0.01s discrete-event simulation gate before live K8s execution.<br/>**3. ReAct LLM Engine:** Added deep reasoning with tool-calling capabilities.<br/>**4. Shift-Left PR Reviews:** Extended healing to preventative PR code reviews. |
+| **0. Base Paper: SF-DTM**<br/>Saxena & Singh (*IEEE TII*, 2025)<br/>`arXiv:2505.01215v1` | Proposes a self-healing and fault-tolerant digital twin management model using **SimiFed** (Cosine-similarity federated LSTM learning), **Frequent Sequence Pattern (FSP)** analytics ($NFSP$ vs $SFSP$) on $TDT_{db}$, and Multi-Version Programming (MVP) majority voting for VM allocation. | • Cosine similarity formula: $\text{Cosine}(R_i, R_j) = \frac{R_i \cdot R_j}{\|R_i\| \|R_j\|}$ for incident vector matching.<br/>• Digital Twin state synchronizer graph ($TDT_{db}$).<br/>• Availability metrics: $A = \frac{\text{MTBF}}{\text{MTBF} + \text{MTTR}}$. | **1. KernelSHAP XAI:** Replaced black-box scalar thresholds with exact Shapley feature attribution.<br/>**2. SimPy Action Safety Gate:** Built a discrete-event simulation gate (~0.3 ms measured) before live K8s execution.<br/>**3. ReAct LLM Engine:** Added deep reasoning with tool-calling capabilities.<br/>**4. Shift-Left PR Reviews:** Extended healing to preventative PR code reviews. |
 | **1. Multi-Factor Trust-Driven Secure Communication**<br/>Saxena & Singh (*IEEE TII*, 2026)<br/>`arXiv:2605.23566v1` | Proposes the **MT-SeCom** framework to enforce secure, trustworthy communication in cloud digital twins across temporal, contextual, and federated trust vectors. | • Multi-factor trust evaluation concepts across distributed telemetry nodes.<br/>• Cryptographic verification standards for multi-tenant control planes. | **Cryptographic Production Security:** Implemented constant-time HMAC-SHA256 signature verification for webhooks, RS256 short-lived GitHub App JWT auth, and Azure Managed Workload Identity for zero-secret cluster access. |
-| **2. Adaptive Device-Edge Collaboration in AIoT**<br/>Zhang et al. (*IEEE IoTJ*, 2024)<br/>`arXiv:2405.17664v1` | Investigates digital twin-assisted DNN inference partitioning between edge devices and cloud data centers to balance inference latency, communication overhead, and compute cost. | • Two-tier architectural partitioning between local edge telemetry collection and centralized cloud reasoning. | **Dual Parallel Decision Engine:** Sub-millisecond local RL reflex ($0.001\text{s}$) executing locally alongside cloud Gemini 2.0 Flash ReAct LLM ($2.4\text{s}$) with automated consensus arbitration. |
+| **2. Adaptive Device-Edge Collaboration in AIoT**<br/>Zhang et al. (*IEEE IoTJ*, 2024)<br/>`arXiv:2405.17664v1` | Investigates digital twin-assisted DNN inference partitioning between edge devices and cloud data centers to balance inference latency, communication overhead, and compute cost. | • Two-tier architectural partitioning between local edge telemetry collection and centralized cloud reasoning. | **Dual Parallel Decision Engine:** Local RL decision (~1 ms measured) alongside a cloud Gemini ReAct LLM (~5-8 s measured); agreement is reported, not arbitrated. |
 | **3. FT-ERM: Fault Tolerant Elastic Resource Management**<br/>Saxena et al. (*IEEE TNSM*, 2023)<br/>`arXiv:2212.03547v1` | Develops a multi-resource neural network framework to predict cloud VM failure probabilities and trigger proactive elastic VM live migration before outage manifestation. | • Proactive elasticity principles and formal mathematical formulation of service availability and MTBF/MTTR. | **Container-Native Actuation:** Replaced heavy VM live migrations with lightweight, sub-second Kubernetes pod actions (`scale_deployment`, `restart_pod`, `patch_limits`) hardened against shell injection. |
 | **4. RRFT: Rank-Based Resource Aware Fault Tolerance**<br/>Saxena & Singh (*IEEE TCC*, 2023)<br/>`arXiv:2111.00579v1` | Introduces significance ranking of virtual machines based on inter-task dependency graphs to prioritize resource allocation during heavy cloud contention. | • Directed dependency graph ranking to model microservice criticality in multi-tier applications. | **Dynamic NetworkX Topology Graph:** Implemented live DAG mirroring of real-time gRPC microservice call chains in Google Online Boutique, feeding topological depth directly into Gemini ReAct's root cause analysis. |
-| **5. Multi-Expert Consensus Auto-Scaling for Serverless**<br/>(*JAISE*, 2026)<br/>`arXiv:2607.15511v1` | Proposes a consensus mechanism that arbitrates between multiple heuristic, statistical, and ML-based autoscaling algorithms in serverless cloud environments. | • Multi-expert voting architecture to reconcile disparate, asynchronous decision streams. | **Hybrid AI Consensus Arbiter:** Reconciled sub-millisecond Q-learning with Gemini ReAct LLM reasoning, utilizing a 0.01s SimPy discrete-event simulation gate as the definitive safety tie-breaker. |
-| **6. Hybrid Multi-Objective Evolutionary Algorithms**<br/>(*Cluster Computing*, Springer, 2026)<br/>`arXiv:2607.13200v1` | Employs genetic and evolutionary algorithms with genetic traceability to optimize multi-objective trade-offs between latency, energy, and availability in cloud-edge continuums. | • Multi-objective optimization constraints balancing execution cost, recovery latency, and SLA compliance. | **Sub-Second Runtime Decisioning:** Replaced slow iterative genetic algorithms (which take minutes to converge) with instant $0.001\text{s}$ SimiFed cosine vector retrieval and $0.01\text{s}$ SimPy queue simulation. |
+| **5. Multi-Expert Consensus Auto-Scaling for Serverless**<br/>(*JAISE*, 2026)<br/>`arXiv:2607.15511v1` | Proposes a consensus mechanism that arbitrates between multiple heuristic, statistical, and ML-based autoscaling algorithms in serverless cloud environments. | • Multi-expert voting architecture to reconcile disparate, asynchronous decision streams. | **Hybrid AI Consensus Arbiter:** Runs a Q-learning agent and a Gemini ReAct agent side by side, reports whether they agree, and passes the chosen action through a SimPy dry-run gate. |
+| **6. Hybrid Multi-Objective Evolutionary Algorithms**<br/>(*Cluster Computing*, Springer, 2026)<br/>`arXiv:2607.13200v1` | Employs genetic and evolutionary algorithms with genetic traceability to optimize multi-objective trade-offs between latency, energy, and availability in cloud-edge continuums. | • Multi-objective optimization constraints balancing execution cost, recovery latency, and SLA compliance. | **Sub-Second Runtime Decisioning:** Replaced slow iterative genetic algorithms (which take minutes to converge) with millisecond-scale SimiFed cosine-state lookup and a sub-millisecond SimPy dry-run. |
 | **7. SQUIRO: Security-Aware Scheduling on Kubernetes**<br/>(*FGCS*, Elsevier, 2026)<br/>`arXiv:2607.16089v1` | Proposes security-aware pod scheduling policies in Kubernetes clusters to prevent side-channel and co-tenancy attacks across hybrid workloads. | • Kubernetes admission control principles and pod security context isolation. | **Shift-Left Security & Quality Gate:** Extended security-aware scheduling upstream to the Pull Request phase by embedding AST security scanning (Bandit), secret entropy scanning (Detect-Secrets), and CVE dependency audits (Pip-Audit) with GitHub Check Run quality gates. |
 | **8. Cold-Start Model Delivery in Kubernetes Serving**<br/>(*IEEE Access*, 2026)<br/>`arXiv:2607.16596v1` | Studies container cold-start delays in Kubernetes inference clusters and proposes OCI artifact distribution mechanisms to optimize image pulling. | • OCI image packaging best practices and container registry distribution optimization. | **Multi-Stage Azure Container Build:** Built a multi-stage Docker build separating frontend static compilation from Python runtime, integrated with Azure Container Registry (ACR) and AKS managed identities (`AcrPull`) to minimize pod cold starts. |
 | **9. Consensus In Asynchrony: Strictly Formal**<br/>(*IJPEDS*, Taylor & Francis, 2026)<br/>`arXiv:2607.24095v1` | Provides formal mathematical proofs and invariants for distributed consensus in asynchronous networks with message delay uncertainties. | • Formal asynchronous state transition safety bounds and idempotent operation models. | **Idempotent Webhook & Remediation Locks:** Implemented an idempotent, non-blocking webhook processing queue with state locks, preventing conflicting parallel self-healing actions from flapping live Kubernetes deployments. |
@@ -191,13 +191,13 @@ While the base paper established foundational theoretical models for VM allocati
 │    (KernelSHAP Attribution)               │ exact Shapley values explaining root-cause │
 │                                           │ telemetry drivers (CPU vs RAM vs Network). │
 ├───────────────────────────────────────────┼────────────────────────────────────────────┤
-│ 2. SimPy Action-Aware Simulation Gate     │ Implemented active 0.01s discrete-event    │
-│    (Pre-Execution Dry-Run Safety)         │ M/M/c simulation to mathematically verify  │
-│                                           │ stability before executing K8s commands.   │
+│ 2. SimPy Action-Aware Simulation Gate     │ Implemented an action-aware discrete-event  │
+│    (Pre-Execution Dry-Run Safety)         │ CPU-decay simulation (SimPy) that dry-runs   │
+│                                           │ the action before executing K8s commands.│
 ├───────────────────────────────────────────┼────────────────────────────────────────────┤
-│ 3. Dual Parallel Decision Engine          │ Paired sub-millisecond SimiFed RL (0.001s) │
-│    (Reflexive RL + ReAct LLM Reasoning)   │ with deep Gemini 2.0 Flash ReAct (2.4s)    │
-│                                           │ and automated consensus arbitration.       │
+│ 3. Dual Parallel Decision Engine          │ Paired ~1 ms SimiFed RL with a Gemini     │
+│    (Reflexive RL + ReAct LLM Reasoning)   │ ReAct agent (~5-8 s measured) and report  │
+│                                           │ whether the two agree (no arbitration). │
 ├───────────────────────────────────────────┼────────────────────────────────────────────┤
 │ 4. Shift-Left Preventative PR Review      │ Extended self-healing backwards to PR code │
 │    (Multi-Tool Static + LLM Ast Scan)     │ commits with automated security scans, AST │
@@ -226,7 +226,7 @@ When a `pull_request` event (`opened`, `synchronize`, `reopened`) is received, t
    - `detect-secrets`: High-entropy regex scanner preventing committed secrets/tokens.
    - `pip-audit`: Scans dependencies against known CVE vulnerability advisories.
    - `eslint`: Conditional JavaScript/TypeScript linting if config exists.
-4. **`run_llm_review`**: Sends diff hunks + static findings to **Gemini 2.0 Flash** for structured analysis of logic errors, race conditions, edge cases, and architectural smells.
+4. **`run_llm_review`**: Sends diff hunks + static findings to **Gemini (`gemini-3.6-flash` by default; set `GEMINI_MODEL`)** for structured analysis of logic errors, race conditions, edge cases, and architectural smells.
 5. **`deduplicate_findings`**: Merges duplicate static and LLM findings at identical lines, filters low-confidence entries (`< 0.70`), and applies persistent dismissal suppressions.
 6. **`detect_unit_test_gaps`**: Uses Python `ast` to extract modified public functions and classes, verifying if corresponding tests exist in `tests/` (*flag-only guardrail — does not hallucinate fake tests*).
 7. **`generate_pr_summary`**: Generates a concise TL;DR of the PR scope and risk level.
@@ -242,7 +242,7 @@ Developers can interact with the bot in PR comment threads:
 * `@review-bot /add-docstrings`: Generates Google-style docstrings for undocumented functions via AST inspection and posts inline suggestions.
 * `@review-bot /dismiss <rule-id>`: Suppresses a specific rule for the repository (persisted in SQLite `dismissals` table).
 * `@review-bot /re-review`: Re-runs the full 11-stage review pipeline against the latest commit.
-* `@review-bot <question>`: Answers questions about the diff, potential side effects, or architectural trade-offs using Gemini 2.0 Flash.
+* `@review-bot <question>`: Answers questions about the diff, potential side effects, or architectural trade-offs using Gemini (`gemini-3.6-flash` by default; set `GEMINI_MODEL`).
 
 ### Learnings & Suppression Loop
 
@@ -275,11 +275,11 @@ llm_confidence_threshold: 0.70
 
 ### Digital Twin Simulation Gate
 
-Before any remediation action is applied to live Kubernetes or Azure AKS clusters, it is evaluated in a **SimPy Discrete-Event Simulation Engine** running an $M/M/c$ queuing model:
-* Simulates arrival rates, service times, and queue depths.
-* Evaluates proposed actions (`SCALE_UP`, `RESTART_POD`, `PATCH_LIMITS`).
-* Validates whether the action will successfully reduce CPU/RAM below the 80% threshold.
-* **Guarantees safety in 0.01 seconds** before touching live infrastructure.
+Before any remediation action is applied to live Kubernetes or Azure AKS clusters, it is evaluated in a **SimPy Discrete-Event Simulation Engine** that steps each pod's CPU/memory forward 10 time-steps under the proposed action:
+* Seeds the twin from live telemetry (the target pod carries the measured CPU/RAM).
+* Simulates the chosen action (`SCALE_UP`, `RESTART_POD`, `PATCH_LIMITS`) with a deterministic per-step decay/drift model. It is **not** an M/M/c queue.
+* Passes when the target's predicted CPU is below 0.90 and its direct neighbours do not grow materially.
+* Takes ~0.3 ms per call in our measurements (`docs/paper/eval_results.json`). It checks CPU only and cannot tell a false alarm from a real fault (see the paper's limitations).
 
 ### Parallel Agent Orchestrator
 
@@ -293,14 +293,14 @@ Before any remediation action is applied to live Kubernetes or Azure AKS cluster
       ┌───────────────────────┐       ┌───────────────────────┐
       │     SimiFed RL        │       │   Gemini ReAct LLM    │
       │  (Cosine Sim Vector)  │       │ (ReAct + Tool Calling)│
-      │    Latency: 0.001s    │       │     Latency: 2.4s     │
+      │    Latency: ~1 ms     │       │   Latency: ~5-8 s     │
       └───────────┬───────────┘       └───────────┬───────────┘
                   │                               │
                   └───────────────┬───────────────┘
                                   ▼
                   ┌───────────────────────────────┐
-                  │      Consensus Arbiter        │
-                  │ (Agreed Action / Safe Fallback)
+                  │       Agreement Check         │
+                  │ (reports match/divergence)
                   └───────────────┬───────────────┘
                                   ▼
                   ┌───────────────────────────────┐
@@ -315,7 +315,7 @@ Before any remediation action is applied to live Kubernetes or Azure AKS cluster
 ### SHAP Explainable AI & Anomaly Detection
 
 Instead of raw numbers, every anomaly alert produces **SHAP Feature Attribution Scores**:
-* Explains exactly which telemetry features triggered the anomaly (`cpu_usage: +0.82`, `memory_usage: +0.15`, `latency_ms: -0.03`).
+* Explains exactly which telemetry features triggered the anomaly (e.g. `cpu_usage: +0.097`, `latency_ms: +0.094`, `memory_usage: -0.007` on the flash-sale scenario; positive = toward anomaly).
 * Displayed as clean horizontal bar charts in the web console.
 * Provides full transparency into AI decision-making.
 
@@ -323,7 +323,7 @@ Instead of raw numbers, every anomaly alert produces **SHAP Feature Attribution 
 
 ##  Modern React + Vite Control Plane
 
-The frontend in `dashboard/frontend-vite/` provides a dark-themed single-pane-of-glass operator console built with React 18, TypeScript, and Vite:
+The frontend in `dashboard/frontend-vite/` provides a dark-themed single-pane-of-glass operator console built with React 19, TypeScript, and Vite 8:
 
 * **Sticky Telemetry Header (44px):** Live cluster health indicator, active anomaly count, pods monitored, and last scan timestamp.
 * **Pipeline Stage Navigation (46px):**
@@ -471,7 +471,7 @@ $env:PYTHONPATH = "."; python tests/e2e_evaluation.py
 |:---|:---|:---:|:---|
 | **PR Review: Diff Fetching & Chunking** | GitHub REST API v3 | ✅ Production | Tested with large diff chunking guard (`max_hunks`) |
 | **PR Review: Multi-Tool Static Analysis** | Ruff, Bandit, Secrets, Pip-Audit | ✅ Production | Runs 4 scanners concurrently with user-space PATH injection |
-| **PR Review: Gemini 2.0 Flash Reasoning** | Google GenAI SDK | ✅ Production | Structured JSON output with confidence ranking |
+| **PR Review: Gemini (`gemini-3.6-flash` by default; set `GEMINI_MODEL`) Reasoning** | Google GenAI SDK | ✅ Production | Structured JSON output with confidence ranking |
 | **PR Review: AST Test Gap Detection** | Python `ast` Analysis | ✅ Production | Flag-only guardrail (no hallucinated test generation) |
 | **PR Review: Mermaid Dependency Graph** | AST Import Analysis | ✅ Production | Real AST import/call graph generation ($\ge 3$ files) |
 | **PR Review: Quality Gate Check Runs** | GitHub Checks API | ✅ Production | Sets `review-agent/quality-gate` check run status |
@@ -479,12 +479,12 @@ $env:PYTHONPATH = "."; python tests/e2e_evaluation.py
 | **PR Review: Learnings & Dismissals** | Active Feedback Learning | ✅ Production | SQLite persisted dismissal suppression loop |
 | **GitHub App Manifest 1-Click Install** | GitHub Manifest Flow | ✅ Production | Full manifest exchange with DB + `.env.app` persistence |
 | **Webhook HMAC-SHA256 Verification** | RFC 2104 HMAC-SHA256 | ✅ Production | Strict constant-time cryptographic verification |
-| **SimiFed Cosine Vector Matching** | Saxena & Singh (2025) [Base Paper] | ✅ Production | Cosine similarity incident vector retrieval ($0.001\text{s}$) |
-| **Digital Twin SimPy Dry-Run Gate** | Discrete-Event $M/M/c$ Queuing | ✅ Production | Action-aware simulation before execution ($0.01\text{s}$) |
+| **SimiFed Cosine Vector Matching** | Saxena & Singh (2025) [Base Paper] | ✅ Production | Cosine-similarity state discretisation feeding a Q-table (~1 ms per decision) |
+| **Digital Twin SimPy Dry-Run Gate** | Discrete-event SimPy (deterministic CPU model) | ✅ Production | Action-aware dry-run before execution (~0.3 ms; CPU-only) |
 | **SHAP Feature Attribution Explainer** | Lundberg & Lee (NeurIPS 2017) | ✅ Production | Real-time mathematical feature importance attribution |
 | **Parallel Agent Orchestrator** | Multi-Expert Consensus (2026) | ✅ Production | SimiFed Cosine RL vs. Gemini ReAct comparison |
 | **Kubectl Command Execution** | CIS Benchmark Hardening | ✅ Production | Hardened against injection (`shell=False`, name validation) |
-| **React + Vite Control Plane** | React 18, TypeScript, Vite 6 | ✅ Production | Modular SPA console with 2D outline design tokens |
+| **React + Vite Control Plane** | React 19, TypeScript, Vite 8 | ✅ Production | Modular SPA console with 2D outline design tokens |
 | **Microsoft Azure Cloud Deployment** | Terraform, Azure AKS & ACR | ✅ Production | Full IaC and 1-click deployment automation script |
 
 ---

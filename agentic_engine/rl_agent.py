@@ -28,13 +28,23 @@ class SimiFedRLAgent:
         sim = cosine_similarity(vec_a, vec_b)[0][0]
         return float(sim)
 
-    def _discretize_state(self, cpu_usage: float, mem_usage: float, is_anomaly: bool) -> str:
-        """Discretize state space combining metrics and SF-DTM cosine similarity."""
-        cos_sim = self.compute_cosine_similarity([cpu_usage, mem_usage, cpu_usage * 100, mem_usage * 200])
+    def _discretize_state(self, cpu_usage: float, mem_usage: float, is_anomaly: bool,
+                          latency_ms: float = None, request_rate: float = None) -> str:
+        """Discretize state space combining metrics and SF-DTM cosine similarity.
+
+        `latency_ms` / `request_rate` are the real telemetry features; when omitted
+        (legacy callers) they are approximated from cpu/mem as before.
+        """
+        cos_sim = self._cosine(cpu_usage, mem_usage, latency_ms, request_rate)
         sim_bin = int(cos_sim * 4)  # 0-4 similarity bin
         cpu_bin = min(5, int(cpu_usage * 5))
         anom_bin = 1 if is_anomaly else 0
         return f"sim{sim_bin}_c{cpu_bin}_a{anom_bin}"
+
+    def _cosine(self, cpu_usage, mem_usage, latency_ms=None, request_rate=None) -> float:
+        lat = cpu_usage * 100 if latency_ms is None else latency_ms
+        rate = mem_usage * 200 if request_rate is None else request_rate
+        return self.compute_cosine_similarity([cpu_usage, mem_usage, lat, rate])
 
     def select_action(self, state_key: str) -> int:
         """Epsilon-greedy action selection."""
@@ -59,14 +69,15 @@ class SimiFedRLAgent:
         td_error = td_target - self.q_table[state_key][action]
         self.q_table[state_key][action] += self.alpha * td_error
 
-    def decide_remediation(self, target_service: str, cpu_usage: float, mem_usage: float, is_anomaly: bool) -> Dict[str, Any]:
+    def decide_remediation(self, target_service: str, cpu_usage: float, mem_usage: float, is_anomaly: bool,
+                           latency_ms: float = None, request_rate: float = None) -> Dict[str, Any]:
         """Evaluate current metrics and return structured remediation decision."""
-        state_key = self._discretize_state(cpu_usage, mem_usage, is_anomaly)
+        state_key = self._discretize_state(cpu_usage, mem_usage, is_anomaly, latency_ms, request_rate)
         action_idx = self.select_action(state_key)
 
         actions = ["DO_NOTHING", "SCALE_UP", "RESTART_POD", "PATCH_LIMITS"]
         chosen_action = actions[action_idx]
-        cos_sim = self.compute_cosine_similarity([cpu_usage, mem_usage, cpu_usage * 100, mem_usage * 200])
+        cos_sim = self._cosine(cpu_usage, mem_usage, latency_ms, request_rate)
 
         # Online update reward calculation
         reward = -1.0 if (is_anomaly and chosen_action == "DO_NOTHING") else 1.0
