@@ -92,6 +92,33 @@ class SimiFedRLAgent:
             target += self.gamma * float(np.max(self.q_table[next_state_key]))
         self.q_table[state_key][action] += self.alpha * (target - self.q_table[state_key][action])
 
+    def explain_decision(self, cpu_usage: float, mem_usage: float, is_anomaly: bool,
+                         latency_ms: float = None, request_rate: float = None) -> Dict[str, Any]:
+        """Workings for the demo: state bucketing, the Q-row, the cosine similarity, and the simulated reward of every action."""
+        cpu, mem, lat, rate = self._features(cpu_usage, mem_usage, latency_ms, request_rate)
+        c, m, l, r = rl_training.bins(cpu, mem, lat, rate)
+        dims = [("cpu", cpu, c, "{:.0%}"), ("memory", mem, m, "{:.0%}"), ("latency", lat, l, "{:.0f} ms"), ("request rate", rate, r, "{:.0f}/s")]
+        key = rl_training.state_key(cpu, mem, lat, rate, bool(is_anomaly))
+        q = self.q_table.get(key)
+        a = np.array([cpu, mem, lat, rate], dtype=float)
+        b = self.healthy_node_baseline
+        table = []
+        for act in self.ACTIONS:
+            steps = rl_training.rollout_steps(cpu, mem, lat, rate, act)
+            danger = sum(s["danger"] for s in steps) / len(steps)
+            cost = rl_training.ACTION_COST[act]
+            table.append({"action": act, "mean_danger": danger, "cost": cost, "reward": -danger - cost,
+                          "steps": [{k: round(v, 4) for k, v in s.items()} for s in steps[:4]]})
+        return {
+            "bins": [{"name": n, "value": fmt.format(v), "bin": bi, "label": rl_training.BIN_LABELS[n][bi]} for n, v, bi, fmt in dims],
+            "anomaly_flag": int(bool(is_anomaly)), "state_key": key, "in_table": q is not None,
+            "q_row": None if q is None else {act: float(q[i]) for i, act in enumerate(self.ACTIONS)},
+            "fault_kind": rl_training.classify(cpu, mem, lat, rate),
+            "cosine": {"a": a.tolist(), "b": b.tolist(), "dot": float(a @ b), "norm_a": float(np.linalg.norm(a)),
+                       "norm_b": float(np.linalg.norm(b)), "cos": float((a @ b) / (np.linalg.norm(a) * np.linalg.norm(b)))},
+            "reward_table": table, "alpha_train": 0.08, "gamma_train": 0.0, "horizon": rl_training.STEPS,
+        }
+
     def decide_remediation(self, target_service: str, cpu_usage: float, mem_usage: float, is_anomaly: bool,
                            latency_ms: float = None, request_rate: float = None) -> Dict[str, Any]:
         """Evaluate current metrics and return a structured remediation decision (no online learning)."""

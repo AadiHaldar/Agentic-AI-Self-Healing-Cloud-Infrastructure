@@ -41,6 +41,14 @@ def bins(cpu: float, mem: float, lat: float, rate: float) -> Tuple[int, int, int
     return c, m, l, r
 
 
+BIN_LABELS = {
+    "cpu": ["< 30%", "30-60%", "60-80%", "80-95%", ">= 95%"],
+    "memory": ["< 50%", "50-75%", "75-90%", ">= 90%"],
+    "latency": ["< 100 ms", "100-1000 ms", ">= 1000 ms"],
+    "request rate": ["< 20/s (stalled)", "20-400/s", ">= 400/s"],
+}
+
+
 def state_key(cpu: float, mem: float, lat: float, rate: float, anomaly: bool) -> str:
     c, m, l, r = bins(cpu, mem, lat, rate)
     return f"c{c}_m{m}_l{l}_r{r}_a{int(anomaly)}"
@@ -69,10 +77,10 @@ def _danger(cpu: float, mem: float) -> float:
     return d
 
 
-def rollout(cpu0: float, mem0: float, lat: float, rate: float, action: str, steps: int = STEPS) -> float:
-    """Total danger over the horizon for one action under the simulated fault."""
+def rollout_steps(cpu0: float, mem0: float, lat: float, rate: float, action: str, steps: int = STEPS) -> List[Dict[str, float]]:
+    """Per-step simulated CPU, memory and danger for one action under the simulated fault."""
     kind = classify(cpu0, mem0, lat, rate)
-    total = 0.0
+    out = []
     for t in range(1, steps + 1):
         cpu, mem = cpu0, mem0
         if kind == "healthy":
@@ -106,8 +114,14 @@ def rollout(cpu0: float, mem0: float, lat: float, rate: float, action: str, step
                 cpu, mem = cpu0 * (0.3 if t <= 2 else 1.0), mem0 * 0.4
             elif action == "PATCH_LIMITS":
                 cpu, mem = cpu0 * 0.8, mem0 * 0.8
-        total += _danger(min(cpu, 1.0), min(mem, 1.0))
-    return total / steps
+        cpu, mem = min(cpu, 1.0), min(mem, 1.0)
+        out.append({"t": t, "cpu": cpu, "mem": mem, "danger": _danger(cpu, mem)})
+    return out
+
+
+def rollout(cpu0: float, mem0: float, lat: float, rate: float, action: str, steps: int = STEPS) -> float:
+    """Mean danger over the horizon for one action under the simulated fault."""
+    return sum(s["danger"] for s in rollout_steps(cpu0, mem0, lat, rate, action, steps)) / steps
 
 
 def reward(cpu: float, mem: float, lat: float, rate: float, action: str) -> float:

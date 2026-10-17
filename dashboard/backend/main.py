@@ -312,6 +312,15 @@ def evaluate_alert(request: AlertRequest):
     timings["rl_ms"] = round(rl.get("latency_seconds", 0.0) * 1000, 3)
     timings["llm_ms"] = round(llm.get("latency_seconds", 0.0) * 1000, 3)
     result["timings"] = timings
+    try:  # step-by-step workings of every stage, computed from the same objects and inputs the pipeline just used
+        result["math"] = {
+            "detect": anomaly_detector.explain_score(sample),
+            "shap": shap_explainer.explain_math(sample, shap_dict),
+            "rl": orchestrator.rl_agent.explain_decision(request.cpu_usage, request.mem_usage, is_anomaly, latency, rate),
+            "gate": llm.get("simulation"),
+        }
+    except Exception as e:  # never let the demo workings break the real response
+        logger.warning("[evaluate] math block failed: %s", e)
 
     # 5. Optional live actuation: only the gated LLM plan, never the raw RL action.
     actuation = None

@@ -71,14 +71,18 @@ class SimPySimulationTools:
         ]
         predicted: Dict[str, float] = {}
         neighbour_risk = False
+        neighbours = []
         for pod in radius:
             ph = history.get(pod)
             if not ph:
                 continue
             initial_cpu, final_cpu = ph[0]["cpu"], ph[-1]["cpu"]
             predicted[pod] = round(final_cpu, 4)
-            if pod != target and not (final_cpu < self.NEIGHBOUR_CEILING or final_cpu <= initial_cpu * 1.25):
-                neighbour_risk = True
+            if pod != target:
+                ok = final_cpu < self.NEIGHBOUR_CEILING or final_cpu <= initial_cpu * 1.25
+                neighbours.append({"name": pod, "initial_cpu": round(initial_cpu, 4), "final_cpu": round(final_cpu, 4), "ok": ok})
+                if not ok:
+                    neighbour_risk = True
 
         pressure = lambda h: max(h["cpu"] / self.DANGER_CPU, h["memory"] / self.DANGER_MEM)  # noqa: E731
         improvement = (pressure(base_final) - pressure(act_final)) / max(pressure(base_final), 1e-9)
@@ -86,7 +90,7 @@ class SimPySimulationTools:
         # Fault-aware check (when latency and request rate are known): what kind of fault is this, and does THIS
         # action actually relieve it? e.g. a restart only helps a surge for a couple of steps, and extra replicas
         # do not clear a deadlocked pod. Uses the same fault-dynamics model the RL policy is trained on.
-        fault_kind, fault_improvement = None, None
+        fault_kind, fault_improvement, d0, d1 = None, None, None, None
         p = params or {}
         if p.get("latency_ms") is not None and p.get("request_rate") is not None and action_type.upper() in self._ACTION_MAP:
             cpu0 = p.get("cpu", t_base[0]["cpu"])
@@ -126,6 +130,12 @@ class SimPySimulationTools:
                          "peak_cpu": round(base_peak_cpu, 4), "peak_memory": round(base_peak_mem, 4)},
             "improvement": round(improvement, 4),
             "fault_kind": fault_kind,
+            "fault_danger": None if d0 is None else {"do_nothing": round(d0, 4), "action": round(d1, 4)},
+            "pressure": {"without": round(pressure(base_final), 4), "with": round(pressure(act_final), 4)},
+            "thresholds": {"danger_cpu": self.DANGER_CPU, "danger_mem": self.DANGER_MEM, "min_improvement": self.MIN_IMPROVEMENT,
+                           "min_fault_improvement": self.MIN_FAULT_IMPROVEMENT, "neighbour_ceiling": self.NEIGHBOUR_CEILING},
+            "neighbours": neighbours,
+            "in_danger": bool(in_danger),
             "fault_improvement": None if fault_improvement is None else round(fault_improvement, 4),
             "blast_radius": radius,
             "recommendation": verdict,

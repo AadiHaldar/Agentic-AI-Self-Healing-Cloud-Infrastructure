@@ -28,6 +28,8 @@ class SHAPExplainer:
             else:
                 predict_fn = getattr(model, "predict", None)
             self.explainer = shap.KernelExplainer(predict_fn, background_data)
+            self.predict_fn = predict_fn
+            self.background_size = int(len(background_data))
             
     @staticmethod
     def _default_background() -> np.ndarray:
@@ -40,6 +42,23 @@ class SHAPExplainer:
             return df[["cpu_usage", "memory_usage", "latency_ms", "request_rate"]].sample(50, random_state=42).values
         except Exception:
             return np.random.normal(loc=[0.25, 0.40, 45.0, 120.0], scale=[0.05, 0.08, 5.0, 15.0], size=(50, 4))
+
+    def explain_math(self, instance: np.ndarray, shap_dict: Dict[str, float]) -> Dict[str, Any]:
+        """Numbers needed to show KernelSHAP step by step: base value, f(x), kernel weights and the additivity check."""
+        from math import comb
+        inst = np.array(instance, dtype=np.float32).reshape(1, -1)
+        fn = getattr(self, "predict_fn", None)
+        fx = float(np.ravel(fn(inst))[0]) if fn else None
+        base = float(np.ravel(self.explainer.expected_value)[0])
+        m = len(self.feature_names)
+        weights = {k: (m - 1) / (comb(m, k) * k * (m - k)) for k in range(1, m)}
+        total = float(sum(shap_dict.values()))
+        return {
+            "base_value": base, "fx": fx, "phi": dict(shap_dict), "sum_phi": total,
+            "reconstructed": base + total, "gap": None if fx is None else abs(base + total - fx),
+            "n_features": m, "kernel_weights": weights, "background_size": getattr(self, "background_size", None),
+            "output": "anomaly score = -decision_function (higher = more anomalous)",
+        }
 
     def explain_instance(self, instance: np.ndarray) -> Dict[str, float]:
         """Calculates SHAP feature values for a single metric vector instance."""

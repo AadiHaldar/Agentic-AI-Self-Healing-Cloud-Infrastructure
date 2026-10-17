@@ -13,6 +13,7 @@ Where something is a dry run or a fallback, it says so. Standard library only.
 """
 import argparse
 import json
+import math
 import os
 import shutil
 import sys
@@ -161,6 +162,135 @@ def show_topology(topo, target=None, predicted=None, title="Digital twin"):
 
 # ── the pipeline view ────────────────────────────────────────────────────────
 
+
+# ── step-by-step workings (formula, then the same formula with this incident's numbers) ──────────────
+
+def box(args, title, lines):
+    """Print a 'workings' box, revealing one step at a time so the substitution can be followed live."""
+    if not args.maths or not lines:
+        return
+    print(f"   {DIM}┌─ workings: {title} {'─' * max(2, WIDTH - 20 - len(title))}{R}")
+    for kind, text in lines:
+        tag = {"f": f"{CYN}formula{R}", "n": f"{YEL}step{R}   ", "r": f"{GRN}result{R} ", "c": f"{DIM}note{R}   "}[kind]
+        for i, row in enumerate(str(text).split("\n")):
+            lead = tag if i == 0 else "       "
+            print(f"   {DIM}│{R} {lead} {row}")
+        if not args.fast:
+            time.sleep(args.maths_delay)
+    print(f"   {DIM}└{'─' * (WIDTH - 6)}{R}")
+
+
+def math_detect(m):
+    n, nt = m["max_samples"], m["n_trees"]
+    ln = math.log(n - 1)
+    L = [("f", "s(x) = 2^( -E[h(x)] / c(n) )      c(n) = 2*( ln(n-1) + 0.5772 ) - 2*(n-1)/n      decision = -s(x) - offset      anomaly if decision < 0")]
+    feats = m.get("features")
+    if feats:
+        L.append(("c", "Context only (the forest does not use these): distance from the healthy training data, z = (x - mean) / std\n"
+                       + "   ".join(f"{f['name'].split('_')[0]} {f['value']:g} vs {f['mean']:.3g}: z = {f['z']:+.1f}" for f in feats)))
+    L.append(("n", f"1. Send x down each of the {nt} random isolation trees. h_t(x) = splits needed to isolate x (plus a correction for the leaf size).\n"
+                   f"   Average: E[h(x)] = (h1 + h2 + ... + h{nt}) / {nt} = {m['mean_depth']:.4f}      (shortest {m['depth_min']:.1f}, longest {m['depth_max']:.1f})\n"
+                   f"   Anomalies are isolated in FEW splits, so a short average path means 'odd one out'."))
+    L.append(("n", f"2. Normaliser for trees built on n = {n} samples:\n"
+                   f"   c({n}) = 2*( ln({n}-1) + 0.5772 ) - 2*({n}-1)/{n} = 2*( {ln:.4f} + 0.5772 ) - {2 * (n - 1) / n:.4f} = {m['c_n']:.4f}"))
+    L.append(("n", f"3. s = 2^( -{m['mean_depth']:.4f} / {m['c_n']:.4f} ) = 2^( {-m['mean_depth'] / m['c_n']:.4f} ) = {m['s']:.4f}      (closer to 1 = more anomalous)"))
+    L.append(("n", f"4. score_samples = -s = {m['score_samples']:+.4f}"))
+    L.append(("n", f"5. offset = {m['offset']:+.4f}   (cut-off learned in training so that {m['contamination']:.0%} of healthy data is flagged)\n"
+                   f"   decision = {m['score_samples']:+.4f} - ({m['offset']:+.4f}) = {m['decision']:+.4f}"))
+    verdict = "< 0  =>  ANOMALY" if m["anomaly"] else ">= 0  =>  NORMAL"
+    L.append(("r", f"decision {m['decision']:+.4f} {verdict}      (scikit-learn's own decision_function gives {m['library_decision']:+.4f}: {'matches' if m['matches_library'] else 'MISMATCH'})"))
+    return L
+
+
+def math_shap(m, scores):
+    M = m["n_features"]
+    w = m["kernel_weights"]
+    ks = sorted((int(k), v) for k, v in w.items())  # JSON turns the integer keys into strings
+    wtxt = "\n   ".join(f"k={k}:  {M - 1} / ( C({M},{k})*{k}*{M - k} ) = {M - 1} / ( {math.comb(M, k)}*{k}*{M - k} ) = {v:.3f}"
+                        for k, v in ks)
+    parts = " + ".join(f"{v:+.4f}" for v in scores.values())
+    L = [("f", "phi_i = sum over feature subsets S (not containing i) of  [ |S|! * (M-|S|-1)! / M! ] * ( f(S + {i}) - f(S) )      KernelSHAP solves this with weighted least squares")]
+    L.append(("n", f"1. The explained function is f(x) = anomaly score = -decision_function(x) = {m['fx']:.4f}      (M = {M} features)"))
+    L.append(("n", f"2. Base value = average f over {m['background_size']} healthy background samples = {m['base_value']:+.4f}   (what the model says when it knows nothing about x)"))
+    L.append(("n", f"3. Kernel weight of a coalition of size k:  w(k) = (M-1) / ( C(M,k) * k * (M-k) )\n   {wtxt}"))
+    L.append(("n", "4. Solve the weighted regression over feature on/off coalitions -> each feature's phi (the bars above)."))
+    L.append(("r", f"Additivity check:  base + sum(phi) = {m['base_value']:+.4f} + ( {parts} ) = {m['base_value']:+.4f} + {m['sum_phi']:+.4f} = {m['reconstructed']:+.4f}\n"
+                   f"        f(x) = {m['fx']:+.4f}   ->  gap {m['gap']:.4f} {'OK' if (m['gap'] or 0) < 1e-3 else 'MISMATCH'}"))
+    return L
+
+
+def _danger_str(cpu, mem):
+    return f"2*max(0,{cpu:.3f}-0.8) + 3*max(0,{mem:.3f}-0.85) + 0.6*max(0,{cpu:.3f}-0.6) + 0.6*max(0,{mem:.3f}-0.7)"
+
+
+def math_rl(m, chosen):
+    bins = "\n   ".join(f"{b['name']:<13}{b['value']:>9}  ->  bin {b['bin']}  ({b['label']})" for b in m["bins"])
+    L = [("n", f"1. Bucket each reading into a state:\n   {bins}\n   detector flag = {m['anomaly_flag']}\n   => state key  {B}{m['state_key']}{R}")]
+    q = m["q_row"]
+    if q:
+        qtxt = "   ".join(f"{k} {v:+.3f}" for k, v in q.items())
+        best = max(q, key=q.get)
+        L.append(("n", f"2. Look up the learned Q-values for that state:\n   {qtxt}\n   action = argmax Q = {B}{best}{R}"))
+    else:
+        L.append(("n", "2. This state was never seen in training, so the prior is used."))
+    L.append(("f", "How Q was learned (offline; one decision per episode, so gamma = 0):   Q(s,a) <- Q(s,a) + alpha * ( r - Q(s,a) ),  alpha = 0.08,  120,000 episodes\n"
+                   "reward  r = -danger(a) - cost(a)      danger(a) = mean over 10 simulated steps of  2*max(0,cpu-0.8) + 3*max(0,mem-0.85) + 0.6*max(0,cpu-0.6) + 0.6*max(0,mem-0.7)"))
+    rt = m["reward_table"]
+    pick = next((t for t in rt if t["action"] == chosen), rt[0])
+    if pick["steps"]:
+        st = pick["steps"][0]
+        L.append(("n", f"3. Worked example, {pick['action']}, simulated step t = {st['t']} (fault class: {m['fault_kind']}):  cpu = {st['cpu']:.3f}, mem = {st['mem']:.3f}\n"
+                       f"   danger = {_danger_str(st['cpu'], st['mem'])} = {st['danger']:.4f}\n"
+                       f"   Repeat for all {m['horizon']} steps and average  ->  mean danger {pick['mean_danger']:.4f}"))
+    best_r = max(x["reward"] for x in rt)
+    rows = ["   action           mean danger    + cost     = reward     learned Q"]
+    for t in rt:
+        qv = f"{q[t['action']]:+.3f}" if q else "n/a"
+        mark = f"   {GRN}<- best in the simulator{R}" if t["reward"] == best_r else ""
+        rows.append(f"   {t['action']:<15}  {t['mean_danger']:>9.4f}    {t['cost']:>6.2f}    {t['reward']:>+8.4f}     {qv:>7}{mark}")
+    L.append(("n", "4. Compare with the simulator for THIS state (the learned Q should sit close to the simulated reward):\n" + "\n".join(rows)))
+    c = m["cosine"]
+    terms = " + ".join(f"{x:g}*{y:g}" for x, y in zip(c["a"], c["b"]))
+    L.append(("c", "SimiFed cosine feature (reported alongside, not used to pick the action):   cos = a.b / ( |a| * |b| )\n"
+                   f"   a = {[round(v, 3) for v in c['a']]}   b = {c['b']}\n"
+                   f"   a.b = {terms} = {c['dot']:.2f}      |a| = {c['norm_a']:.2f}      |b| = {c['norm_b']:.2f}      cos = {c['dot']:.2f} / ( {c['norm_a']:.2f} * {c['norm_b']:.2f} ) = {c['cos']:.4f}"))
+    return L
+
+
+def math_gate(g, action):
+    if not g or g.get("recommendation") in (None, "N/A"):
+        return []
+    th = g.get("thresholds", {})
+    base = g.get("baseline", {})
+    L = [("f", "in danger?  peak CPU >= 85%  or  peak memory >= 88%        pressure P = max( cpu/0.85 , mem/0.88 )        improvement = ( P_without - P_with ) / P_without")]
+    fc, fm = base.get("final_cpu", 0), base.get("final_memory", 0)
+    pw = g.get("pressure", {}).get("without", 0)
+    L.append(("n", f"1. Twin, 10 steps WITHOUT any action (target {g['target']}):  peak CPU {base.get('peak_cpu', 0):.0%}, peak memory {base.get('peak_memory', 0):.0%}\n"
+                   f"   final CPU {fc:.3f}, memory {fm:.3f}   ->   P_without = max( {fc:.3f}/0.85 , {fm:.3f}/0.88 ) = max( {fc / 0.85:.4f} , {fm / 0.88:.4f} ) = {pw:.4f}"))
+    ok1 = bool(g.get("in_danger"))
+    L.append(("n", f"2. In danger without help?  peak CPU {base.get('peak_cpu', 0):.0%} >= 85% or peak memory {base.get('peak_memory', 0):.0%} >= 88%   ->   {'YES' if ok1 else 'NO'}"
+                   + ("" if ok1 else "\n   The service stays healthy on its own, so acting is unnecessary: verdict decided here.")))
+    if not ok1:
+        L.append(("r", f"Verdict: {g['recommendation'].replace('_', ' ')}   {g.get('reason', '')}"))
+        return L
+    nb = g.get("neighbours", [])
+    if nb:
+        txt = "   ".join(f"{n['name']} CPU {n['initial_cpu']:.0%} -> {n['final_cpu']:.0%} {'ok' if n['ok'] else 'OVERLOAD'}" for n in nb)
+        L.append(("n", f"3. Neighbours must not be pushed above 90% (or grow more than 25%):   {txt}"))
+    fd, fi = g.get("fault_danger"), g.get("fault_improvement")
+    if fd and fi is not None:
+        need = th.get("min_fault_improvement", 0.3)
+        L.append(("n", f"4. Fault-aware effectiveness. Fault class from the readings: {B}{g.get('fault_kind')}{R}\n"
+                       f"   danger if nothing is done  D0 = {fd['do_nothing']:.4f}        danger after {action}  D1 = {fd['action']:.4f}\n"
+                       f"   removed = ( D0 - D1 ) / D0 = ( {fd['do_nothing']:.4f} - {fd['action']:.4f} ) / {fd['do_nothing']:.4f} = {max(fi, 0):.1%}      needs >= {need:.0%}   ->   {'OK' if fi >= need else 'TOO LOW: ineffective for this fault'}"))
+    pwith = g.get("pressure", {}).get("with", 0)
+    imp = g.get("improvement", 0)
+    need2 = th.get("min_improvement", 0.15)
+    L.append(("n", f"5. Twin pressure after the action: P_with = {pwith:.4f}    improvement = ( {pw:.4f} - {pwith:.4f} ) / {pw:.4f} = {imp:.1%}      needs >= {need2:.0%}   ->   {'OK' if imp >= need2 else 'TOO LOW'}"))
+    L.append(("r", f"Verdict: {g['recommendation'].replace('_', ' ')}   {g.get('reason', '')}"))
+    return L
+
+
 def run_scenario(api, args, meta, label, svc, cpu, mem, lat, rate, force, session):
     api.call("POST", "/api/topology/reset")
     topo = api.call("GET", "/api/topology")
@@ -211,6 +341,9 @@ def run_scenario(api, args, meta, label, svc, cpu, mem, lat, rate, force, sessio
         print(f"      {YEL}detector flag was forced on for this test (model said: {'anomaly' if flagged else 'normal'}){R}")
     if det["assumed_features"]:
         print(f"      {DIM}assumed healthy-baseline values for: {', '.join(det['assumed_features'])}{R}")
+    mth = r.get("math") or {}
+    if mth.get("detect"):
+        box(args, "Isolation Forest score", math_detect(mth["detect"]))
     pause(args)
 
     # 2 explain
@@ -220,6 +353,8 @@ def run_scenario(api, args, meta, label, svc, cpu, mem, lat, rate, force, sessio
     print(f" {B}2 EXPLAIN{R}  KernelSHAP   {DIM}{ms(t['shap_ms'])}   {RED}█{DIM} toward anomaly  {BLU}█{DIM} toward normal{R}")
     for k, v in sorted(scores.items(), key=lambda kv: -abs(kv[1])):
         print(f"      {k:<14} {shap_bar(v, scale)} {v:+.3f}")
+    if mth.get("shap"):
+        box(args, "KernelSHAP", math_shap(mth["shap"], scores))
     pause(args)
 
     # 3 decide
@@ -237,6 +372,8 @@ def run_scenario(api, args, meta, label, svc, cpu, mem, lat, rate, force, sessio
         print(f"      {DIM}root cause (LLM):{R} {llm['root_cause']}")
         if llm.get("explanation"):
             print(wrap(f"explanation: {llm['explanation']}", 6))
+    if mth.get("rl"):
+        box(args, "RL policy (Q-table)", math_rl(mth["rl"], rl["action"]))
     pause(args)
 
     # 4 gate
@@ -257,6 +394,8 @@ def run_scenario(api, args, meta, label, svc, cpu, mem, lat, rate, force, sessio
     alt = (llm.get("gate_alternative") or {}).get("action")
     if alt and not no_action:
         print(f"      {GRN}{B}gate suggests {alt} instead{R}")
+    if not no_action:
+        box(args, "digital-twin gate", math_gate(mth.get("gate"), llm["proposed_action"]))
     pause(args)
 
     # 5 act
@@ -319,7 +458,7 @@ def menu(args):
     for key, name, svc, cpu, mem, lat, rate, force in SCENARIOS:
         print(f"   {CYN}{key}{R}  {name:<52} {DIM}{svc} cpu {cpu:.0%} mem {mem:.0%}{R}")
     print(f"   {CYN}a{R}  run all of them     {CYN}c{R}  custom values     {CYN}r{R}  reset twin     {CYN}h{R}  history")
-    print(f"   {CYN}s{R}  step mode [{'ON' if args.step else 'off'}]    {CYN}n{R}  narration [{'ON' if args.narrate else 'off'}]"
+    print(f"   {CYN}m{R}  show the maths [{'ON' if args.maths else 'off'}]    {CYN}s{R}  step mode [{'ON' if args.step else 'off'}]    {CYN}n{R}  narration [{'ON' if args.narrate else 'off'}]"
           f"    {CYN}x{R}  execute on cluster [{'ON' if args.execute else 'off'}]    {CYN}q{R}  quit")
 
 
@@ -329,6 +468,8 @@ def main():
     ap.add_argument("--step", action="store_true", help="pause before each pipeline stage")
     ap.add_argument("--fast", action="store_true", help="no reveal delays")
     ap.add_argument("--no-narration", dest="narrate", action="store_false", help="hide the presenter 'SAY' lines")
+    ap.add_argument("--no-maths", dest="maths", action="store_false", help="hide the step-by-step formula workings")
+    ap.add_argument("--maths-delay", type=float, default=0.5, dest="maths_delay", help="seconds between workings steps (default 0.5)")
     ap.add_argument("--execute", action="store_true", help="request real execution (only works if a cluster is reachable)")
     args = ap.parse_args()
 
@@ -356,6 +497,8 @@ def main():
             args.step = not args.step
         elif choice == "n":
             args.narrate = not args.narrate
+        elif choice == "m":
+            args.maths = not args.maths
         elif choice == "x":
             if not meta.get("cluster_reachable"):
                 print(f" {YEL}No cluster is reachable from this server, so execution is unavailable (plan-only).{R}")
