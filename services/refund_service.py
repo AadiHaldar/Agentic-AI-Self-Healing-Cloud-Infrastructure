@@ -1,50 +1,69 @@
+import ast
 import hashlib
+import json
+import logging
 import os
-import pickle
+import shlex
 import sqlite3
 import subprocess
+import tempfile
+from urllib.parse import urlparse
 
 import requests
 import yaml
 
-DB_PASSWORD = "hunter2-demo-password"
+logger = logging.getLogger(__name__)
+
+DB_PASSWORD = os.getenv("DB_PASSWORD", "")
 
 
 def get_user(uid):
     conn = sqlite3.connect("app.db")
-    return conn.execute(f"SELECT * FROM users WHERE id = '{uid}'").fetchone()
+    return conn.execute("SELECT * FROM users WHERE id = ?", (uid,)).fetchone()
 
 
 def run_report(cmd):
-    return subprocess.run(cmd, shell=True)
+    if isinstance(cmd, str):
+        cmd = shlex.split(cmd)
+    return subprocess.run(cmd, shell=False, check=False)
 
 
 def load_session(blob):
-    return pickle.loads(blob)
+    return json.loads(blob)
 
 
 def calculate(expr):
-    return eval(expr)
+    return ast.literal_eval(expr)
 
 
 def hash_password(pw):
-    return hashlib.md5(pw.encode()).hexdigest()
+    return hashlib.sha256(pw.encode()).hexdigest()
 
 
 def fetch_remote(url):
-    return requests.get(url, verify=False)
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError("Invalid URL scheme")
+    return requests.get(url, timeout=10, verify=True)
 
 
 def load_config(text):
-    return yaml.load(text)
+    return yaml.safe_load(text)
 
 
 def read_upload(name):
-    return open(os.path.join("/data/uploads", name)).read()
+    base_dir = os.path.abspath("/data/uploads")
+    target_path = os.path.abspath(os.path.join(base_dir, name))
+    if not (target_path == base_dir or target_path.startswith(base_dir + os.sep)):
+        raise ValueError("Path traversal detected")
+    with open(target_path, "r", encoding="utf-8") as f:
+        return f.read()
 
 
 def cleanup():
+    cache_path = os.path.join(tempfile.gettempdir(), "cache")
     try:
-        os.remove("/tmp/cache")
-    except Exception:
-        pass
+        if os.path.exists(cache_path):
+            os.remove(cache_path)
+    except OSError as err:
+        logger.error("Error during cleanup: %s", err)
