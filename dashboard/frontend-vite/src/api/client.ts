@@ -76,6 +76,14 @@ async function gh<T>(path: string): Promise<T> {
   return data;
 }
 
+/** Drop cached GitHub responses (used by the Refresh buttons so a brand-new PR shows up). */
+export function clearGithubCache() {
+  mem.clear();
+  try {
+    Object.keys(sessionStorage).filter((k) => k.startsWith('gh:')).forEach((k) => sessionStorage.removeItem(k));
+  } catch { /* storage unavailable */ }
+}
+
 export const github = {
   pulls: (repo: string) => gh<GhPull[]>(`/repos/${repo}/pulls?state=all&per_page=30&sort=created&direction=desc`),
   pull: (repo: string, n: number) => gh<GhPull>(`/repos/${repo}/pulls/${n}`),

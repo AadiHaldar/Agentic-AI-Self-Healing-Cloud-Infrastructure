@@ -32,6 +32,7 @@ if (Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyCont
 $env:PYTHONPATH        = $root
 $env:SEED_DEMO_DATA    = "0"        # no fabricated review history: only real reviews appear
 $env:WEBHOOK_PROXY_URL = $Relay
+$env:AUTOFIX_RUN_TESTS  = "1"        # auto-fix runs the tests it generates (executes model-written code; demo host only)
 
 Write-Host "Starting relay window..."
 Start-Process powershell -ArgumentList "-NoExit", "-Command",
@@ -39,7 +40,7 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command",
 
 Write-Host "Starting server window..."
 Start-Process powershell -ArgumentList "-NoExit", "-Command",
-    "`$Host.UI.RawUI.WindowTitle = 'AGENTHEAL SERVER'; Set-Location '$root'; python -m uvicorn dashboard.backend.main:app --host 127.0.0.1 --port 8000"
+    "`$Host.UI.RawUI.WindowTitle = 'AGENTHEAL SERVER'; Set-Location '$root'; python -m uvicorn dashboard.backend.main:app --host 127.0.0.1 --port 8000 --no-access-log"
 
 Write-Host "Waiting for the server..." -NoNewline
 $meta = $null

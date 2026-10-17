@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ExternalLink, GitPullRequest, MessageSquare, RefreshCw } from 'lucide-react';
-import { api, github, GATE_CHECK_NAME } from '../api/client';
+import { api, github, clearGithubCache, GATE_CHECK_NAME } from '../api/client';
 import { useApp } from '../lib/context';
 import { timeAgo, useRemote } from '../lib/hooks';
 import type { GhCheckRun, GhComment, GhPull } from '../types';
@@ -63,7 +63,7 @@ export function Review() {
       <PageHead
         title="PR Review"
         sub="Pull requests on the connected repository, with the real quality-gate result and the review the bot posted. Read live from GitHub, not from seeded data."
-        right={<><Pill tone="left" dot>shift-left</Pill><button className="btn sm" onClick={() => { pulls.reload(); comments.reload(); }}><RefreshCw size={13} />Refresh</button></>}
+        right={<><Pill tone="left" dot>shift-left</Pill><button className="btn sm" onClick={() => { clearGithubCache(); pulls.reload(); comments.reload(); log.reload(); }}><RefreshCw size={13} />Refresh</button></>}
       />
 
       {pulls.error && (

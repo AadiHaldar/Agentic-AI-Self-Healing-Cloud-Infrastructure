@@ -348,6 +348,15 @@ def handle_comment(
     if cmd in ("generate", "docstring", "docstrings", "/add-docstrings", "add-docstrings", "/docstrings", "/docstring", "/generate-docstrings"):
         reply = _handle_generate_docstrings(repo_full_name, pr_number, token, gemini_client)
         action = "generate_docstrings"
+    elif cmd in ("/fix", "fix", "/autofix", "autofix", "/auto-fix", "auto-fix"):
+        from pr_review_agent.autofix import run_autofix
+        result = run_autofix(repo_full_name, pr_number, token, commenter, gemini_client)
+        # run_autofix already comments with the details; keep this reply short.
+        reply = {
+            "ok": f"auto-fix PR opened: {result.get('pr_url')}",
+            "exists": f"an auto-fix PR already exists: {result.get('pr_url')}",
+        }.get(result.get("status"), f"auto-fix finished with status `{result.get('status')}`.")
+        action = "autofix"
     elif cmd == "dismiss":
         reply = _handle_dismiss(repo_full_name, args, commenter)
         action = "dismiss"

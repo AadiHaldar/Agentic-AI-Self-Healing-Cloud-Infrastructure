@@ -315,6 +315,32 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks) ->
 
     # ── pull_request_review_comment / issue_comment ───────────────────────────
     elif event_type in ("pull_request_review_comment", "issue_comment"):
+        # Ticking the "Auto-fix" checkbox in the bot's own review comment edits that comment.
+        if event_type == "issue_comment" and payload.get("action") == "edited":
+            from pr_review_agent.pipeline import AUTOFIX_CHECKBOX_OFF, AUTOFIX_CHECKBOX_ON
+            c = payload.get("comment", {})
+            old_body = (payload.get("changes", {}).get("body", {}) or {}).get("from", "")
+            ticked = (
+                c.get("user", {}).get("type") == "Bot"
+                and AUTOFIX_CHECKBOX_ON in c.get("body", "")
+                and AUTOFIX_CHECKBOX_OFF in old_body
+                and AUTOFIX_CHECKBOX_ON not in old_body
+                and payload.get("issue", {}).get("pull_request")
+            )
+            if not ticked:
+                return JSONResponse({"status": "ignored", "reason": "edited comment, not an auto-fix tick"})
+            repo = payload.get("repository", {}).get("full_name", "")
+            pr_number = payload.get("issue", {}).get("number")
+            who = payload.get("sender", {}).get("login", "someone")
+            token = _get_token_for_repo(repo)
+            if repo and pr_number and token:
+                from pr_review_agent.autofix import run_autofix
+                background_tasks.add_task(run_autofix, repo, pr_number, token, who)
+                _metrics.inc("autofix_enqueued")
+                logger.info("[webhook_handler] Auto-fix checkbox ticked by %s on %s#%s", who, repo, pr_number)
+                return JSONResponse({"status": "accepted", "action": "autofix_queued"})
+            return JSONResponse({"status": "ignored", "reason": "no token for repo"})
+
         comment_body = payload.get("comment", {}).get("body", "")
         if "@review-bot" not in comment_body.lower():
             return JSONResponse({"status": "ignored", "reason": "no @review-bot mention"})

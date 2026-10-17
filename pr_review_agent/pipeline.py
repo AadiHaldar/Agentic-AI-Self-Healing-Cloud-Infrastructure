@@ -797,6 +797,10 @@ def generate_mermaid_diagram(
 # 9. post_review_to_github
 # ─────────────────────────────────────────────────────────────────────────────
 
+AUTOFIX_CHECKBOX_OFF = "- [ ] 🔧"
+AUTOFIX_CHECKBOX_ON = "- [x] 🔧"
+
+
 def _build_review_body(
     summary: str,
     findings: List[Dict[str, Any]],
@@ -834,7 +838,7 @@ def _build_review_body(
 | 8 | **PR Summary Generation** | Risk assessment & semantic TL;DR generated | ✅ PASS |
 | 9 | **Mermaid Call Graph** | AST import dependency diagram generated | {mermaid_status} |
 | 10 | **Inline Code Suggestions** | Generated inline clickable ````suggestion```` blocks | ✅ PASS |
-| 11 | **Auto-Fix Branch Generator** | Automated branch remediation available | ✅ PASS |
+| 11 | **Auto-Fix PR Generator** | On demand: tick the box below or comment `@review-bot /fix` | 🔧 Available |
 | 12 | **Quality Gate Enforcement** | Evaluated security & quality policy | {gate_status} |
 """
     parts.append(matrix_table)
@@ -847,6 +851,12 @@ def _build_review_body(
             f"\n**Findings Summary:** {len(findings)} total "
             f"(`{critical_count} critical`, `{error_count} error`, `{warning_count} warning`)\n"
         )
+        if critical_count or error_count:
+            parts.append(
+                "\n---\n"
+                f"{AUTOFIX_CHECKBOX_OFF} **Auto-fix:** tick this box and I will repair the blocking issues, re-scan and test the repair, "
+                "then open a follow-up PR into this branch. (Or comment `@review-bot /fix`.)\n"
+            )
     else:
         parts.append("\n**Status:** No significant issues detected.\n")
 

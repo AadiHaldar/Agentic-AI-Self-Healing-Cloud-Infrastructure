@@ -215,6 +215,15 @@ The console and API will execute a gated plan only when a cluster is reachable (
 This is the real thing: a pull request opened on GitHub is delivered by webhook (through the smee.io relay) to your laptop, reviewed by
 the pipeline, and the results are posted back by the GitHub App `agentic-review-agent-73886`. It was rehearsed end to end on PR #13.
 
+**Before every run (including practice): reset the demo branch.** GitHub keeps checks per commit, so reusing a commit shows the previous run's red check immediately and the bot looks instant. Close any open demo PR first, then:
+
+```powershell
+python scripts
+eset_demo_branch.py
+```
+
+It force-pushes one fresh commit (adds `services/refund_service.py`) to `demo/live-review` and prints the link that opens the PR form.
+
 **Start (about 20 s):**
 
 ```powershell
@@ -237,6 +246,28 @@ It opens two terminal windows (leave both visible: **RELAY** and **AGENTHEAL SER
 
 Total time from *Create pull request* to the failing gate is **about 70 seconds** (measured). Fill the Gemini wait with step 4's explanation
 of the pipeline matrix, or have the PR page open on **Files changed** and refresh.
+
+**Part 2 - the auto-fix (about 3 more minutes):** once the review is posted, the bot's summary comment ends with a checkbox:
+`- [ ] 🔧 Auto-fix: tick this box and I will repair the blocking issues…`. Tick it (or comment `@review-bot /fix`).
+
+| Time after tick | What happens (it is all automatic) |
+|---|---|
+| ~1 s | The bot comments "Auto-fix started" on the PR |
+| ~30 s | Gemini repairs the file; the repair is re-scanned (Ruff, Bandit, detect-secrets, OWASP) and only accepted with **0 blocking findings** |
+| ~60-80 s | Gemini writes pytest tests for the repaired module and they are run; only passing tests are added |
+| ~85-95 s | A **new PR is opened into your PR's branch** with the repaired file and the tests; the original PR gets a comment linking it |
+| +~60 s | The bot reviews the fix PR by itself: **quality gate passes**, OWASP 100 % |
+
+Measured in rehearsal: PR #15 -> fix PR #16 in **92 s** (27 findings, 15 blocking -> 0 blocking; 18 generated tests passed); the bot's review of #16
+passed the gate (`success`, 0 critical, 0 error). Show the **Files changed** tab of the fix PR (e.g. `shell=True` -> `shlex.split`, `eval` -> `ast.literal_eval`,
+`yaml.load` -> `yaml.safe_load`, a path-containment check) and the new `tests/test_refund_service_autofix.py`.
+
+**Say honestly:** the fix and the tests are both written by an LLM, so a human must review the diff before merging (the PR says so). "Passes the
+tests" means the tests it generated for the repaired file pass, not your whole test suite. A few heuristic warnings may remain; they are listed in the PR
+under "Remaining non-blocking notes". The earlier "1-click auto-fix" on PRs #11/#12 was a staged script, not this feature.
+
+**Running it:** auto-fix executes the tests the model writes, which is code execution, so it is only enabled by `AUTOFIX_RUN_TESTS=1` (set by `scripts/live_demo.ps1`);
+without it the fix still works but no tests are generated. Do not enable it on a server that reviews untrusted pull requests.
 
 **Safety net (if the live run fails or is slow):** PR **#13** is the rehearsal of exactly this flow, with the full review, 23 inline
 comments and the failing check. Open it and say "this is the same run from earlier". Also PR #11/#12 for the fix-PR story (their comments
