@@ -835,7 +835,7 @@ def _build_review_body(
 | 5 | **Gemini 3.6 LLM Review** | Deep logic, race condition & architecture scan | ✅ PASS |
 | 6 | **Deduplication & Learnings** | Active suppression & rule dismissal filter applied | ✅ PASS |
 | 7 | **AST Test Gap Detection** | AST test coverage audit against `tests/` | {test_gap_status} |
-| 8 | **PR Summary Generation** | Risk assessment & semantic TL;DR generated | ✅ PASS |
+| 8 | **PR Summary + Description** | TL;DR in this comment; empty PR description auto-filled | ✅ PASS |
 | 9 | **Mermaid Call Graph** | AST import dependency diagram generated | {mermaid_status} |
 | 10 | **Inline Code Suggestions** | Generated inline clickable ````suggestion```` blocks | ✅ PASS |
 | 11 | **Auto-Fix PR Generator** | On demand: tick the box below or comment `@review-bot /fix` | 🔧 Available |
@@ -1296,11 +1296,19 @@ def run_full_pipeline(
     checked out into a temp dir so every analyser sees the real code under review.
     """
     own_checkout = None
+    describe_thread = None
     if repo_path is None:
         try:
-            changed = [f["filename"] for f in fetch_pr_diff(repo_full_name, pr_number, token)]
+            diff_for_desc = fetch_pr_diff(repo_full_name, pr_number, token)
+            changed = [f["filename"] for f in diff_for_desc]
         except Exception:
-            changed = []
+            diff_for_desc, changed = None, []
+        # Write the PR description in parallel with the review so it appears within seconds.
+        import threading
+        from pr_review_agent.describe import auto_describe
+        describe_thread = threading.Thread(
+            target=auto_describe, args=(repo_full_name, pr_number, token, diff_for_desc), daemon=True)
+        describe_thread.start()
         own_checkout = checkout_pr_head(repo_full_name, commit_sha, token, changed)
         if own_checkout is None:
             logger.warning("[pipeline] could not check out %s@%s; static analysis falls back to the server cwd",
@@ -1310,5 +1318,7 @@ def run_full_pipeline(
         return _run_full_pipeline_impl(repo_full_name, pr_number, commit_sha, token,
                                        repo_path=repo_path, gemini_client=gemini_client)
     finally:
+        if describe_thread:
+            describe_thread.join(timeout=60)
         if own_checkout:
             shutil.rmtree(own_checkout, ignore_errors=True)

@@ -357,6 +357,15 @@ def handle_comment(
             "exists": f"an auto-fix PR already exists: {result.get('pr_url')}",
         }.get(result.get("status"), f"auto-fix finished with status `{result.get('status')}`.")
         action = "autofix"
+    elif cmd in ("/describe", "describe", "/description", "description"):
+        from pr_review_agent.describe import auto_describe
+        res = auto_describe(repo_full_name, pr_number, token, None, gemini_client)
+        reply = {
+            "ok": "I wrote the PR description (see the top of this PR).",
+            "unchanged": "the description is already up to date.",
+            "skipped": "the description was written by a person, so I left it alone.",
+        }.get(res.get("status"), f"describe finished with status `{res.get('status')}`.")
+        action = "describe"
     elif cmd == "dismiss":
         reply = _handle_dismiss(repo_full_name, args, commenter)
         action = "dismiss"

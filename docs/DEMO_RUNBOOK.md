@@ -240,6 +240,7 @@ It opens two terminal windows (leave both visible: **RELAY** and **AGENTHEAL SER
 |---|---|---|
 | 1 | In the GitHub tab, click **Create pull request** (title e.g. "Add payment service"). The branch adds one deliberately vulnerable file. | "A developer opens a PR. Nothing else is triggered by me." |
 | 2 | Switch to the **AGENTHEAL SERVER** window. Within a second you see `Received event: pull_request`. | "GitHub just called our webhook; the signature was verified." |
+| 2b | On the PR page, refresh after ~10 s: the **PR description has been written by the bot** (summary, per-file changes, risk rating, how to test). It only fills an empty description, or one it wrote itself (first line is a hidden marker), and never overwrites a human-written one. | "I left the description empty; the bot wrote it." |
 | 3 | Watch the log: `Static analysis: N findings across 5 tools` → `LLM review: …` (the slow one, ~25 s) → `Test gap detection` → `Posted PR summary comment` → `Posted inline review with N comments` → `Check Run created: conclusion=failure`. | "Ruff, Bandit, detect-secrets, pip-audit, then Gemini, then the AST test-gap check." |
 | 4 | On the PR page: the **summary comment** (verification matrix, OWASP grade), then **Files changed** for the inline comments with severity, then the **Checks** tab: `review-agent/quality-gate` ✗. | "Merge is blocked by a real GitHub check, not a label." |
 | 5 | Add a comment: `@review-bot what is the most dangerous issue here and how do I fix it?` and wait ~30 s. | The bot answers using the actual diff, with a code fix. |
