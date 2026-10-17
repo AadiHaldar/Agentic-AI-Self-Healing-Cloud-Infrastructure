@@ -342,6 +342,10 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks) ->
             return JSONResponse({"status": "ignored", "reason": "no token for repo"})
 
         comment_body = payload.get("comment", {}).get("body", "")
+        # Never react to bots' own comments: the review summary itself mentions `@review-bot /fix`,
+        # which would otherwise make the bot answer its own comment.
+        if payload.get("comment", {}).get("user", {}).get("type") == "Bot" or                 str(payload.get("sender", {}).get("login", "")).endswith("[bot]"):
+            return JSONResponse({"status": "ignored", "reason": "comment by a bot"})
         if "@review-bot" not in comment_body.lower():
             return JSONResponse({"status": "ignored", "reason": "no @review-bot mention"})
         repo = payload.get("repository", {}).get("full_name", "")

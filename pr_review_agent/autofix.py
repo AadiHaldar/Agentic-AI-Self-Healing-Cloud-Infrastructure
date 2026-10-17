@@ -196,13 +196,14 @@ def generate_and_run_tests(client, rel_path: str, fixed: str, workdir: str) -> T
     mod = _module_name(rel_path)
     test_rel = f"tests/test_{os.path.basename(rel_path)[:-3]}_autofix.py"
     failure = ""
-    for attempt in (1, 2):
+    for attempt in (1, 2, 3):
         prompt = f"""Write a pytest test module for the Python module `{mod}` (file `{rel_path}`).
 
 Requirements:
 - Import with `from {mod} import ...`.
 - Deterministic, fast, no network, no real subprocess calls, no writes outside pytest's `tmp_path`.
   Use `tmp_path`, `monkeypatch` and `unittest.mock`; use sqlite only with a database under `tmp_path`.
+- Assert only behaviour that is visible in the module code; do not guess exception types or messages.
 - Cover each public function: a normal case and an unsafe-input case that the fix should reject or neutralise
   (for example SQL injection text, path traversal, shell metacharacters).
 - Return ONLY the test file content, no explanations, no markdown fences.
@@ -234,7 +235,7 @@ Module under test:
             summary = (re.findall(r"\d+ passed[^\n]*", out) or ["passed"])[-1]
             return tests, f"generated tests pass ({summary.strip()})"
         failure = out
-    return None, "generated tests did not pass after 2 attempts, so they were not added"
+    return None, "generated tests did not pass after 3 attempts, so they were not added"
 
 
 # ── GitHub plumbing ──────────────────────────────────────────────────────────
