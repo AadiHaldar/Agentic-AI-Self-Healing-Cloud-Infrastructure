@@ -15,7 +15,7 @@ The laptop path stays the live one until you switch the GitHub App's webhook (se
 |---|---|---|
 | App code (current `main`) | `/opt/agentic-ai`, built from the clone in `/opt/agentic-src` | updated by `agentheal-deploy` |
 | Service | `systemd` unit `agentic-ai` (`infrastructure/vm1/agentic-ai.service`) | runs as the **unprivileged user `agentheal`** (no shell, no sudo); `NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=full`, `ProtectHome`; listens on **127.0.0.1:8000 only** |
-| Public front door | nginx on port 80 (`infrastructure/vm1/nginx-agentic-ai-webhook.conf`) | forwards only `/webhooks/github`, `/install`, `/api/github/app-callback`; everything else returns `403`, so the unauthenticated control API and the console are **not** exposed to the internet |
+| Public front door | nginx on port 80 (`infrastructure/vm1/nginx-agentic-ai-webhook.conf`) | **no login.** Public: the signed `/webhooks/github`, the console (`/`, `/assets/`), read-only data (`GET /api/meta|status|topology|repos|pr-reviews|service-health`), and three demo calls (`POST /api/evaluate|owasp/scan|topology/reset`, rate limited to 20/min per IP). Everything else returns `403`: `/api/override`, `/api/learnings/dismiss`, `/api/seed-demo`, `/api/github/create-pr`, `/api/github/webhook`, `/api/security/send-alert-email`, `/install`, `/api/github/app-callback`, `/docs` |
 | Firewall (NSG `VM1-nsg`) | inbound 22 (SSH) and 80 (HTTP) from anywhere | set by the VM owner |
 | GitHub App credentials | `/opt/agentic-ai/.env.app` (owner `agentheal`, mode 600) | App ID, slug, webhook secret, private key |
 | Gemini key | `/etc/agentic-ai.env` (owner root, mode 600) | read by systemd, not by the app user directly |
@@ -24,7 +24,12 @@ The laptop path stays the live one until you switch the GitHub App's webhook (se
 | Flags | `SEED_DEMO_DATA=0`, `AUTOFIX_RUN_TESTS=1` | auto-fix runs the tests it generates, as the unprivileged user |
 
 Not present on purpose / not done: no TLS (no domain; GitHub accepts an HTTP webhook URL, the payload is signed with HMAC-SHA256),
-no Kubernetes or `kubectl` (so actions are plan-only dry runs), no authentication on the control API (it is only reachable from the VM itself).
+no Kubernetes or `kubectl` (so actions are plan-only dry runs), no login on the console. Instead of authentication, nginx whitelists the endpoints the console needs and closes every mutating one.
+
+Public console: **http://20.244.17.209/**. Things to know when showing it:
+- The PR Review page lists live pull requests from GitHub; the Overview page shows review history imported from the laptop database.
+- Self-Healing runs from visitors share one digital-twin state (use "Reset twin") and each costs a Gemini call; the rate limit keeps this bounded.
+- `/install` and `/api/github/app-callback` are closed on purpose: whoever reached them could register or overwrite the GitHub App credentials. To re-register the App, use the SSH tunnel.
 
 ## Everyday commands (on VM1)
 
@@ -36,7 +41,7 @@ curl -s http://127.0.0.1:8000/api/meta             # what is configured (Gemini,
 sudo /usr/bin/python3 /usr/local/bin/agentheal-backup   # manual DB backup
 ```
 
-From the laptop, open the console through a tunnel (the API is not public):
+The console is public at `http://20.244.17.209/`. For the closed routes (override, seed, App registration) open a tunnel from the laptop:
 
 ```powershell
 ssh -i collaborator_key -N -L 8001:127.0.0.1:8000 collaborator@20.244.17.209
