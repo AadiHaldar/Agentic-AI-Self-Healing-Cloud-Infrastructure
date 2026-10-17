@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Deploy the latest main to /opt/agentic-ai and restart the service.   usage: agentheal-deploy
+set -euo pipefail
+export PATH=/opt/node/bin:$PATH
+SRC=/opt/agentic-src; APP=/opt/agentic-ai
+git -C $SRC fetch -q origin main && git -C $SRC reset -q --hard origin/main
+echo "deploying: $(git -C $SRC log --oneline -1)"
+( cd $SRC/dashboard/frontend-vite && npm ci >/dev/null 2>&1 && npm run build 2>&1 | grep -E "error|built in" || true )
+$APP/venv/bin/pip install -q -r $SRC/requirements.txt 2>&1 | tail -2 || true
+rsync -a --delete-after --exclude .git --exclude node_modules --exclude data --exclude backups --exclude venv --exclude __pycache__ \
+      --exclude .env.app --exclude '*.pptx' --exclude '*.pdf' --exclude '*.zip' --exclude '*.ipynb' --exclude '*.png' --exclude '*.jpg' \
+      --exclude research_papers --exclude docs/ $SRC/ $APP/
+sudo systemctl restart agentic-ai
+for i in $(seq 1 40); do curl -sf -m 3 http://127.0.0.1:8000/api/meta >/dev/null && break; sleep 2; done
+curl -s -m 5 http://127.0.0.1:8000/api/meta; echo

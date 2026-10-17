@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+import glob, os, sqlite3, time
+src = "/opt/agentic-ai/data/pr_review_agent.db"
+if os.path.exists(src):
+    dst = f"/opt/agentic-ai/backups/pr_review_agent-{time.strftime('%Y%m%d-%H%M')}.db"
+    a, b = sqlite3.connect(src), sqlite3.connect(dst)
+    a.backup(b); b.close(); a.close()
+for old in sorted(glob.glob("/opt/agentic-ai/backups/pr_review_agent-*.db"))[:-7]:
+    os.remove(old)

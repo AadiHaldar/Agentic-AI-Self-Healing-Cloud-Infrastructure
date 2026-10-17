@@ -1,0 +1,29 @@
+[Unit]
+Description=AgentHeal - PR review agent and self-healing console
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=agentheal
+Group=agentheal
+WorkingDirectory=/opt/agentic-ai
+Environment=PYTHONPATH=/opt/agentic-ai
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PR_REVIEW_AGENT_DB=/opt/agentic-ai/data/pr_review_agent.db
+Environment=SEED_DEMO_DATA=0
+Environment=AUTOFIX_RUN_TESTS=1
+# Secrets: GEMINI_API_KEY in this root-only file; GitHub App credentials in /opt/agentic-ai/.env.app (agentheal, 600)
+EnvironmentFile=-/etc/agentic-ai.env
+# Localhost only: nginx on :80 exposes just the signed webhook and the App-install endpoints
+ExecStart=/opt/agentic-ai/venv/bin/python -m uvicorn dashboard.backend.main:app --host 127.0.0.1 --port 8000 --log-level info --no-access-log
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/agentic-ai/data /opt/agentic-ai/.env.app
+
+[Install]
+WantedBy=multi-user.target
