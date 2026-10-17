@@ -291,3 +291,23 @@ review of a PR includes a ~27 s Gemini call, and each posting step to GitHub tak
 
 **After the demo:** close the demo PR in GitHub (do not merge it); stop the two terminal windows.
 
+---
+
+## 9. Terminal demo for the shift-right (self-healing) part
+
+An interactive terminal version of the Self-Healing page: pick a fault, and the real pipeline runs and is revealed stage by stage
+(detect → explain → decide → gate → act) with the twin's CPU/memory bars. Every value comes from the live API response; nothing is scripted.
+
+```powershell
+cd "C:\Users\aadih\Desktop\desktop\work\College\Semester 5\Cloud Computing\Project"; python scripts\demo_healing_terminal.py --step
+```
+
+It uses the server on :8000 if it is running, otherwise runs the pipeline in-process (about 15 s to load). Keys at the prompt:
+`1-4` the four faults, `5` healthy control, `6` false alarm (detector flag forced on healthy data), `a` run all, `c` custom values, `r` reset the twin,
+`h` history, `s` step mode (wait for Enter before each stage; best when presenting), `n` presenter "SAY" lines on/off, `x` execute on a cluster (only when one is reachable; asks for YES), `q` quit.
+
+**Suggested order (about 5 minutes):** `5` healthy control (nothing fires) → `1` surge (RL and Gemini agree, gate SAFE) → `2` **deadlock** (they disagree; the gate says
+Ineffective and suggests restart) → `6` false alarm (gate has nothing to approve) → `h` to show the table.
+
+Use `--fast` to skip the reveal delays and `--no-narration` to hide the SAY lines. A window 110 columns wide or more looks best.
+
