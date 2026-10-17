@@ -82,6 +82,10 @@ export interface SimulationResult {
   predicted_max_cpu: number | null;
   predicted_cpu?: Record<string, number>;
   blast_radius?: string[];
+  reason?: string;
+  improvement?: number;
+  fault_kind?: string | null;
+  fault_improvement?: number | null;
 }
 
 export interface EvaluateResponse {
@@ -91,6 +95,7 @@ export interface EvaluateResponse {
       rationale: string;
       cosine_similarity: number;
       latency_seconds: number;
+      policy?: string;
     };
     llm_react: {
       agent_type: string;
@@ -102,6 +107,7 @@ export interface EvaluateResponse {
       action_taken: string;
       executed: boolean;
       simulation: SimulationResult;
+      gate_alternative?: { action: string | null; reason?: string } | null;
       execution_result: { status: string; message?: string };
       latency_seconds: number;
     };

@@ -47,7 +47,9 @@ class ParallelAgentOrchestrator:
         # 1. Evaluate RL SimiFed Agent
         if self.mode in ["parallel", "rl_only"]:
             t0 = time.time()
-            rl_decision = self.rl_agent.decide_remediation(service, cpu_usage, mem_usage, is_anomaly)
+            rl_decision = self.rl_agent.decide_remediation(
+                service, cpu_usage, mem_usage, is_anomaly,
+                alert_context.get("latency_ms"), alert_context.get("request_rate"))
             rl_duration = time.time() - t0
             rl_decision["latency_seconds"] = round(rl_duration, 4)
             results["agents"]["rl_simifed"] = rl_decision

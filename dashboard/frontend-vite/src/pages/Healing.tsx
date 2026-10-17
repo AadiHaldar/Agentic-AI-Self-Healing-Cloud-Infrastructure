@@ -24,6 +24,17 @@ const SCENARIOS: Scenario[] = [
   { id: 'healthy', name: 'Healthy control', blurb: 'Normal traffic. Nothing should fire.', service: 'frontend', cpu: 0.25, mem: 0.40, lat: 45, rate: 120 },
 ];
 
+// What the digital-twin gate can say, and how to show it.
+const VERDICT: Record<string, { label: string; tone?: 'ok' | 'bad' | 'warn'; pill: 'ok' | 'bad' | 'warn' | 'mute' }> = {
+  SAFE_TO_EXECUTE: { label: 'SAFE', tone: 'ok', pill: 'ok' },
+  NOT_NEEDED: { label: 'Not needed', tone: 'warn', pill: 'warn' },
+  INEFFECTIVE: { label: 'Ineffective', tone: 'bad', pill: 'bad' },
+  RISK_OF_OVERLOAD: { label: 'Risk', tone: 'bad', pill: 'bad' },
+  TARGET_NOT_IN_TWIN: { label: 'Unknown service', tone: 'bad', pill: 'bad' },
+  'N/A': { label: 'Skipped', pill: 'mute' },
+};
+const verdictOf = (rec?: string) => VERDICT[rec ?? 'N/A'] ?? { label: rec ?? '—', pill: 'mute' as const };
+
 const SERVICES = ['frontend', 'checkoutservice', 'cartservice', 'redis-cart'];
 
 interface HistoryRow {
@@ -132,7 +143,6 @@ export function Healing({ scenario }: { scenario?: string }) {
   const sim = llm?.simulation;
   const det = result?.detection;
   const t = result?.timings;
-  const gateTone = !sim ? undefined : sim.is_safe ? 'ok' : 'bad';
   const total = t ? t.detect_ms + t.shap_ms + t.rl_ms + t.llm_ms : 0;
   const show = !!result && !running;
 
@@ -246,7 +256,7 @@ export function Healing({ scenario }: { scenario?: string }) {
                 </>;
               })()}
             </Stage>
-            <Stage idx={2} show={show} icon={<Brain size={14} color="var(--right)" />} title="Decide" ms={t ? t.rl_ms + t.llm_ms : undefined}
+            <Stage idx={2} show={show} icon={<Brain size={14} color="var(--right)" />} title="Decide (RL ‖ LLM)" ms={t ? t.rl_ms + t.llm_ms : undefined}
               tone={result?.comparison.actions_match ? 'ok' : 'warn'}>
               <div className="small"><span className="mute">RL </span><strong className="mono">{rl?.action}</strong> <span className="mute tiny">{t && ms(t.rl_ms)}</span></div>
               <div className="small"><span className="mute">LLM </span><strong className="mono">{llm?.proposed_action}</strong> <span className="mute tiny">{t && ms(t.llm_ms)}</span></div>
@@ -255,18 +265,30 @@ export function Healing({ scenario }: { scenario?: string }) {
                 <Pill tone={llm?.source.startsWith('gemini') ? 'info' : 'warn'}>{llm?.source.startsWith('gemini') ? 'live Gemini' : llm?.source === 'skipped' ? 'LLM skipped' : 'fallback'}</Pill>
               </div>
             </Stage>
-            <Stage idx={3} show={show} icon={<ShieldCheck size={14} color="var(--right)" />} title="Gate (SimPy)" tone={gateTone}>
-              <div className="big" style={{ color: sim?.is_safe ? 'var(--ok)' : 'var(--bad)' }}>{sim?.recommendation === 'N/A' ? 'Skipped' : sim?.is_safe ? 'SAFE' : 'RISK'}</div>
-              <div className="tiny mute" style={{ marginTop: 4 }}>
-                {sim?.predicted_max_cpu != null ? `predicted max CPU ${pct(sim.predicted_max_cpu)} across ${sim.blast_radius?.length ?? 1} service(s)` : 'no action to simulate'}
+            <Stage idx={3} show={show} icon={<ShieldCheck size={14} color="var(--right)" />} title="Gate (twin)" tone={verdictOf(sim?.recommendation).tone}>
+              <div className="big" style={{ color: sim?.is_safe ? 'var(--ok)' : sim?.recommendation === 'N/A' ? undefined : 'var(--bad)' }}>
+                {verdictOf(sim?.recommendation).label}
               </div>
+              <div className="tiny mute" style={{ marginTop: 4 }}>
+                {sim?.recommendation === 'N/A' ? 'no action to check' : sim?.reason ?? ''}
+              </div>
+              {llm?.gate_alternative?.action && (
+                <div className="tiny" style={{ marginTop: 6, color: 'var(--right)', fontWeight: 700 }}>
+                  Gate suggests <span className="mono">{llm.gate_alternative.action}</span> instead
+                </div>
+              )}
             </Stage>
             <Stage idx={4} show={show} icon={<Wrench size={14} color="var(--right)" />} title="Act"
               tone={result?.actuation?.status === 'blocked' ? 'bad' : undefined}>
-              <div className="big" style={{ fontSize: 14 }}>{result?.executed ? 'Execute requested' : 'Plan only'}</div>
+              <div className="big" style={{ fontSize: 14 }}>{sim && !sim.is_safe && sim.recommendation !== 'N/A' ? 'Blocked by gate' : result?.executed ? 'Execute requested' : 'Plan only'}</div>
               <div className="tiny mute" style={{ marginTop: 4 }}>{actText}</div>
             </Stage>
           </div>
+          <p className="tiny mute" style={{ marginTop: 12 }}>
+            <strong>How to read this.</strong> The RL agent is a Q-table trained offline inside a fault simulator (not on a real cluster), so treat it as a
+            baseline policy. The gate is a digital-twin sanity check: it blocks actions for services the twin predicts will stay healthy, actions that
+            would not relieve the predicted fault, and actions that would overload neighbours. Its effects are modelled assumptions, not measurements.
+          </p>
           {det && det.assumed_features.length > 0 && (
             <div style={{ marginTop: 12 }}><Notice>Not provided, so healthy-baseline values were assumed for: <code>{det.assumed_features.join(', ')}</code>.</Notice></div>
           )}
@@ -322,7 +344,7 @@ export function Healing({ scenario }: { scenario?: string }) {
                       <td style={{ padding: '9px 14px' }}><Pill tone={h.flagged ? 'bad' : 'ok'}>{h.flagged ? 'yes' : 'no'}</Pill></td>
                       <td className="mono" style={{ padding: '9px 14px' }}>{h.rl}</td>
                       <td className="mono" style={{ padding: '9px 14px' }}>{h.llm}</td>
-                      <td style={{ padding: '9px 14px' }}><Pill tone={h.gate === 'SAFE_TO_EXECUTE' ? 'ok' : h.gate === 'N/A' ? 'mute' : 'bad'}>{h.gate === 'N/A' ? 'skipped' : h.gate === 'SAFE_TO_EXECUTE' ? 'safe' : 'risk'}</Pill></td>
+                      <td style={{ padding: '9px 14px' }}><Pill tone={verdictOf(h.gate).pill}>{verdictOf(h.gate).label}</Pill></td>
                       <td className="mono" style={{ padding: '9px 14px' }}>{ms(h.ms)}</td>
                     </tr>
                   ))}

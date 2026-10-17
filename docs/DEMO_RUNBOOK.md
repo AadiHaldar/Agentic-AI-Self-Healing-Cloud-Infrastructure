@@ -96,6 +96,11 @@ that closes both loops."
    different explanation — that's why we explain instead of just alerting."
 6. Show **Run history** (each run with RL/LLM/gate/compute time) and, briefly, **Operator override** (confirmation dialog, dry run).
 
+**Shift-right demo moments worth pausing on (see `docs/SHIFT_RIGHT_NOTES.md`):**
+- **Thread deadlock:** RL says `RESTART_POD`, Gemini usually says `SCALE_UP`. The gate shows **Ineffective** with the reason and "Gate suggests RESTART_POD instead". This is the clearest proof the gate does real work.
+- **Healthy control:** nothing fires. If you want a false alarm, use the API with `is_anomaly: true` on healthy telemetry: the RL does nothing and the gate says **Not needed**.
+- Say plainly that the RL policy is trained offline on a simulator and the gate's effects are modelled assumptions.
+
 ### 13:00 — System and deployment (1 min) · `#/system`
 - Real facts from `/api/meta`: model trained, Gemini connected, kubectl live or dry-run, webhook router mounted.
 - Webhook pipeline: HMAC-SHA256 constant-time verification, delivery-ID de-duplication, per-installation rate limit.
@@ -129,9 +134,9 @@ it was falling back to fixed values and are re-running it — the live console s
 |---|---|
 | Is the LLM actually deciding? | When *live Gemini* shows, yes: it receives the SHAP summary and twin verdict and returns JSON. Until today the model names in the code were retired, so it silently used a canned plan; that is fixed and the console now labels the source. |
 | What stops the AI from doing something dangerous? | Plan-only by default; execution needs an explicit flag, is gated by the twin, validated names (`shell=False`, RFC-1123 regex), replica bounds 0–100, and an operator override needs confirmation. |
-| Is the twin a real simulator? | It is a discrete-event SimPy model with fixed action effects (restart ×0.25, scale ×0.4, patch ×0.65) and dependency stress. It is a safety heuristic, not a calibrated queueing model; the paper's M/M/c wording overstates it. |
+| Is the twin a real simulator? | It is a sanity check: a SimPy topology model plus a fault-dynamics model with assumed effects. It blocks actions on services predicted to stay healthy (false alarms), actions that would not relieve the predicted fault, and actions that would overload neighbours, and it can suggest an alternative. It is not a calibrated queueing model, and the paper's M/M/c wording overstates it. |
 | How was it evaluated? | Four synthetic fault patterns on synthetic telemetry; no production traffic and no measured baseline. The paper's table is being re-generated. |
-| Why do RL and LLM disagree? | In the recorded run they agreed on **0 of 4** faults. The RL policy always proposes `RESTART_POD` for an anomaly: its Q-table starts from a hand-set prior and is not trained offline, and it is epsilon-greedy. The LLM varies by fault (scale-up for CPU saturation, patch limits for the memory leak). Disagreement is surfaced, not hidden; a trained policy and arbitration are future work. Do not call the RL agent "learned". |
+| Why do RL and LLM disagree? | Different information and assumptions; disagreement is shown, not hidden. The RL policy is a Q-table trained offline on a simulator (scale for surges, restart for deadlocks and leaks, nothing on false alarms). Live, they agreed on the surge and the cascade; on the deadlock Gemini said scale up and the **gate marked that INEFFECTIVE and suggested restart**. Do not call the RL "learned from real clusters". See `docs/SHIFT_RIGHT_NOTES.md`. |
 | False-positive rate? | Contamination is 5 %, so roughly 5–6 % of healthy samples are flagged (measured 5.0 % / 6.6 %). |
 | Does the PR bot really block merges? | Through a GitHub Check Run named `review-agent/quality-gate` — see real examples on PRs #10 (passed) and #5/#3 (blocked). The OWASP score alone does not yet block; that is a known gap. |
 | Where is it deployed? | VM1 (Ubuntu 24.04, systemd) and an AKS cluster with Online Boutique. kubectl actions on VM1 are dry runs. |

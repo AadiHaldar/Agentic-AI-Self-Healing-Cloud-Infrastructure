@@ -125,6 +125,8 @@ class LLMReActAgent:
         shap_explanation = alert_context.get("shap_explanation", "")
         cpu_usage = alert_context.get("cpu_usage", 0.0)
         mem_usage = alert_context.get("mem_usage", 0.0)
+        sim_params = {"cpu": cpu_usage, "memory": mem_usage,
+                      "latency_ms": alert_context.get("latency_ms"), "request_rate": alert_context.get("request_rate")}
         
         logger.info(f"[LLM Agent] Starting ReAct evaluation for service '{service}'...")
         
@@ -133,10 +135,11 @@ class LLMReActAgent:
         sim_result = self.sim_tools.simulate_remediation(
             action_type=pre_action,
             target=service,
-            params={"cpu": cpu_usage, "memory": mem_usage}
+            params=sim_params
         )
         
         is_safe = sim_result.get("is_safe", True)
+        forecast = sim_result.get("baseline", {})
         
         # Step 2: Formulate prompt for Gemini LLM
         prompt = f"""
@@ -144,7 +147,7 @@ Service Name: {service}
 CPU Usage: {cpu_usage * 100:.1f}%
 Memory Usage: {mem_usage * 100:.1f}%
 SHAP Explainability String: {shap_explanation}
-SimPy Digital Twin Simulation Safety: {'SAFE' if is_safe else 'UNSAFE'}
+Digital twin forecast WITHOUT intervention: peak CPU {forecast.get('peak_cpu', 0) * 100:.0f}%, peak memory {forecast.get('peak_memory', 0) * 100:.0f}% over the next 10 steps
 Predictive Forecaster Trend: High exhaustion risk within 10 minutes.
         """
         
@@ -158,10 +161,15 @@ Predictive Forecaster Trend: High exhaustion risk within 10 minutes.
             sim_result = self.sim_tools.simulate_remediation(
                 action_type=chosen_sim_action,
                 target=service,
-                params={"cpu": cpu_usage, "memory": mem_usage}
+                params=sim_params
             )
             is_safe = sim_result.get("is_safe", True)
         
+        # If the gate rejects the chosen action as ineffective/risky, ask it what it WOULD approve instead.
+        gate_alternative = None
+        if chosen_sim_action and not is_safe and sim_result.get("recommendation") in ("INEFFECTIVE", "RISK_OF_OVERLOAD"):
+            gate_alternative = self.sim_tools.suggest_alternative(service, sim_params, exclude=chosen_sim_action)
+
         # Step 4: Execute K8s Action if simulation is safe
         if not execute:
             exec_res = {"status": "not_executed", "message": f"Plan only (execute=false). Proposed: {action_type}"}
@@ -195,6 +203,7 @@ Predictive Forecaster Trend: High exhaustion risk within 10 minutes.
             "thought": llm_output.get("thought"),
             "root_cause": llm_output.get("root_cause"),
             "simulation": sim_result,
+            "gate_alternative": gate_alternative,
             "action_taken": action_type,
             "execution_result": exec_res,
             "explanation": llm_output.get("explanation")

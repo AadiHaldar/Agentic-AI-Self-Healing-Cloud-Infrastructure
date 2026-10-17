@@ -204,7 +204,8 @@ def main() -> int:
         det, llm, rl, t = r["detection"], r["agents"]["llm_react"], r["agents"]["rl_simifed"], r["timings"]
         top = max(r["shap_scores"], key=lambda k: abs(r["shap_scores"][k]))
         sim = llm["simulation"]
-        gate = "skipped" if sim["recommendation"] == "N/A" else ("SAFE" if sim["is_safe"] else "RISK")
+        gate = {"N/A": "skipped", "SAFE_TO_EXECUTE": "SAFE", "NOT_NEEDED": "NOT_NEEDED", "INEFFECTIVE": "INEFFECTIVE",
+                "RISK_OF_OVERLOAD": "RISK"}.get(sim["recommendation"], sim["recommendation"])
         rows.append((name, svc, det["model_flagged"], top if det["model_flagged"] else "-", rl["action"], llm["proposed_action"], llm["source"].split(":")[0], gate,
                      t["detect_ms"], t["shap_ms"], t["rl_ms"], t["llm_ms"]))
         check(f"{name}: anomaly {'flagged' if should_flag else 'NOT flagged'}", det["model_flagged"] == should_flag,
@@ -214,10 +215,10 @@ def main() -> int:
         api.call("POST", "/api/topology/reset", {})
 
     print()
-    hdr = f"   {'fault':<19}{'flag':<6}{'top SHAP':<14}{'RL':<13}{'LLM':<13}{'LLM src':<9}{'gate':<8}{'detect':>8}{'shap':>8}{'rl':>7}{'llm':>9}"
+    hdr = f"   {'fault':<19}{'flag':<6}{'top SHAP':<14}{'RL':<13}{'LLM':<13}{'LLM src':<9}{'gate':<13}{'detect':>8}{'shap':>8}{'rl':>7}{'llm':>9}"
     print(BOLD(hdr))
     for (name, svc, flag, top, rlx, llmx, src, gate, d_, s_, r_, l_) in rows:
-        print(f"   {name:<19}{str(flag):<6}{top:<14}{rlx:<13}{llmx:<13}{src:<9}{gate:<8}{d_:>6.1f}ms{s_:>6.1f}ms{r_:>5.1f}ms{l_ / 1000:>7.2f}s")
+        print(f"   {name:<19}{str(flag):<6}{top:<14}{rlx:<13}{llmx:<13}{src:<9}{gate:<13}{d_:>6.1f}ms{s_:>6.1f}ms{r_:>5.1f}ms{l_ / 1000:>7.2f}s")
     if rows:
         live = all(r[6] == "gemini" for r in rows if r[2])
         if live:
@@ -227,6 +228,17 @@ def main() -> int:
         else:
             print(DIM("   LLM source is the canned fallback (no Gemini key / call failed on this server), so RL-vs-LLM agreement is not meaningful here."))
     check("healthy control raised no action", any(r[0] == "Healthy control" and not r[2] and r[5] == "DO_NOTHING" for r in rows))
+
+    # A false alarm: the detector flagged it (forced here) but the telemetry looks healthy. Nothing should be executed.
+    code, fa = api.call("POST", "/api/evaluate", {"target_service": "frontend", "cpu_usage": 0.25, "mem_usage": 0.40,
+                                                  "latency_ms": 45.0, "request_rate": 120.0, "is_anomaly": True})
+    if code == 200:
+        fl = fa["agents"]["llm_react"]
+        print(f"   false alarm (forced flag): RL {fa['agents']['rl_simifed']['action']} | LLM {fl['proposed_action']} | gate {fl['simulation']['recommendation']}")
+        check("false alarm is not acted on (RL does nothing, and the gate blocks or the LLM does nothing)",
+              fa["agents"]["rl_simifed"]["action"] == "DO_NOTHING"
+              and (fl["proposed_action"] == "DO_NOTHING" or not fl["simulation"]["is_safe"]))
+    api.call("POST", "/api/topology/reset", {})
 
     # ── 4. Acting ──────────────────────────────────────────────────────────
     step(4, "Acting on the plan", "Nothing touches the cluster unless the twin says SAFE and a cluster is reachable.")

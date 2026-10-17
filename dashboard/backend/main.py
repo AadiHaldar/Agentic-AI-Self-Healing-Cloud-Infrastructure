@@ -277,6 +277,8 @@ def evaluate_alert(request: AlertRequest):
         "target_service": request.target_service,
         "cpu_usage": request.cpu_usage,
         "mem_usage": request.mem_usage,
+        "latency_ms": latency,
+        "request_rate": rate,
         "is_anomaly": is_anomaly,
         "shap_explanation": formatted_shap_str,
         "shap_dict": shap_dict
@@ -323,7 +325,7 @@ def evaluate_alert(request: AlertRequest):
         elif action_to_take == "PATCH_LIMITS":
             actuation = orchestrator.k8s_tools.patch_resource_limits(request.target_service, cpu_limit="500m", memory_limit="512Mi")
     elif request.execute and not gate_safe:
-        actuation = {"status": "blocked", "message": "Digital-twin gate rejected the action; nothing executed."}
+        actuation = {"status": "blocked", "message": "Digital-twin gate rejected the action (" + str(llm.get("simulation", {}).get("recommendation")) + "); nothing executed."}
     result["actuation"] = actuation
     result["executed"] = bool(request.execute)
     return result
